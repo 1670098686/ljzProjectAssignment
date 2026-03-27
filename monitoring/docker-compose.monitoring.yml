@@ -1,0 +1,248 @@
+# Docker Compose配置文件
+# 个人收支记账APP监控堆栈
+
+version: '3.8'
+
+services:
+  # Prometheus - 指标收集和存储
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: finance-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    networks:
+      - monitoring
+    depends_on:
+      - alertmanager
+
+  # Grafana - 监控仪表板
+  grafana:
+    image: grafana/grafana:latest
+    container_name: finance-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_DOMAIN=localhost
+      - GF_SMTP_ENABLED=true
+      - GF_SMTP_HOST=smtp.gmail.com:587
+      - GF_SMTP_USER=monitoring@finance-app.com
+      - GF_SMTP_PASSWORD=your-app-password
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+
+  # Alertmanager - 告警管理
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: finance-alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+    volumes:
+      - ./alertmanager:/etc/alertmanager
+      - alertmanager_data:/alertmanager
+    networks:
+      - monitoring
+
+  # Node Exporter - 系统指标导出器
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: finance-node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - monitoring
+
+  # Redis Exporter - Redis指标导出器
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: finance-redis-exporter
+    restart: unless-stopped
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+      - REDIS_PASSWORD=redis_password
+    networks:
+      - monitoring
+    depends_on:
+      - redis
+
+  # MySQL Exporter - MySQL指标导出器
+  mysql-exporter:
+    image: prom/mysqld-exporter:latest
+    container_name: finance-mysql-exporter
+    restart: unless-stopped
+    ports:
+      - "9104:9104"
+    environment:
+      - DATA_SOURCE_NAME=user:password@(mysql:3306)/database
+    networks:
+      - monitoring
+    depends_on:
+      - mysql
+
+  # Jaeger - 链路追踪 (可选)
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: finance-jaeger
+    restart: unless-stopped
+    ports:
+      - "16686:16686"  # Jaeger UI
+      - "14268:14268"  # HTTP接收器
+      - "6831:6831/udp"  # UDP接收器
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - SPAN_STORAGE_TYPE=memory
+    networks:
+      - monitoring
+
+  # Loki - 日志聚合 (可选)
+  loki:
+    image: grafana/loki:latest
+    container_name: finance-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - monitoring
+
+  # Promtail - 日志收集器 (可选)
+  promtail:
+    image: grafana/promtail:latest
+    container_name: finance-promtail
+    restart: unless-stopped
+    volumes:
+      - /var/log:/var/log:ro
+      - ./promtail:/etc/promtail
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - monitoring
+    depends_on:
+      - loki
+
+  # Redis - 缓存服务 (用于演示)
+  redis:
+    image: redis:alpine
+    container_name: finance-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass redis_password
+    volumes:
+      - redis_data:/data
+    networks:
+      - monitoring
+
+  # MySQL - 数据库服务 (用于演示)
+  mysql:
+    image: mysql:8.0
+    container_name: finance-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=finance_app
+      - MYSQL_USER=finance_user
+      - MYSQL_PASSWORD=finance_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - monitoring
+
+  # 后端应用 (用于演示)
+  backend:
+    image: openjdk:17-jdk-alpine
+    container_name: finance-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    command: >
+      sh -c "
+        sleep 30 && 
+        wget -O backend.jar http://localhost:8080/backend-0.0.1-SNAPSHOT.jar &&
+        java -jar backend.jar
+      "
+    volumes:
+      - ./backend/target/backend-0.0.1-SNAPSHOT.jar:/backend.jar
+    networks:
+      - monitoring
+    depends_on:
+      - mysql
+      - redis
+      - prometheus
+
+  # Webhook服务器 (用于告警处理)
+  webhook-server:
+    image: python:3.9-alpine
+    container_name: finance-webhook-server
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    working_dir: /app
+    volumes:
+      - ./webhook-server:/app
+    command: >
+      sh -c "
+        pip install flask requests &&
+        python app.py
+      "
+    networks:
+      - monitoring
+    depends_on:
+      - alertmanager
+
+volumes:
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  alertmanager_data:
+    driver: local
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  monitoring:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

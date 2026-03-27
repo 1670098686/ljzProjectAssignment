@@ -1,0 +1,169 @@
+# Prometheus告警规则
+# 个人收支记账APP业务监控
+
+groups:
+  # 系统级告警
+  - name: system_alerts
+    rules:
+      # CPU使用率过高
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "CPU使用率过高"
+          description: "{{ $labels.instance }} CPU使用率超过80%，当前值: {{ $value }}%"
+
+      # 内存使用率过高
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "内存使用率过高"
+          description: "{{ $labels.instance }} 内存使用率超过85%，当前值: {{ $value }}%"
+
+      # 磁盘使用率过高
+      - alert: HighDiskUsage
+        expr: (1 - (node_filesystem_free_bytes / node_filesystem_size_bytes)) * 100 > 90
+        for: 5m
+        labels:
+          severity: critical
+          service: system
+        annotations:
+          summary: "磁盘使用率过高"
+          description: "{{ $labels.instance }} 磁盘使用率超过90%，当前值: {{ $value }}%"
+
+      # 应用响应时间过长
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{uri!~"/health|/actuator.*"}[5m])) > 2
+        for: 2m
+        labels:
+          severity: warning
+          service: application
+        annotations:
+          summary: "应用响应时间过长"
+          description: "95%请求响应时间超过2秒，当前值: {{ $value }}秒"
+
+  # 应用级告警
+  - name: application_alerts
+    rules:
+      # 应用不可用
+      - alert: ApplicationDown
+        expr: up{job="finance-app-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: application
+        annotations:
+          summary: "应用服务不可用"
+          description: "后端应用服务 {{ $labels.instance }} 已停止响应"
+
+      # JVM内存使用过高
+      - alert: HighJVMHeapUsage
+        expr: jvm_memory_used_bytes{area="heap"} / jvm_memory_max_bytes{area="heap"} * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: jvm
+        annotations:
+          summary: "JVM堆内存使用过高"
+          description: "JVM堆内存使用率超过80%，当前值: {{ $value }}%"
+
+      # 数据库连接池耗尽
+      - alert: DatabaseConnectionPoolExhausted
+        expr: hikaricp_connections_active / hikaricp_connections_max > 0.9
+        for: 2m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "数据库连接池耗尽"
+          description: "连接池使用率超过90%，当前值: {{ $value | humanizePercentage }}"
+
+      # 垃圾回收频繁
+      - alert: HighGCFrequency
+        expr: rate(jvm_gc_pause_seconds_count[5m]) > 0.1
+        for: 3m
+        labels:
+          severity: warning
+          service: jvm
+        annotations:
+          summary: "垃圾回收过于频繁"
+          description: "GC频率超过每分钟6次，当前值: {{ $value }}次/秒"
+
+  # 业务指标告警
+  - name: business_alerts
+    rules:
+      # 交易失败率过高
+      - alert: HighTransactionFailureRate
+        expr: rate(transaction_processing_failures_total[5m]) / rate(transaction_processing_total[5m]) * 100 > 5
+        for: 3m
+        labels:
+          severity: critical
+          service: business
+        annotations:
+          summary: "交易处理失败率过高"
+          description: "交易失败率超过5%，当前值: {{ $value }}%"
+
+      # 预算超支预警
+      - alert: BudgetExceeded
+        expr: budget_spent_ratio > 1
+        for: 1m
+        labels:
+          severity: warning
+          service: business
+        annotations:
+          summary: "预算超支预警"
+          description: "用户 {{ $labels.user_id }} 分类 {{ $labels.category }} 预算已超支"
+
+      # 用户活跃度异常
+      - alert: LowUserActivity
+        expr: rate(http_requests_total{uri="/api/transactions"}[1h]) < 10
+        for: 30m
+        labels:
+          severity: info
+          service: business
+        annotations:
+          summary: "用户活跃度下降"
+          description: "用户活跃度异常低，可能是功能使用存在问题"
+
+      # 数据库查询响应时间过长
+      - alert: SlowDatabaseQueries
+        expr: histogram_quantile(0.95, rate(database_query_duration_seconds_bucket[5m])) > 1
+        for: 2m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "数据库查询响应时间过长"
+          description: "95%的数据库查询响应时间超过1秒，当前值: {{ $value }}秒"
+
+  # 安全告警
+  - name: security_alerts
+    rules:
+      # 异常登录尝试
+      - alert: SuspiciousLoginActivity
+        expr: rate(login_attempts_total{status="failed"}[5m]) > 5
+        for: 1m
+        labels:
+          severity: critical
+          service: security
+        annotations:
+          summary: "检测到异常登录尝试"
+          description: "IP {{ $labels.source_ip }} 在5分钟内失败登录尝试超过5次"
+
+      # API调用频率异常
+      - alert: HighAPIRate
+        expr: rate(http_requests_total[1m]) > 1000
+        for: 2m
+        labels:
+          severity: warning
+          service: security
+        annotations:
+          summary: "API调用频率异常"
+          description: "API调用频率超过1000次/分钟，当前值: {{ $value }}/分钟"

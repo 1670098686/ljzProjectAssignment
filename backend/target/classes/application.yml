@@ -1,0 +1,52 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:mysql://localhost:3306/flutter?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true
+    username: test
+    password: ""
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 60000
+      maximum-pool-size: 15
+      minimum-idle: 5
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      connection-test-query: SELECT 1
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+      hibernate.dialect: org.hibernate.dialect.MySQLDialect
+      hibernate.connection.time_zone: Asia/Shanghai
+
+  cache:
+    type: none
+
+
+
+
+
+# 简化监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
+    org.springframework.jdbc: debug
+    com.zaxxer.hikari: debug
+    org.springframework.orm.jpa: debug
