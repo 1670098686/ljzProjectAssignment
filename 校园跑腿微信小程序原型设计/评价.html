@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>任务评价 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+    <link rel="stylesheet" href="css/evaluation.css">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="navbar-left">
+                <div class="navbar-back" onclick="evaluation.goBack()">←</div>
+            </div>
+            <div class="navbar-title">任务评价</div>
+            <div class="navbar-right"></div>
+        </div>
+
+        <div class="page-content">
+            <div class="task-info-card">
+                <div class="task-header">
+                    <div class="task-type-icon">⭐</div>
+                    <div class="task-details">
+                        <div class="task-title">任务</div>
+                        <div class="task-runner">跑腿员：-</div>
+                        <div class="task-time">完成时间：-</div>
+                    </div>
+                </div>
+                <div class="task-price">¥0.00</div>
+            </div>
+
+            <div class="rating-section">
+                <div class="section-title">为本次服务打分</div>
+                <div id="starRating" class="star-rating">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+                <div id="ratingText" class="rating-text">请选择评分</div>
+            </div>
+
+            <div class="tag-section">
+                <div class="section-title">选择印象标签</div>
+                <div class="tag-list">
+                    <div class="tag" data-tag="准时">准时</div>
+                    <div class="tag" data-tag="礼貌">礼貌</div>
+                    <div class="tag" data-tag="专业">专业</div>
+                    <div class="tag" data-tag="高效">高效</div>
+                    <div class="tag" data-tag="友好">友好</div>
+                </div>
+            </div>
+
+            <div class="comment-section">
+                <div class="section-title">写下你的评价</div>
+                <textarea id="commentInput" class="comment-input" maxlength="500" placeholder="说说这次体验吧~"></textarea>
+                <div class="char-count">已输入 <span id="charCount">0</span>/500</div>
+            </div>
+
+            <div class="anonymous-section">
+                <label class="switch">
+                    <input type="checkbox" id="anonymousCheckbox">
+                    <span class="slider round"></span>
+                </label>
+                <div>
+                    <div class="text-sm">匿名评价</div>
+                    <div class="text-xs text-secondary">开启后，跑腿员无法看到你的身份信息</div>
+                </div>
+            </div>
+
+            <div class="mt-20">
+                <button id="submitBtn" class="btn btn-primary btn-block" onclick="evaluation.submitEvaluation()" disabled>提交评价</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/evaluation.js"></script>
+</body>
+</html>

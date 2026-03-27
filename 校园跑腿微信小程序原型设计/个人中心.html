@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>个人中心 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar" style="background: transparent; border: none; position: absolute; top: 0; left: 0; right: 0; color: white;">
+            <div class="navbar-left"></div>
+            <div class="navbar-title" style="color: white;">个人中心</div>
+            <div class="navbar-right"></div>
+        </div>
+
+        <div class="page-content" style="padding-top: 0;">
+            <!-- 头部背景 -->
+            <div style="background: var(--primary-color); height: 200px; margin: -16px -16px 16px -16px; padding: 60px 16px 16px 16px; color: white; display: flex; align-items: center;">
+                <div id="profileAvatar" class="avatar avatar-lg mr-16" style="margin-right: 16px; border: 2px solid white;"></div>
+                <input id="avatarInput" type="file" accept="image/*" style="display:none;">
+                <div>
+                    <div id="displayName" class="text-xl font-bold mb-4">微信用户</div>
+                    <div id="roleTags" class="flex items-center" style="gap: 8px;"></div>
+                </div>
+            </div>
+
+            <!-- 数据概览 -->
+            <div class="card mb-16" style="margin-top: -40px; position: relative; z-index: 1;">
+                <div class="flex justify-between" style="padding: 16px 0;">
+            <div class="flex-1 text-center" onclick="location.href='我的钱包.html'">
+                <div class="text-xl font-bold" id="userBalance">0.00</div>
+                <div class="text-xs text-secondary mt-2">余额</div>
+            </div>
+            <div class="flex-1 text-center" style="border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color);" onclick="location.href='任务记录.html?tab=published'">
+                <div class="text-xl font-bold" id="publishCount">0</div>
+                <div class="text-xs text-secondary mt-2">发布</div>
+            </div>
+            <div class="flex-1 text-center" onclick="location.href='任务记录.html?tab=accepted'">
+                <div class="text-xl font-bold" id="acceptCount">0</div>
+                <div class="text-xs text-secondary mt-2">接单</div>
+            </div>
+        </div>
+            </div>
+
+            <!-- 功能列表 -->
+            <div class="list-group mb-16">
+                <div class="list-item" onclick="location.href='账号信息.html'">
+                    <span style="margin-right: 12px;">📝</span>
+                    <div class="list-content list-title">账号信息</div>
+                    <div class="list-arrow">></div>
+                </div>
+                <div class="list-item" onclick="location.href='实名认证.html'">
+                    <span style="margin-right: 12px;">🆔</span>
+                    <div class="list-content list-title">实名认证</div>
+                    <div style="display: flex; align-items: center;">
+                        <span id="realNameStatus" style="margin-right: 8px;"></span>
+                        <div class="list-arrow"></div>
+                    </div>
+                </div>
+                <div class="list-item" onclick="location.href='跑腿员验证.html'">
+                    <span style="margin-right: 12px;"><img src="images/runner-avatar.svg" class="icon-img"></span>
+                    <div class="list-content list-title">跑腿员认证</div>
+                    <div class="list-arrow">></div>
+                </div>
+                <div class="list-item" onclick="location.href='信用详情.html'">
+                    <span style="margin-right: 12px;">⭐</span>
+                    <div class="list-content list-title">我的信用</div>
+                    <div class="list-arrow">></div>
+                </div>
+            </div>
+
+            <div class="list-group mb-16">
+                <div class="list-item" onclick="location.href='安全设置.html'">
+                    <span style="margin-right: 12px;"><img src="images/icon-other.svg" class="icon-img"></span>
+                    <div class="list-content list-title">安全设置</div>
+                    <div class="list-arrow">></div>
+                </div>
+                <div class="list-item" onclick="location.href='意见反馈.html'">
+                    <span style="margin-right: 12px;">📝</span>
+                    <div class="list-content list-title">意见反馈</div>
+                    <div class="list-arrow">></div>
+                </div>
+                <div class="list-item" onclick="location.href='关于.html'">
+                    <span style="margin-right: 12px;"><img src="images/icon-info.svg" class="icon-img"></span>
+                    <div class="list-content list-title">关于我们</div>
+                    <div class="list-arrow">></div>
+                </div>
+            </div>
+            
+            <div class="mt-32">
+                <button class="btn btn-secondary btn-block text-error" onclick="location.href='登录.html'">退出登录</button>
+            </div>
+        </div>
+
+        <!-- 底部标签栏 -->
+        <div class="tabbar">
+            <div class="tabbar-item" onclick="location.href='首页.html'">
+                <div class="tabbar-icon"><img src="images/icon-home.svg" class="icon-img"></div>
+                <span>首页</span>
+            </div>
+            <div class="tabbar-item" onclick="goTaskIfAllowed()">
+                <div class="tabbar-icon"><img src="images/icon-tasks.svg" class="icon-img"></div>
+                <span>任务</span>
+            </div>
+            <div class="tabbar-item" onclick="goPublish()">
+                <div class="tabbar-icon fab"><img src="images/icon-publish-white.svg" class="icon-img"></div>
+                <span>发布</span>
+            </div>
+            <div class="tabbar-item" onclick="location.href='消息.html'">
+                <div class="tabbar-icon"><img src="images/icon-messages.svg" class="icon-img"></div>
+                <span>消息</span>
+            </div>
+            <div class="tabbar-item active" onclick="location.href='个人中心.html'">
+                <div class="tabbar-icon"><img src="images/icon-profile.svg" class="icon-img"></div>
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const normalizeId = (val) => (val === undefined || val === null ? '' : String(val).trim());
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const avatar = document.getElementById('profileAvatar');
+            const fileInput = document.getElementById('avatarInput');
+            if (!avatar || !fileInput) return;
+
+            // 加载已保存的头像
+            const saved = localStorage.getItem('userAvatar');
+            if (saved) {
+                avatar.style.backgroundImage = `url(${saved})`;
+                avatar.style.backgroundSize = 'cover';
+                avatar.style.backgroundPosition = 'center';
+            }
+
+            avatar.style.cursor = 'pointer';
+            avatar.title = '点击更换头像';
+
+            avatar.addEventListener('click', () => fileInput.click());
+
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files && e.target.files[0];
+                if (!file) return;
+
+                if (!file.type.startsWith('image/')) {
+                    alert('请选择图片文件');
+                    fileInput.value = '';
+                    return;
+                }
+
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('图片大小需小于5MB');
+                    fileInput.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const url = ev.target.result;
+                    avatar.style.backgroundImage = `url(${url})`;
+                    avatar.style.backgroundSize = 'cover';
+                    avatar.style.backgroundPosition = 'center';
+                    localStorage.setItem('userAvatar', url);
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // 载入账号信息（仅展示昵称）
+            loadProfileDisplay();
+            renderRoleTags();
+            ensureAuthDefaults();
+            loadBalance();
+            loadTaskStats();
+            checkRealNameStatus();
+        });
+
+        function loadBalance() {
+            const auth = CommonUtils.getAuth() || {};
+            const currentUserId = normalizeId(auth.id || auth.openid || 'mock_publisher_zhangsan');
+            let balance = 0;
+
+            try {
+                // 使用统一的任务来源，确保与任务记录一致
+                const tasks = (window.TaskFlow && TaskFlow.getTasksForUser)
+                    ? (TaskFlow.getTasksForUser(auth) || [])
+                    : (window.dataStore ? (dataStore.get('tasks') || []) : []);
+
+                // 余额仅展示跑腿员完成任务获得的收入，不再扣除发布者支出
+                const completedTasks = tasks.filter(t => normalizeId(t.runnerId || t.runner || t.runnerName) === currentUserId && t.status === 'completed');
+                balance = completedTasks.reduce((sum, t) => sum + (Number(t.price) || 0), 0);
+            } catch (e) {
+                console.error('计算余额失败', e);
+            }
+
+            const el = document.getElementById('userBalance');
+            if (el) el.textContent = parseFloat(balance || 0).toFixed(2);
+        }
+
+        function loadTaskStats() {
+            const auth = CommonUtils.getAuth() || {};
+            const ids = [auth.id, auth.openid, auth.name, auth.nickname, auth.phone].map(normalizeId).filter(Boolean);
+            const tasks = (window.TaskFlow && TaskFlow.getTasksForUser)
+                ? (TaskFlow.getTasksForUser(auth) || [])
+                : (window.dataStore ? dataStore.get('tasks') || [] : []);
+            
+            const isSelfPublisher = (task) => {
+                const pubId = normalizeId(task.publisherId || task.publisher || task.publisherName);
+                const pubName = normalizeId(task.publisherName || task.publisher);
+                return ids.some(id => id === pubId || id === pubName);
+            };
+            const isSelfRunner = (task) => {
+                const runnerId = normalizeId(task.runnerId || task.runner || task.runnerName);
+                const runnerName = normalizeId(task.runnerName || task.runner);
+                return ids.some(id => id === runnerId || id === runnerName);
+            };
+
+            const published = tasks.filter(isSelfPublisher).length;
+            const accepted = tasks.filter(isSelfRunner).length;
+            
+            const pubEl = document.getElementById('publishCount');
+            if (pubEl) pubEl.textContent = published;
+            const accEl = document.getElementById('acceptCount');
+            if (accEl) accEl.textContent = accepted;
+        }
+
+        function checkRealNameStatus() {
+            const auth = CommonUtils.getAuth() || {};
+            const statusEl = document.getElementById('realNameStatus');
+            if (!statusEl) return;
+
+            // 只有明确设置了authStatus为approved才显示已认证
+            if (auth.authStatus === 'approved') {
+                statusEl.innerHTML = '<span class="text-success text-sm">已认证</span>';
+            } else if (auth.authStatus === 'submitted') {
+                statusEl.innerHTML = '<span class="text-warning text-sm">审核中</span>';
+            } else {
+                // 未设置authStatus或其他状态时，显示未认证
+                statusEl.innerHTML = '<span class="text-secondary text-sm">未认证</span>';
+            }
+        }
+
+        function goTaskIfAllowed() {
+            const auth = CommonUtils.getAuth();
+            if (!auth || !auth.loggedIn) {
+                alert('请先登录后再查看任务大厅');
+                return;
+            }
+            if (!['runner', 'dual', 'admin'].includes(auth.role)) {
+                alert('仅跑腿员可进入任务大厅');
+                return;
+            }
+            if (auth.runnerStatus !== 'approved') {
+                alert('跑腿员认证通过后才可进入任务大厅');
+                return;
+            }
+            location.href = '任务列表.html';
+        }
+
+        function goPublish() {
+            // 允许未登录的同学先进入页面预览
+            const authed = CommonUtils.requireIdentityChosen('身份选择.html');
+            if (authed === false) return;
+            location.href = '任务发布.html';
+        }
+
+        function ensureAuthDefaults() {
+            // 若本地未登录则创建一个默认发布者身份，避免发布入口不可用
+            const auth = CommonUtils.getAuth();
+            if (!auth) {
+                const defaultAuth = {
+                    id: 'mock_publisher_zhangsan',
+                    name: '张三',
+                    nickname: '张三',
+                    realName: '张三',
+                    loggedIn: true,
+                    role: 'publisher',
+                    firstLogin: false,
+                    runnerStatus: null, // 未申请跑腿员认证时设置为null
+                    authStatus: null, // 明确设置未认证状态
+                    creditScore: 100,
+                    balance: 0
+                };
+                CommonUtils.setAuth(defaultAuth);
+                if (window.dataStore && !dataStore.get('currentUser')) {
+                    dataStore.set('currentUser', {
+                        id: defaultAuth.id,
+                        name: defaultAuth.name,
+                        nickname: defaultAuth.nickname,
+                        role: defaultAuth.role,
+                        balance: defaultAuth.balance,
+                        creditScore: defaultAuth.creditScore
+                    });
+                }
+            }
+        }
+
+        function loadProfileDisplay() {
+            try {
+                const saved = JSON.parse(localStorage.getItem('profileInfo') || 'null');
+                if (!saved) return;
+                if (saved.name) {
+                    const display = document.getElementById('displayName');
+                    if (display) display.textContent = saved.name;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderRoleTags() {
+            const wrap = document.getElementById('roleTags');
+            if (!wrap) return;
+            wrap.innerHTML = '';
+            const auth = CommonUtils.getAuth() || {};
+            const tags = [];
+            const role = auth.role || 'publisher';
+            const runnerStatus = auth.runnerStatus || 'pending';
+
+            // 基础身份标签
+            if (role === 'dual') {
+                tags.push({ text: '发布者', color: 'rgba(255,255,255,0.22)' });
+                tags.push({ text: '跑腿员', color: 'rgba(255,255,255,0.22)' });
+            } else if (role === 'runner') {
+                tags.push({ text: '跑腿员', color: 'rgba(255,255,255,0.22)' });
+            } else {
+                tags.push({ text: '发布者', color: 'rgba(255,255,255,0.22)' });
+            }
+
+            // 实名认证：仅通过时显示
+            if (auth.authStatus === 'approved') {
+                tags.push({ text: '实名认证已通过', color: 'rgba(76,175,80,0.25)' });
+            }
+
+            // 跑腿员认证状态提示：只有当用户明确提交了跑腿员认证申请，才显示状态
+            // 检查是否有提交时间或明确的认证状态
+            const hasAppliedForRunner = localStorage.getItem('runnerApplyTime') || auth.runnerStatus === 'pending' || auth.runnerStatus === 'submitted' || auth.runnerStatus === 'rejected' || auth.runnerStatus === 'approved';
+            if (hasAppliedForRunner) {
+                if (runnerStatus === 'pending' || runnerStatus === 'submitted') {
+                    tags.push({ text: '跑腿审核中', color: 'rgba(255,255,255,0.18)' });
+                } else if (runnerStatus === 'approved') {
+                    tags.push({ text: '跑腿认证已通过', color: 'rgba(76,175,80,0.25)' });
+                } else if (runnerStatus === 'rejected') {
+                    tags.push({ text: '跑腿认证未通过', color: 'rgba(255,102,102,0.25)' });
+                }
+            }
+
+            tags.push({ text: `信用分 ${auth.creditScore || 100}`, color: 'rgba(255,255,255,0.22)' });
+
+            tags.forEach(tag => {
+                const span = document.createElement('span');
+                span.className = 'tag';
+                span.style.background = tag.color;
+                span.style.color = 'white';
+                span.textContent = tag.text;
+                wrap.appendChild(span);
+            });
+        }
+    </script>
+</body>
+</html>

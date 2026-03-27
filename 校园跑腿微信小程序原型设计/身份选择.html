@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>选择身份 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+        <link rel="stylesheet" href="css/ui-components.css">
+        <link rel="stylesheet" href="css/loading.css">
+    <style>
+        .role-card {
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+            padding: 24px 16px;
+        }
+        .role-card.active {
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+        }
+        .role-card:active {
+            transform: scale(0.98);
+        }
+        .role-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--background-light);
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+        /* 优化页面布局 */
+        .page-content {
+            min-height: calc(100vh - 48px);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 16px;
+        }
+        /* 调整卡片容器间距 */
+        .role-cards-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin: 16px 0;
+        }
+        /* 确认按钮容器 */
+        .confirm-button-container {
+            margin-top: 16px;
+            padding: 16px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="navbar-left">
+                <div class="navbar-back" onclick="history.back()">←</div>
+            </div>
+            <div class="navbar-title">选择身份</div>
+            <div class="navbar-right"></div>
+        </div>
+
+        <div class="page-content">
+            <!-- 标题区域 -->
+            <div class="text-center mt-8 mb-16">
+                <h2 class="text-xl mb-4">请选择您的身份</h2>
+                <p class="text-secondary">仅能选择一种身份，首次进入必须完成选择</p>
+            </div>
+
+            <!-- 角色卡片容器 -->
+            <div class="role-cards-container">
+                <div class="card role-card" onclick="selectRole(this, 'user')">
+                    <div class="text-center">
+                        <div class="role-icon"><img src="images/icon-package.svg" class="icon-img"></div>
+                        <h3 class="text-lg font-bold mb-4">我要发布任务</h3>
+                        <p class="text-secondary text-sm">发布跑腿需求，等待接单</p>
+                    </div>
+                </div>
+
+                <div class="card role-card" onclick="selectRole(this, 'runner')">
+                    <div class="text-center">
+                        <div class="role-icon"><img src="images/runner-avatar.svg" class="icon-img"></div>
+                        <h3 class="text-lg font-bold mb-4">我要接单跑腿</h3>
+                        <p class="text-secondary text-sm">接单赚取报酬，需通过认证</p>
+                        <div class="tag tag-warning mt-8">需校园认证</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 确认按钮容器 -->
+            <div class="confirm-button-container">
+                <button class="btn btn-primary btn-block btn-lg" onclick="confirmRole()">确认身份</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/load-manager.js"></script>
+    <script src="js/error-manager.js"></script>
+    <script>
+        let selectedRole = null;
+
+        function selectRole(el, role) {
+            document.querySelectorAll('.role-card').forEach(card => card.classList.remove('active'));
+            el.classList.add('active');
+            selectedRole = role;
+        }
+
+        function confirmRole() {
+            if (!selectedRole) {
+                CommonUtils.handleError('请选择一个身份', { type: 'toast', level: 'warning' });
+                return;
+            }
+
+            // 显示加载提示
+            const loader = CommonUtils.showLoading({
+                text: '身份设置中...',
+                fullscreen: true
+            });
+
+            setTimeout(() => {
+                const baseAuth = CommonUtils.getAuth() || { loggedIn: true };
+
+                if (selectedRole === 'runner') {
+                    CommonUtils.setAuth({
+                        ...baseAuth,
+                        role: 'runner',
+                        runnerStatus: 'pending',
+                        firstLogin: false
+                    });
+                    
+                    // 隐藏加载提示
+                    loader.hide();
+                    
+                    CommonUtils.showToast('跑腿员需要通过认证后才能接单，已为您跳转认证', 'warning');
+                    
+                    // 使用统一路由跳转
+                    setTimeout(() => {
+                        window.router.navigate('runnerVerification');
+                    }, 1500);
+                    return;
+                }
+
+                // 纯用户
+                CommonUtils.setAuth({
+                    ...baseAuth,
+                    role: 'publisher',
+                    runnerStatus: 'none',
+                    firstLogin: false
+                });
+                
+                // 隐藏加载提示
+                loader.hide();
+                
+                // 使用统一路由跳转
+                window.router.navigate('home');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

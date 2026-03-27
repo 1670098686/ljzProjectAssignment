@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>跑腿员认证 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="navbar-left">
+                <div class="navbar-back" onclick="history.back()">←</div>
+            </div>
+            <div class="navbar-title">跑腿员认证</div>
+            <div class="navbar-right"></div>
+        </div>
+
+        <div class="page-content">
+            <div class="card mb-16">
+                <div class="text-center py-4" style="padding: 16px 0;">
+                    <div style="font-size: 40px; margin-bottom: 12px;"><img src="images/runner-avatar.svg" class="icon-img"></div>
+                    <h3 class="text-lg font-bold mb-4">成为跑腿员</h3>
+                    <p class="text-secondary text-sm px-4">认证通过后，您可以接单赚取报酬。请确保您是本校在读学生。</p>
+                </div>
+            </div>
+
+            <div id="runnerForm" class="card mb-32">
+                <div class="form-group">
+                    <label class="form-label">真实姓名</label>
+                    <input id="runnerName" type="text" class="form-input" placeholder="请输入真实姓名">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">身份证号</label>
+                    <input id="runnerIdCard" type="text" class="form-input" placeholder="请输入身份证号">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">学生证照片</label>
+                    <div id="runnerUploadArea" class="flex" style="gap: 8px; flex-wrap: wrap;">
+                        <div class="upload-add placeholder-img" style="width: 100%; height: 160px; border-radius: 8px; border: 2px dashed var(--border-color); background: var(--bg-input); display: flex; align-items: center; justify-content: center; flex-direction: column; cursor: pointer;">
+                            <div style="font-size: 32px; color: var(--text-tertiary); margin-bottom: 8px;">📷</div>
+                            <div class="text-secondary">点击上传学生证内页</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="runnerActions" class="flex flex-col" style="gap:12px;">
+                <button class="btn btn-primary btn-block btn-lg" onclick="submitRunnerAuth()">提交申请</button>
+                <button class="btn btn-outline btn-block" onclick="location.href='认证状态.html'">查看认证状态</button>
+            </div>
+
+            <div id="runnerApproved" class="card mb-32" style="display:none; text-align:center; padding: 40px 20px;">
+                <div style="width: 80px; height: 80px; background: var(--success-color); border-radius: 50%; margin: 0 auto 24px; display: flex; align-items: center; justify-content: center; color: white; font-size: 40px; box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);">✓</div>
+                <h2 class="text-xl font-bold mb-12">恭喜，认证已通过！</h2>
+                <p class="text-secondary mb-32" style="line-height: 1.6;">您已正式成为校园跑腿员。现在可以前往任务大厅接单赚钱啦！</p>
+                
+                <div class="card bg-body mb-32" style="background: #F6FFED; border: 1px solid #B7EB8F; padding: 16px; border-radius: 8px; text-align: left;">
+                    <div class="flex items-center mb-8">
+                        <span style="font-size: 18px; margin-right: 8px;">🆔</span>
+                        <span class="font-bold" style="color: #389e0d;">双重身份已激活</span>
+                    </div>
+                    <div class="text-sm" style="color: #52c41a;">您同时拥有<span class="font-bold">发布者</span>和<span class="font-bold">跑腿员</span>权限，可以在个人中心随时切换或查看。</div>
+                </div>
+
+                <div class="flex flex-col" style="gap:16px;">
+                    <button class="btn btn-primary btn-block btn-lg" onclick="location.href='任务列表.html'">
+                        <span style="margin-right: 8px;">🚀</span> 前往任务大厅
+                    </button>
+                    <button class="btn btn-secondary btn-block btn-lg" onclick="location.href='个人中心.html'">返回个人中心</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        let runnerUploader;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            runnerUploader = new ImageUploader({
+                container: '#runnerUploadArea',
+                maxCount: 1,
+                maxSizeMB: 8,
+                previewSize: '100%'
+            });
+            renderRunnerState();
+        });
+
+        function renderRunnerState() {
+            const auth = CommonUtils.getAuth() || {};
+            const status = auth.runnerStatus || 'pending';
+            const form = document.getElementById('runnerForm');
+            const actions = document.getElementById('runnerActions');
+            const approved = document.getElementById('runnerApproved');
+            if (!form || !actions || !approved) return;
+
+            if (status === 'approved') {
+                form.style.display = 'none';
+                actions.style.display = 'none';
+                approved.style.display = 'block';
+            } else {
+                form.style.display = 'block';
+                actions.style.display = 'flex';
+                approved.style.display = 'none';
+            }
+        }
+
+        function submitRunnerAuth() {
+            const name = document.getElementById('runnerName').value.trim();
+            const idCard = document.getElementById('runnerIdCard').value.trim();
+
+            if (!name || !idCard) {
+                CommonUtils.showToast('请填写姓名和身份证号', 'warning');
+                return;
+            }
+
+            if (!runnerUploader || runnerUploader.getPreviews().length === 0) {
+                CommonUtils.showToast('请上传学生证照片', 'warning');
+                return;
+            }
+
+            const btn = document.querySelector('.btn-primary');
+            btn.disabled = true;
+            btn.innerText = '提交中...';
+            setTimeout(() => {
+                const auth = CommonUtils.getAuth() || {};
+                localStorage.setItem('runnerApplyTime', new Date().toLocaleString());
+                CommonUtils.setAuth({
+                    ...auth,
+                    role: auth.role === 'publisher' ? 'dual' : (auth.role || 'runner'),
+                    runnerStatus: 'pending'
+                });
+                alert('申请已提交，请等待后台审核');
+                location.href = '认证状态.html';
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>任务详情 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="navbar-left">
+                <div class="navbar-back" onclick="history.back()">←</div>
+            </div>
+            <div class="navbar-title">任务详情</div>
+            <div class="navbar-right">
+                <span style="font-size: 20px;">...</span>
+            </div>
+        </div>
+
+        <div class="page-content">
+            <!-- 状态卡片 -->
+            <div class="card mb-16" style="background: linear-gradient(135deg, #1890FF 0%, #096DD9 100%); color: white; padding: 16px;">
+                <div class="flex justify-between items-center flex-wrap">
+                    <div style="flex: 1; min-width: 120px; margin-bottom: 8px;">
+                        <h2 class="text-xl mb-4" id="statusText">待接单</h2>
+                        <p class="text-sm opacity-80" id="statusSubtext">等待跑腿员接单中...</p>
+                    </div>
+                    <div class="text-xxl" id="priceText" style="min-width: 80px; text-align: right;">¥ 0.00</div>
+                </div>
+            </div>
+
+            <!-- 地图预览 -->
+            <div class="card mb-16" style="padding: 0; overflow: hidden;">
+                <div class="placeholder-img" style="width: 100%; height: 150px; background: #eee;">
+                    地图预览区域
+                </div>
+                <div class="padding-16" style="padding: 16px;">
+                    <div class="flex items-center mb-16">
+                        <div class="tag tag-primary mr-8" style="margin-right: 8px;">取</div>
+                        <span class="text-md" id="pickupText">-</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="tag tag-success mr-8" style="margin-right: 8px;">送</div>
+                        <span class="text-md" id="deliveryText">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 任务信息 -->
+            <div class="card mb-16">
+                <div class="card-header">
+                    <span class="card-title">任务信息</span>
+                </div>
+                <div class="list-group" style="border: none;">
+                    <div class="list-item" style="padding: 12px 0; border: none;">
+                        <span class="text-secondary" style="width: 80px;">任务类型</span>
+                        <span id="taskTypeText">-</span>
+                    </div>
+                    <div class="list-item" style="padding: 12px 0; border: none;">
+                        <span class="text-secondary" style="width: 80px;">送达时间</span>
+                        <span>立即送达</span>
+                    </div>
+                    <div class="list-item" style="padding: 12px 0; border: none;">
+                        <span class="text-secondary" style="width: 80px;">备注信息</span>
+                        <span id="remarkText">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 发布者信息 -->
+            <div class="card mb-16">
+                <div class="flex items-center">
+                    <div class="avatar mr-16" style="margin-right: 12px;"></div>
+                    <div>
+                        <div class="text-md font-bold" id="publisherName">-</div>
+                        <div class="text-xs text-secondary">信用分：100</div>
+                    </div>
+                    <div class="flex-1 text-right">
+                        <button class="btn btn-secondary btn-sm">联系TA</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部操作栏 -->
+            <div style="position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 12px 16px; padding-bottom: calc(12px + var(--safe-area-bottom)); box-shadow: 0 -2px 10px rgba(0,0,0,0.05); display: flex; gap: 12px; max-width: 480px; margin: 0 auto;">
+                <button class="btn btn-primary btn-block flex-1" id="trackBtn">追踪任务</button>
+                <button class="btn btn-primary btn-block flex-1" id="acceptBtn">立即接单</button>
+            </div>
+        </div>
+    </div>
+    <script src="js/common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            hydrateTaskDetail();
+        });
+
+        function getTaskId() {
+            const params = new URLSearchParams(window.location.search);
+            const fromQuery = params.get('taskId');
+            if (fromQuery) return fromQuery;
+            const stored = dataStore.get('currentTaskId');
+            if (stored) return stored;
+            return 'mock_task_1';
+        }
+
+        function hydrateTaskDetail() {
+            const taskId = getTaskId();
+            const auth = CommonUtils.getAuth() || {};
+            const task = window.TaskFlow ? TaskFlow.findTask(taskId) : null;
+            const data = task || {
+                id: taskId,
+                status: 'pending',
+                progressStage: 'pending',
+                price: 5,
+                from: '南门快递点',
+                to: '宿舍楼A栋',
+                title: '取快递',
+                publisherId: 'mock_publisher_wangwu',
+                publisherName: '张同学',
+                remark: '请尽快送达'
+            };
+
+            const statusInfo = deriveStatusInfo(data);
+            const priceVal = typeof data.price === 'number' ? data.price.toFixed(2) : (parseFloat(data.price) || 0).toFixed(2);
+
+            setText('statusText', statusInfo.text);
+            setText('statusSubtext', statusInfo.sub);
+            setText('priceText', '¥ ' + priceVal);
+            setText('pickupText', data.from || data.pickupLocation || '-');
+            setText('deliveryText', data.to || data.deliveryLocation || '-');
+            setText('taskTypeText', data.type || '任务');
+            setText('remarkText', data.remark || data.note || '无备注');
+            setText('publisherName', data.publisherName || data.publisher || '-');
+
+            const trackBtn = document.getElementById('trackBtn');
+            if (trackBtn) trackBtn.onclick = () => location.href = `任务追踪.html?taskId=${encodeURIComponent(taskId)}`;
+
+            renderActionButtons(data, auth);
+        }
+
+        function deriveStatusInfo(task) {
+            const stage = task.progressStage || task.status;
+            const map = {
+                pending: { text: '待接单', sub: '等待跑腿员接单中...' },
+                accepted: { text: '已接单', sub: '跑腿员已接单，准备取件' },
+                picking_up: { text: '取件中', sub: '跑腿员正在前往取件' },
+                delivering: { text: '配送中', sub: '跑腿员配送中' },
+                delivered: { text: '待确认', sub: '跑腿员已送达，等待确认' },
+                completed: { text: '已完成', sub: '任务已完成' }
+            };
+
+            if (task.status === 'completed') return map.completed;
+            if (task.status === 'pending') return map.pending;
+            return map[stage] || map.pending;
+        }
+
+        function renderActionButtons(task, auth) {
+            const actionBtn = document.getElementById('acceptBtn');
+            if (!actionBtn) return;
+
+            const userId = auth.id || auth.openid;
+            const isRunner = task.runnerId && task.runnerId === userId;
+            const isPublisher = task.publisherId && task.publisherId === userId;
+            const stage = task.progressStage || task.status;
+
+            actionBtn.disabled = false;
+            actionBtn.classList.remove('btn-secondary');
+
+            if (task.status === 'completed') {
+                actionBtn.textContent = '已完成';
+                actionBtn.disabled = true;
+                actionBtn.classList.add('btn-secondary');
+                return;
+            }
+
+            if (task.status === 'pending') {
+                actionBtn.textContent = '立即接单';
+                actionBtn.onclick = () => acceptCurrentTask(task.id);
+                return;
+            }
+
+            if (task.status === 'in-progress') {
+                if (isRunner) {
+                    if (stage === 'delivered') {
+                        actionBtn.textContent = '等待用户确认';
+                        actionBtn.disabled = true;
+                        actionBtn.classList.add('btn-secondary');
+                    } else {
+                        actionBtn.textContent = '标记已送达';
+                        actionBtn.onclick = () => runnerMarkDelivered(task.id);
+                    }
+                    return;
+                }
+
+                if (isPublisher) {
+                    if (stage === 'delivered') {
+                        actionBtn.textContent = '确认完成';
+                        actionBtn.onclick = () => confirmOrderCompletion(task.id);
+                    } else {
+                        actionBtn.textContent = '等待送达';
+                        actionBtn.disabled = true;
+                        actionBtn.classList.add('btn-secondary');
+                    }
+                    return;
+                }
+
+                actionBtn.textContent = '任务进行中';
+                actionBtn.disabled = true;
+                actionBtn.classList.add('btn-secondary');
+            }
+        }
+
+        function acceptCurrentTask(taskId) {
+            const auth = CommonUtils.getAuth();
+            if (!auth || !auth.loggedIn) {
+                CommonUtils.showToast('请先登录', 'warning');
+                return;
+            }
+            if (!['runner', 'dual', 'admin'].includes(auth.role)) {
+                CommonUtils.showToast('仅跑腿员可接单', 'warning');
+                return;
+            }
+            if (auth.runnerStatus !== 'approved') {
+                CommonUtils.showToast('跑腿员认证通过后才可接单', 'warning');
+                return;
+            }
+
+            if (!window.TaskFlow) return;
+            const result = TaskFlow.acceptTask(taskId, auth, { simulate: true });
+            if (!result.ok) {
+                CommonUtils.showToast(result.message || '接单失败', 'error');
+                return;
+            }
+
+            CommonUtils.showToast('接单成功，已为你模拟配送流程', 'success');
+            hydrateTaskDetail();
+        }
+
+        function runnerMarkDelivered(taskId) {
+            if (!window.TaskFlow) return;
+            TaskFlow.markDelivered(taskId);
+            CommonUtils.showToast('已标记送达，等待用户确认', 'info');
+            hydrateTaskDetail();
+        }
+
+        function confirmOrderCompletion(taskId) {
+            if (!window.TaskFlow) return;
+            TaskFlow.confirmCompletion(taskId);
+            CommonUtils.showToast('已确认任务完成', 'success');
+            hydrateTaskDetail();
+        }
+
+        function setText(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text;
+        }
+    </script>
+</body>
+</html>

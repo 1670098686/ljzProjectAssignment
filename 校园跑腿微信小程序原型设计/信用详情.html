@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>我的信用 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+    <style>
+        .credit-card {
+            background: linear-gradient(135deg, #1890FF 0%, #096DD9 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .credit-score {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 16px 0;
+        }
+        .credit-level {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="navbar-left">
+                <div class="navbar-back" onclick="history.back()">←</div>
+            </div>
+            <div class="navbar-title">我的信用</div>
+            <div class="navbar-right">
+                <span class="text-sm">规则</span>
+            </div>
+        </div>
+
+        <div class="page-content">
+            <div class="credit-card">
+                <div class="text-sm opacity-80">当前信用分</div>
+                <div class="credit-score" id="creditScore">--</div>
+                <div class="credit-level" id="creditLevel">--</div>
+                <div class="mt-16 text-xs opacity-60" id="creditEvaluatedAt">评估时间：--</div>
+            </div>
+
+            <div class="card mb-16">
+                <div class="card-header">
+                    <span class="card-title">信用记录</span>
+                </div>
+                <div class="list-group" style="border: none;">
+                    <div class="list-item" style="padding: 12px 0; border: none;">
+                        <div class="flex-1">
+                            <div class="text-md mb-4">任务完成 - 准时送达</div>
+                            <div class="text-xs text-secondary">2023-01-01 12:30</div>
+                        </div>
+                        <div class="text-success font-bold">+2</div>
+                    </div>
+                    <div class="list-item" style="padding: 12px 0; border: none;">
+                        <div class="flex-1">
+                            <div class="text-md mb-4">获得好评</div>
+                            <div class="text-xs text-secondary">2023-01-01 12:35</div>
+                        </div>
+                        <div class="text-success font-bold">+1</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">提升指南</span>
+                </div>
+                <div class="flex justify-between text-center py-4" style="padding: 16px 0;">
+                    <div class="flex-1">
+                        <div style="font-size: 24px; margin-bottom: 8px;"><img src="images/icon-other.svg" class="icon-img"></div>
+                        <div class="text-sm">完善信息</div>
+                    </div>
+                    <div class="flex-1">
+                        <div style="font-size: 24px; margin-bottom: 8px;">🤝</div>
+                        <div class="text-sm">多接任务</div>
+                    </div>
+                    <div class="flex-1">
+                        <div style="font-size: 24px; margin-bottom: 8px;">⭐</div>
+                        <div class="text-sm">保持好评</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/common.js"></script>
+    <script>
+        // 获取信用分：优先读取登录态，其次读取 dataStore 中的当前用户
+        function resolveCreditScore() {
+            try {
+                const auth = CommonUtils.getAuth ? (CommonUtils.getAuth() || {}) : {};
+                const fromStore = (window.dataStore && dataStore.get('currentUser')) || {};
+                const raw = auth.creditScore ?? fromStore.creditScore ?? 100;
+                const num = Number(raw);
+                return Number.isFinite(num) ? num : 100;
+            } catch (e) {
+                console.warn('读取信用分失败，使用默认值', e);
+                return 100;
+            }
+        }
+
+        // 根据分数输出等级文案
+        function creditLevelText(score) {
+            if (score >= 95) return '信用极好';
+            if (score >= 85) return '信用良好';
+            if (score >= 70) return '信用正常';
+            return '信用待提升';
+        }
+
+        function renderCredit() {
+            const score = resolveCreditScore();
+            const level = creditLevelText(score);
+            const scoreEl = document.getElementById('creditScore');
+            const levelEl = document.getElementById('creditLevel');
+            const timeEl = document.getElementById('creditEvaluatedAt');
+
+            if (scoreEl) scoreEl.textContent = score;
+            if (levelEl) levelEl.textContent = level;
+            if (timeEl) timeEl.textContent = `评估时间：${new Date().toLocaleString()}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', renderCredit);
+    </script>
+</body>
+</html>

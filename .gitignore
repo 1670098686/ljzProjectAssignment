@@ -1,0 +1,54 @@
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Build files
+build/
+dist/
+target/
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Log files
+logs/
+*.log
+
+# OS generated files
+Thumbs.db
+.DS_Store
+
+# Gradle files
+.gradle/
+build/
+
+# Maven files
+target/
+
+# Flutter files
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+
+# Docker files
+.dockerignore
+Dockerfile
+
+# Backup files
+*.bak
+*.backup
+
+# Testing files
+coverage/
+.coverage
+
+# Temporary files
+tmp/
+temp/

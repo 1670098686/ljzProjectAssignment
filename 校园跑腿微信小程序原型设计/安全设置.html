@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>安全设置 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="navbar-left">
+                <div class="navbar-back" onclick="history.back()">←</div>
+            </div>
+            <div class="navbar-title">安全设置</div>
+            <div class="navbar-right"></div>
+        </div>
+
+        <div class="page-content">
+            <div class="list-group mb-16">
+                <div class="list-item" onclick="editPhone()">
+                    <div class="list-content">
+                        <div class="list-title">手机号绑定</div>
+                    </div>
+                    <div class="text-secondary text-sm" id="phoneDisplay">未绑定</div>
+                    <div class="list-arrow">></div>
+                </div>
+                <div class="list-item" onclick="editWechat()">
+                    <div class="list-content">
+                        <div class="list-title">微信绑定</div>
+                    </div>
+                    <div class="text-secondary text-sm" id="wechatDisplay">未绑定</div>
+                    <div class="list-arrow">></div>
+                </div>
+            </div>
+
+            <div class="list-group mb-32">
+                <div class="list-item" onclick="location.href='实名认证.html'">
+                    <div class="list-content">
+                        <div class="list-title">实名认证</div>
+                    </div>
+                    <div class="text-secondary text-sm" id="authStatusText">未认证</div>
+                    <div class="list-arrow">></div>
+                </div>
+                <div class="list-item" onclick="logoutAccount()">
+                    <div class="list-content">
+                        <div class="list-title">注销账户</div>
+                    </div>
+                    <div class="text-error text-sm">退出登录</div>
+                    <div class="list-arrow">></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSecurity();
+        });
+
+        function renderSecurity() {
+            const auth = CommonUtils.getAuth() || {};
+            setText('phoneDisplay', auth.phone || '未绑定');
+            setText('wechatDisplay', auth.wechat || '未绑定');
+            const status = auth.authStatus === 'approved'
+                ? '已认证'
+                : auth.authStatus === 'submitted' || auth.authStatus === 'pending'
+                    ? '审核中'
+                    : '未认证';
+            setText('authStatusText', status);
+        }
+
+        function editPhone() {
+            const current = CommonUtils.getAuth() || {};
+            const input = prompt('请输入新的手机号', current.phone || '');
+            if (!input) return;
+            const auth = { ...current, phone: input };
+            CommonUtils.setAuth(auth);
+            renderSecurity();
+            CommonUtils.showToast('手机号已更新（本地模拟）', 'success');
+        }
+
+        function editWechat() {
+            const current = CommonUtils.getAuth() || {};
+            const input = prompt('请输入微信号', current.wechat || '');
+            if (!input) return;
+            const auth = { ...current, wechat: input };
+            CommonUtils.setAuth(auth);
+            renderSecurity();
+            CommonUtils.showToast('微信已绑定（本地模拟）', 'success');
+        }
+
+        function logoutAccount() {
+            const confirmed = confirm('确定要注销当前账号并退出登录吗？\n该操作仅清理本地模拟数据。');
+            if (!confirmed) return;
+
+            try {
+                if (window.dataStore && dataStore.clearTaskCaches) {
+                    dataStore.clearTaskCaches();
+                } else {
+                    ['tasks', 'currentTask', 'currentTaskId', 'taskMessages', 'tasksCleared', 'lastPublishedTaskId', 'lastPublishedPrice', 'lastPublishedTitle', 'messageThreads'].forEach(k => localStorage.removeItem(k));
+                }
+                if (window.dataStore && dataStore.remove) {
+                    dataStore.remove('currentUser');
+                }
+            } catch (e) {
+                console.warn('清理任务/用户缓存失败', e);
+            }
+
+            try {
+                localStorage.removeItem('authUser');
+                localStorage.removeItem('userInfo');
+                localStorage.removeItem('isLoggedIn');
+            } catch (e) {
+                console.warn('清理登录状态失败', e);
+            }
+
+            CommonUtils.showToast('已注销并退出登录', 'success');
+            setTimeout(() => {
+                window.location.href = '登录.html';
+            }, 600);
+        }
+
+        function setText(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text;
+        }
+    </script>
+</body>
+</html>

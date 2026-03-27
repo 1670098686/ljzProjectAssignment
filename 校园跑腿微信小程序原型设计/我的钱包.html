@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>我的钱包 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+    <style>
+        .wallet-card {
+            background: linear-gradient(135deg, var(--primary-color), #40a9ff);
+            color: white;
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 20px rgba(24, 144, 255, 0.3);
+        }
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        .balance-amount {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 24px;
+        }
+        .wallet-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .wallet-btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            padding: 8px 0;
+            border-radius: 8px;
+            font-size: 14px;
+            backdrop-filter: blur(4px);
+        }
+        .wallet-btn:active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="navbar-left">
+                <div class="navbar-back" onclick="history.back()">←</div>
+            </div>
+            <div class="navbar-title">我的钱包</div>
+            <div class="navbar-right"></div>
+        </div>
+
+        <div class="page-content">
+            <div class="wallet-card">
+            <div class="balance-label">账户余额 (元)</div>
+            <div class="balance-amount" id="balanceAmount">0.00</div>
+            <div class="wallet-actions">
+                <button class="btn wallet-btn" onclick="CommonUtils.showToast('充值功能暂未开放')">充值</button>
+                <button class="btn wallet-btn" onclick="CommonUtils.showToast('提现功能暂未开放')">提现</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="flex justify-between items-center mb-16">
+                <div class="font-bold text-md">交易明细</div>
+                <div class="text-secondary text-sm">查看全部 ></div>
+            </div>
+            <div id="transactionList">
+                <!-- 清空交易记录数据 -->
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBalance();
+        });
+
+        function loadBalance() {
+            const auth = CommonUtils.getAuth() || {};
+            let balance = 0;
+            if (typeof auth.balance === 'number') balance = auth.balance;
+            else if (window.dataStore && dataStore.get('currentUser') && typeof dataStore.get('currentUser').balance === 'number') {
+                balance = dataStore.get('currentUser').balance;
+            }
+            document.getElementById('balanceAmount').textContent = parseFloat(balance || 0).toFixed(2);
+        }
+    </script>
+</body>
+</html>

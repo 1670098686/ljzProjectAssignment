@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>任务追踪 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+    <link rel="stylesheet" href="css/task-tracking.css">
+    <style>
+        /* 覆盖或补充样式以适应新结构 */
+        .task-status-progress {
+            background: transparent;
+            padding: 10px 0 0 0;
+            margin-bottom: 0;
+        }
+        .runner-info-card, .task-details-card {
+            /* 重置旧样式的影响 */
+            background: var(--bg-card);
+            padding: 20px;
+        }
+        .runner-header {
+            display: flex;
+            align-items: center;
+        }
+        .runner-avatar {
+            margin-right: 12px;
+        }
+        .runner-details {
+            flex: 1;
+        }
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 24px;
+            padding: 0;
+        }
+        .btn-icon {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航 -->
+        <div class="navbar">
+            <div class="navbar-left" onclick="goBack()">
+                <div class="navbar-back"></div>
+            </div>
+            <div class="navbar-title">任务追踪</div>
+            <div class="navbar-right">
+                <!-- 占位，保持标题居中 -->
+            </div>
+        </div>
+
+        <div class="page-content">
+            <!-- 实时更新提示 -->
+            <div id="updateNotice" class="update-notice" style="display: none; margin-bottom: 16px;">
+                <span class="notice-icon">⟳</span>
+                <span class="notice-text">位置正在实时更新中...</span>
+            </div>
+
+            <!-- 任务状态进度条 -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div class="task-id" style="position: static; font-size: 14px; color: var(--text-secondary);">#T20241215001</div>
+                    <div style="font-size: 14px; font-weight: bold; color: var(--primary-color);">配送中</div>
+                </div>
+                <div class="task-status-progress">
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <div class="status-steps">
+                        <div class="status-step active">
+                            <div class="step-icon">📦</div>
+                            <div class="step-text">已接单</div>
+                        </div>
+                        <div class="status-step active">
+                            <div class="step-icon">🏃</div>
+                            <div class="step-text">取件中</div>
+                        </div>
+                        <div class="status-step active">
+                            <div class="step-icon">🚚</div>
+                            <div class="step-text">配送中</div>
+                        </div>
+                        <div class="status-step">
+                            <div class="step-icon">✅</div>
+                            <div class="step-text">已完成</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 地图模拟区域 -->
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <div class="map-container" style="height: 240px; margin: 0;">
+                    <div class="map-placeholder">
+                        <div class="map-content">
+                            <div class="map-points">
+                                <!-- 起点 -->
+                                <div class="point start-point">
+                                    <div class="point-icon">📍</div>
+                                    <div class="point-label">取件点</div>
+                                </div>
+                                <!-- 终点 -->
+                                <div class="point end-point">
+                                    <div class="point-icon">🏠</div>
+                                    <div class="point-label">目的地</div>
+                                </div>
+                                <!-- 跑腿员位置 -->
+                                <div id="runnerPoint" class="point runner-point">
+                                    <div class="point-icon">👤</div>
+                                    <div class="point-label">跑腿员</div>
+                                </div>
+                                <!-- 路线线 -->
+                                <div class="route-line"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 跑腿员信息卡片 -->
+            <div class="card runner-info-card">
+                <div class="runner-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 16px; margin-bottom: 16px;">
+                    <div class="runner-avatar">
+                        <div class="avatar-placeholder" style="width: 48px; height: 48px; line-height: 48px; font-size: 24px;">👤</div>
+                    </div>
+                    <div class="runner-details">
+                        <div class="runner-name" style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">张三同学</div>
+                        <div class="runner-rating" style="display: flex; align-items: center;">
+                            <div class="stars" style="color: #ffc107; margin-right: 8px;">⭐⭐⭐⭐⭐</div>
+                            <div class="rating-score" style="font-weight: bold;">4.5</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="runner-stats" style="display: flex; justify-content: space-between; text-align: center;">
+                    <div class="stat-item">
+                        <div class="stat-value" style="font-size: 18px; font-weight: bold;">128</div>
+                        <div class="stat-label" style="font-size: 12px; color: var(--text-secondary);">完成订单</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" style="font-size: 18px; font-weight: bold;">98%</div>
+                        <div class="stat-label" style="font-size: 12px; color: var(--text-secondary);">准时率</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" style="font-size: 18px; font-weight: bold;">A+</div>
+                        <div class="stat-label" style="font-size: 12px; color: var(--text-secondary);">信用等级</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 任务详情卡片 -->
+            <div class="card task-details-card">
+                <div class="card-header">
+                    <div class="card-title">任务详情</div>
+                </div>
+                <div class="details-list">
+                    <div class="detail-item">
+                        <div class="detail-label" style="color: var(--text-secondary);">任务类型</div>
+                        <div class="detail-value" style="font-weight: 500;">快递取件</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label" style="color: var(--text-secondary);">取件地点</div>
+                        <div class="detail-value" style="font-weight: 500;">校园快递中心</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label" style="color: var(--text-secondary);">送达地点</div>
+                        <div class="detail-value" style="font-weight: 500;">学生宿舍3号楼</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label" style="color: var(--text-secondary);">预计到达</div>
+                        <div class="detail-value" id="etaTime" style="font-weight: 500;">15分钟</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label" style="color: var(--text-secondary);">费用</div>
+                        <div class="detail-value price" style="color: var(--error-color); font-weight: bold;">¥8.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="contactRunner()" style="width: 100%;">
+                    <span class="btn-icon">📞</span>
+                    联系跑腿员
+                </button>
+                <button class="btn btn-secondary" onclick="sendMessage()" style="width: 100%;">
+                    <span class="btn-icon">💬</span>
+                    发送消息
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/task-tracking.js"></script>
+</body>
+</html>

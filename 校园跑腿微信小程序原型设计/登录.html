@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>登录 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+        <link rel="stylesheet" href="css/ui-components.css">
+        <link rel="stylesheet" href="css/loading.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 导航栏 -->
+        <div class="navbar">
+            <div class="navbar-left"></div>
+            <div class="navbar-title">登录</div>
+            <div class="navbar-right"></div>
+        </div>
+
+        <!-- 页面内容 -->
+        <div class="page-content flex flex-col justify-center" style="min-height: 80vh;">
+            <!-- Logo区域 -->
+            <div class="text-center mb-32 fade-in">
+                <img src="images/logo.svg" alt="校园跑腿" style="width: 80px; height: 80px; margin: 0 auto 16px; display: block;" class="login-logo">
+                <h1 class="text-xxl text-primary mb-8">校园跑腿</h1>
+                <p class="text-secondary">专属校园即时服务平台</p>
+            </div>
+
+            <!-- 登录按钮 -->
+            <div class="mt-32 fade-in" style="animation-delay: 0.1s;">
+                <button class="btn btn-primary btn-block btn-lg mb-16" onclick="wechatLogin()">
+                    微信一键登录
+                </button>
+                
+                <button class="btn btn-secondary btn-block btn-lg" onclick="location.href='手机绑定.html'">
+                    手机号快捷登录
+                </button>
+            </div>
+
+            <!-- 协议 -->
+            <div class="mt-32 text-center text-xs text-secondary fade-in" style="animation-delay: 0.2s;">
+                <label class="flex items-center justify-center">
+                    <input type="checkbox" id="agreeCheck" checked style="margin-right: 4px;">
+                    <span>我已阅读并同意 <a href="#">《用户服务协议》</a> 和 <a href="#">《隐私政策》</a></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/load-manager.js"></script>
+    <script src="js/error-manager.js"></script>
+    <script>
+        // 兼容兜底：若 CommonUtils 初始化失败，提供最小可用实现，避免页面报错
+        if (typeof CommonUtils === 'undefined') {
+            window.CommonUtils = {
+                generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2); },
+                showLoading(opts = {}) {
+                    const el = document.createElement('div');
+                    el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);color:#fff;z-index:9999;';
+                    el.textContent = opts.text || '加载中...';
+                    document.body.appendChild(el);
+                    return { hide() { el.remove(); } };
+                },
+                handleError(msg, { type } = {}) {
+                    if (type === 'toast' && window.alert) { alert(msg); return; }
+                    if (console) console.error(msg);
+                },
+                setAuth(auth) { localStorage.setItem('authUser', JSON.stringify(auth)); }
+            };
+        }
+
+        function wechatLogin() {
+            if (!document.getElementById('agreeCheck').checked) {
+                CommonUtils.handleError('请先同意服务协议', { type: 'toast', level: 'warning' });
+                return;
+            }
+            // 模拟微信授权弹窗
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:999;display:flex;align-items:center;justify-content:center;';
+            modal.innerHTML = `
+                <div class="card" style="width: 80%; max-width: 320px; animation: fadeIn 0.2s;">
+                    <div class="text-center mb-16">
+                        <div class="text-lg font-bold mb-4">微信授权</div>
+                        <img src="images/logo.svg" alt="校园跑腿" style="width: 60px; height: 60px; margin: 0 auto 8px; display: block; border-radius: 50%;">
+                        <p class="text-md">校园跑腿申请获取以下权限：</p>
+                    </div>
+                    <div class="list-group mb-16" style="border:none;">
+                        <div class="list-item" style="padding: 8px 0; border:none;">
+                            <div class="text-secondary text-sm">· 获得你的公开信息（昵称、头像等）</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between" style="gap: 12px;">
+                        <button class="btn btn-secondary flex-1" onclick="this.closest('.card').parentElement.remove()">拒绝</button>
+                        <button class="btn btn-primary flex-1" onclick="confirmLogin()">允许</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function confirmLogin() {
+            // 显示加载提示
+            const loader = CommonUtils.showLoading({
+                text: '登录中...',
+                fullscreen: true
+            });
+            
+            // 模拟登录成功，记录为未完成首次身份选择
+            setTimeout(() => {
+                const userId = `wx_${CommonUtils.generateId()}`;
+                CommonUtils.setAuth({
+                    id: userId,
+                    openid: userId,
+                    loggedIn: true,
+                    role: null,
+                    runnerStatus: 'none',
+                    firstLogin: true,
+                    name: '微信用户'
+                });
+                
+                // 隐藏加载提示
+                loader.hide();
+                
+                // 使用统一路由跳转
+                window.router.navigate('identitySelect');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

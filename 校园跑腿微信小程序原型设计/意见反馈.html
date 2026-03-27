@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>意见反馈 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+    <style>
+        /* 图片上传区域样式 */
+        .upload-area {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .upload-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .upload-add {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f5f7fa;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-add:hover {
+            background-color: #e6f7ff;
+        }
+        .upload-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .upload-remove {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            background-color: #ff4d4f;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="navbar-left">
+                <div class="navbar-back" onclick="history.back()">←</div>
+            </div>
+            <div class="navbar-title">意见反馈</div>
+            <div class="navbar-right"></div>
+        </div>
+
+        <div class="page-content">
+            <div class="card mb-16">
+                <div class="card-header">
+                    <span class="card-title">反馈类型</span>
+                </div>
+                <div class="flex flex-wrap" style="gap: 12px;">
+                    <button class="btn btn-secondary btn-sm active feedback-type" data-type="suggestion" style="border-color: var(--primary-color); color: var(--primary-color); background: var(--primary-light);">功能建议</button>
+                    <button class="btn btn-secondary btn-sm feedback-type" data-type="problem">遇到问题</button>
+                    <button class="btn btn-secondary btn-sm feedback-type" data-type="complaint">投诉举报</button>
+                    <button class="btn btn-secondary btn-sm feedback-type" data-type="other">其他</button>
+                </div>
+            </div>
+
+            <div class="card mb-16">
+                <div class="form-group">
+                    <label class="form-label">反馈内容</label>
+                    <textarea id="feedbackContent" class="form-textarea" placeholder="请详细描述您遇到的问题或建议..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">图片上传 (选填)</label>
+                    <div id="uploadArea" class="upload-area">
+                        <div class="upload-item upload-add">+</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-32">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">联系方式 (选填)</label>
+                    <input id="contactInfo" type="text" class="form-input" placeholder="请输入手机号或微信号，方便我们联系您">
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-block btn-lg" onclick="submitFeedback()">提交反馈</button>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        let selectedFeedbackType = 'suggestion';
+        let uploadedImages = [];
+        let feedbackUploader;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            feedbackUploader = new ImageUploader({
+                container: '#uploadArea',
+                maxCount: 3,
+                maxSizeMB: 8,
+                onChange: (files) => {
+                    uploadedImages = files.map(item => item.preview);
+                }
+            });
+        });
+
+        // 反馈类型选择
+        document.querySelectorAll('.feedback-type').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 移除其他按钮的active状态
+                document.querySelectorAll('.feedback-type').forEach(b => {
+                    b.classList.remove('active');
+                    b.style.borderColor = '';
+                    b.style.color = '';
+                    b.style.background = '';
+                });
+                // 添加当前按钮的active状态
+                this.classList.add('active');
+                this.style.borderColor = 'var(--primary-color)';
+                this.style.color = 'var(--primary-color)';
+                this.style.background = 'var(--primary-light)';
+                // 更新选中的反馈类型
+                selectedFeedbackType = this.dataset.type;
+            });
+        });
+
+        // 提交反馈
+        function submitFeedback() {
+            const content = document.getElementById('feedbackContent').value.trim();
+            const contact = document.getElementById('contactInfo').value.trim();
+            
+            if (!content) {
+                alert('请填写反馈内容');
+                return;
+            }
+            
+            const btn = document.querySelector('.btn-primary');
+            btn.disabled = true;
+            btn.innerText = '提交中...';
+            
+            // 构建反馈数据
+            const feedback = {
+                id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+                type: selectedFeedbackType,
+                typeText: getFeedbackTypeText(selectedFeedbackType),
+                content: content,
+                images: uploadedImages,
+                contact: contact,
+                createTime: Date.now(),
+                status: 'pending' // pending, processing, resolved
+            };
+            
+            // 保存到localStorage
+            let feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
+            feedbacks.push(feedback);
+            localStorage.setItem('feedbacks', JSON.stringify(feedbacks));
+            
+            setTimeout(() => {
+                CommonUtils.showToast('感谢您的反馈！', 'success');
+                setTimeout(() => {
+                    history.back();
+                }, 1000);
+            }, 1500);
+        }
+        
+        // 获取反馈类型文本
+        function getFeedbackTypeText(type) {
+            const typeMap = {
+                suggestion: '功能建议',
+                problem: '遇到问题',
+                complaint: '投诉举报',
+                other: '其他'
+            };
+            return typeMap[type] || '其他';
+        }
+    </script>
+</body>
+</html>

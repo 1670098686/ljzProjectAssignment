@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="375" height="200" viewBox="0 0 375 200">
+    <rect width="375" height="200" fill="#E6F7FF"/>
+    <text x="50%" y="50%" font-family="Arial" font-size="24" fill="#1890FF" text-anchor="middle" dy=".3em">校园风光 1</text>
+    <path d="M0 200L100 150L200 180L300 140L375 180V200H0Z" fill="#BAE7FF"/>
+</svg>

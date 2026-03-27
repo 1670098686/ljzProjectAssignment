@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>认证状态 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="navbar-left">
+                <div class="navbar-back" onclick="location.href='个人中心.html'">←</div>
+            </div>
+            <div class="navbar-title">认证状态</div>
+            <div class="navbar-right"></div>
+        </div>
+
+        <div class="page-content">
+            <div id="statusBlock" class="mb-24"></div>
+
+            <div class="card mb-32">
+                <div class="text-sm text-secondary mb-16 font-bold">申请信息</div>
+                <div class="flex justify-between items-center mb-12">
+                    <span class="text-secondary">提交时间</span>
+                    <span id="applyTime" class="font-medium">--</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-secondary">当前状态</span>
+                    <span id="applyStatus" class="font-bold">--</span>
+                </div>
+            </div>
+
+            <div class="mt-auto">
+                <button class="btn btn-secondary btn-block btn-lg mb-16" onclick="location.href='个人中心.html'">返回个人中心</button>
+                <button class="btn btn-outline btn-block" onclick="mockApprove()">模拟后台通过（测试）</button>
+            </div>
+        </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const statusBlock = document.getElementById('statusBlock');
+        const applyTimeEl = document.getElementById('applyTime');
+        const applyStatusEl = document.getElementById('applyStatus');
+
+        function renderStatus() {
+            const auth = CommonUtils.getAuth() || {};
+            // 只有明确设置了runnerStatus才使用，否则为null
+            const status = auth.runnerStatus || null;
+            const applyTimeRaw = localStorage.getItem('runnerApplyTime');
+            const hasApplied = !!applyTimeRaw;
+            const timeStr = applyTimeRaw || '尚未提交';
+            applyTimeEl.textContent = timeStr;
+            applyStatusEl.style.fontStyle = 'normal';
+
+            if (status === 'approved') {
+                statusBlock.innerHTML = `
+                    <div class="card text-center py-8" style="background: linear-gradient(180deg, #F6FFED 0%, #FFFFFF 100%); border: 1px solid #B7EB8F;">
+                        <div style="width: 72px; height: 72px; background: var(--success-color); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; color: white; font-size: 36px; box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);">✓</div>
+                        <h2 class="text-xl font-bold mb-8" style="color: #389e0d;">认证已通过</h2>
+                        <p class="text-secondary text-sm mb-24 px-4">恭喜！您已成为正式跑腿员，快去接单吧。</p>
+                        
+                        <div class="flex items-center justify-center p-4" style="background: rgba(82, 196, 26, 0.1); border-radius: 8px; display: inline-flex;">
+                            <span style="margin-right: 6px;">🆔</span> 
+                            <span class="text-sm font-bold" style="color: #389e0d;">双重身份已激活</span>
+                        </div>
+                    </div>
+                `;
+                applyStatusEl.textContent = '审核通过';
+                applyStatusEl.className = 'text-success font-bold';
+            } else if (status === 'rejected') {
+                statusBlock.innerHTML = `
+                    <div class="card text-center py-8">
+                        <div style="width: 72px; height: 72px; background: var(--bg-body); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); font-size: 32px;">✕</div>
+                        <h2 class="text-xl font-bold mb-8">审核未通过</h2>
+                        <p class="text-secondary text-sm px-4">抱歉，您的资料未符合要求，请修改后重新提交。</p>
+                    </div>
+                `;
+                applyStatusEl.textContent = '审核未通过';
+                applyStatusEl.className = 'text-error font-bold';
+            } else if (status === 'pending' || status === 'submitted' || hasApplied) {
+                // 只有明确提交了申请或有审核状态才显示审核中
+                statusBlock.innerHTML = `
+                    <div class="card text-center py-8">
+                        <div style="width: 72px; height: 72px; background: var(--primary-light); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; color: var(--primary-color); font-size: 32px;">⏳</div>
+                        <h2 class="text-xl font-bold mb-8">正在审核中</h2>
+                        <p class="text-secondary text-sm px-4">预计 1-3 个工作日内完成审核，请耐心等待。</p>
+                    </div>
+                `;
+                applyStatusEl.textContent = '等待审核';
+                applyStatusEl.className = 'text-warning font-bold';
+            } else {
+                // 未申请跑腿员认证的情况
+                statusBlock.innerHTML = `
+                    <div class="card text-center py-8">
+                        <div style="width: 72px; height: 72px; background: var(--bg-body); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); font-size: 32px;">🆔</div>
+                        <h2 class="text-xl font-bold mb-8">未认证</h2>
+                        <p class="text-secondary text-sm px-4">请返回并提交跑腿员认证资料。</p>
+                    </div>
+                `;
+                applyStatusEl.textContent = '未认证';
+                applyStatusEl.className = 'text-secondary font-bold';
+            }
+        }
+
+        function mockApprove() {
+            const auth = CommonUtils.getAuth() || {};
+            CommonUtils.setAuth({
+                ...auth,
+                role: 'dual',
+                runnerStatus: 'approved',
+                firstLogin: false
+            });
+            renderStatus();
+            alert('已模拟后台通过，您现在拥有用户/跑腿员双重身份');
+        }
+
+        document.addEventListener('DOMContentLoaded', renderStatus);
+    </script>
+    </div>
+</body>
+</html>

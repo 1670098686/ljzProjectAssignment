@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>发布任务 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="navbar-left">
+                <div class="navbar-back" onclick="history.back()">←</div>
+            </div>
+            <div class="navbar-title">发布任务</div>
+            <div class="navbar-right"></div>
+        </div>
+
+        <div class="page-content">
+            <div class="card mb-16">
+                <div class="card-header">
+                    <span class="card-title">任务类型</span>
+                </div>
+                <div class="flex justify-between" style="gap: 8px; flex-wrap: wrap;">
+                    <button class="btn btn-primary flex-1 btn-sm task-type-btn" data-task-type="快递">取快递</button>
+                    <button class="btn btn-secondary flex-1 btn-sm task-type-btn" data-task-type="餐食">带饭</button>
+                    <button class="btn btn-secondary flex-1 btn-sm task-type-btn" data-task-type="文件">送文件</button>
+                    <button class="btn btn-secondary flex-1 btn-sm task-type-btn" data-task-type="其他">其他</button>
+                </div>
+            </div>
+
+            <div class="card mb-16">
+                <div class="form-group">
+                    <label class="form-label">取件地点</label>
+                    <div class="flex items-center">
+                        <input id="pickupInput" type="text" class="form-input" placeholder="请选择取件地点">
+                        <span class="text-primary ml-2" style="margin-left: 8px;"><img src="images/icon-location.svg" class="icon-img"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">送达地点</label>
+                    <div class="flex items-center">
+                        <input id="deliveryInput" type="text" class="form-input" placeholder="请选择送达地点">
+                        <span class="text-primary ml-2" style="margin-left: 8px;"><img src="images/icon-location.svg" class="icon-img"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-16">
+                <div class="form-group">
+                    <label class="form-label">任务详情</label>
+                    <textarea id="taskDetail" class="form-textarea" placeholder="请输入任务详情，如快递取件码、餐品要求等"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">相关图片</label>
+                    <div id="taskUploadArea" class="flex" style="gap: 8px; flex-wrap: wrap;">
+                        <div class="upload-item upload-add placeholder-img" style="width: 80px; height: 80px; border-radius: 8px;">+</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-16">
+                <div class="form-group">
+                    <label class="form-label">基础金额</label>
+                    <div class="flex items-center" style="gap: 8px;">
+                        <input id="baseAmount" type="number" class="form-input" min="1" step="0.5" value="5">
+                        <span class="text-secondary text-sm">元</span>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center mb-16">
+                    <span class="text-md">加急任务</span>
+                    <input id="urgentCheckbox" type="checkbox" style="transform: scale(1.2);">
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-md font-bold">支付金额</span>
+                    <div class="text-right">
+                        <div id="payAmount" class="text-error text-xl">¥ 5.00</div>
+                        <div id="payNote" class="text-secondary text-xs">可编辑基础金额，默认¥5.00。</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-32">
+                <button id="publishBtn" class="btn btn-primary btn-block btn-lg">立即发布</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 任务类型选择
+            const typeButtons = document.querySelectorAll('.task-type-btn');
+            const params = new URLSearchParams(window.location.search);
+            let selectedType = params.get('type') || '快递';
+
+            function setSelectedType(type) {
+                const target = Array.from(typeButtons).find(btn => btn.dataset.taskType === type) || typeButtons[0];
+                if (!target) return;
+                typeButtons.forEach(b => {
+                    b.classList.remove('btn-primary');
+                    b.classList.add('btn-secondary');
+                });
+                target.classList.add('btn-primary');
+                target.classList.remove('btn-secondary');
+                selectedType = target.dataset.taskType;
+            }
+
+            typeButtons.forEach(btn => {
+                btn.addEventListener('click', () => setSelectedType(btn.dataset.taskType));
+            });
+
+            setSelectedType(selectedType);
+
+            // 上传器
+            const taskUploader = new ImageUploader({
+                container: '#taskUploadArea',
+                maxCount: 4,
+                maxSizeMB: 8
+            });
+
+            const baseAmountInput = document.getElementById('baseAmount');
+            const urgentCheckbox = document.getElementById('urgentCheckbox');
+            const payAmountEl = document.getElementById('payAmount');
+            const payNoteEl = document.getElementById('payNote');
+
+            function getBaseAmount() {
+                const value = parseFloat(baseAmountInput.value);
+                if (isNaN(value) || value <= 0) return 5;
+                return Math.min(200, Math.max(1, value));
+            }
+
+            function updatePayAmount() {
+                const base = getBaseAmount();
+                baseAmountInput.value = base.toFixed(2);
+                const isUrgent = urgentCheckbox.checked;
+                const final = isUrgent ? base * 1.5 : base;
+                payAmountEl.textContent = `¥ ${final.toFixed(2)}`;
+                payNoteEl.textContent = isUrgent ? '已加急：在基础金额上增加50%。' : '可编辑基础金额，默认¥5.00。';
+            }
+
+            baseAmountInput.addEventListener('input', updatePayAmount);
+            urgentCheckbox.addEventListener('change', updatePayAmount);
+            updatePayAmount();
+
+            // 发布任务
+            document.getElementById('publishBtn').addEventListener('click', () => {
+                if (!CommonUtils.requireLogin('登录.html') || !CommonUtils.requireIdentityChosen('身份选择.html')) {
+                    return;
+                }
+                const auth = CommonUtils.getAuth();
+                if (auth && auth.role && !['publisher', 'dual', 'admin'].includes(auth.role)) {
+                    alert('当前身份不可发布任务，请切换为发布者或双身份');
+                    return;
+                }
+
+                const pickup = document.getElementById('pickupInput').value.trim();
+                const delivery = document.getElementById('deliveryInput').value.trim();
+                const detail = document.getElementById('taskDetail').value.trim();
+
+                if (!pickup || !delivery || !detail) {
+                    CommonUtils.showToast('请完善取件、送达地点和任务详情', 'warning');
+                    return;
+                }
+
+                const base = getBaseAmount();
+                const urgent = urgentCheckbox.checked;
+                const finalPrice = urgent ? base * 1.5 : base;
+
+                const normalizedPrice = Number(finalPrice.toFixed(2));
+                const newTask = stateManager.addTask({
+                    type: selectedType,
+                    title: detail.slice(0, 20) || `${selectedType}任务`,
+                    from: pickup,
+                    to: delivery,
+                    pickup,
+                    delivery,
+                    detail,
+                    price: normalizedPrice,
+                    urgent: urgent,
+                    images: taskUploader ? taskUploader.getPreviews() : [],
+                    publisherId: (auth && (auth.id || auth.openid)) || 'guest'
+                });
+
+                // 记录最新发布的任务金额与标题，支付页找不到任务时使用，避免金额显示不一致
+                try {
+                    localStorage.setItem('lastPublishedTaskId', newTask.id);
+                    localStorage.setItem('lastPublishedPrice', String(normalizedPrice));
+                    localStorage.setItem('lastPublishedTitle', newTask.title || newTask.type || '任务');
+                } catch (e) {
+                    console.warn('缓存最近发布任务失败', e);
+                }
+
+                if (window.MessageStore) {
+                    MessageStore.addMessage('system', `任务「${newTask.title}」已发布，等待支付`, 'other', { title: '系统通知' });
+                }
+
+                CommonUtils.showToast('任务信息已保存，前往支付', 'success');
+                setTimeout(() => {
+                    location.href = `支付确认.html?taskId=${newTask.id}`;
+                }, 600);
+            });
+        });
+    </script>
+</body>
+</html>
