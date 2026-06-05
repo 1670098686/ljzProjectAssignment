@@ -1,0 +1,140 @@
+/* 校园跑腿小程序 - 全局样式 (Modern UI) */
+
+:root {
+  /* 品牌色 */
+  --primary-color: #1890FF;    /* 蓝色 - 主色调 */
+  --primary-light: #E6F7FF;    /* 浅蓝 - 背景/选中 */
+  --primary-dark: #096DD9;     /* 深蓝 - 点击态 */
+  
+  --secondary-color: #52C41A;  /* 绿色 - 辅助色 */
+  --secondary-light: #F6FFED;
+  
+  /* 功能色 */
+  --success-color: #52C41A;
+  --warning-color: #FAAD14;
+  --error-color: #FF4D4F;
+  --info-color: #1890FF;
+  
+  /* 文字色 */
+  --text-primary: #262626;     /* 主要文字 */
+  --text-secondary: #8C8C8C;   /* 次要文字 */
+  --text-tertiary: #BFBFBF;    /* 弱提示文字 */
+  --text-white: #FFFFFF;
+  
+  /* 背景色 */
+  --bg-body: #F5F5F5;          /* 页面背景 */
+  --bg-card: #FFFFFF;          /* 卡片背景 */
+  --bg-input: #F5F5F5;         /* 输入框背景 */
+  
+  /* 边框 */
+  --border-color: #F0F0F0;
+  --border-radius-sm: 6px;
+  --border-radius-md: 10px;
+  --border-radius-lg: 16px;
+  --border-radius-round: 999px;
+  
+  /* 阴影 */
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.08);
+  
+  /* 尺寸 */
+  --nav-height: 48px;
+  --tabbar-height: 56px;
+  --safe-area-bottom: env(safe-area-inset-bottom);
+}
+
+/* 基础重置 */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  background-color: #ffffff; /* 最底层白色背景，解决微信等环境渲染问题 */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', STHeiti, 'Microsoft Yahei', Tahoma, Simsun, sans-serif;
+  background-color: var(--bg-body);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden; /* 防止水平滚动 */
+  width: 100%;
+}
+
+a {
+  text-decoration: none;
+  color: var(--primary-color);
+}
+
+ul, li {
+  list-style: none;
+}
+
+/* 布局工具类 */
+.container {
+  max-width: 480px; /* 限制最大宽度，模拟移动端 */
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: var(--bg-body);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-content {
+  flex: 1;
+  padding: 16px;
+  padding-bottom: calc(var(--tabbar-height) + var(--safe-area-bottom) + 20px);
+}
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.flex-1 { flex: 1; }
+
+.mt-4 { margin-top: 4px; }
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mt-20 { margin-top: 20px; }
+.mt-24 { margin-top: 24px; }
+.mt-32 { margin-top: 32px; }
+
+.mb-8 { margin-bottom: 8px; }
+.mb-16 { margin-bottom: 16px; }
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+.text-xs { font-size: 12px; }
+.text-sm { font-size: 13px; }
+.text-md { font-size: 14px; }
+.text-lg { font-size: 16px; }
+.text-xl { font-size: 18px; font-weight: 600; }
+.text-xxl { font-size: 24px; font-weight: 600; }
+
+.text-primary { color: var(--primary-color); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.text-error { color: var(--error-color); }
+.text-success { color: var(--success-color); }
+.text-warning { color: var(--warning-color); }
+
+/* 动画 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}

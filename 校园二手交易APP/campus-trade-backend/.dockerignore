@@ -1,0 +1,11 @@
+target/
+.idea/
+.vscode/
+.git/
+.gitignore
+*.iml
+mvnw
+mvnw.cmd
+.mvn/
+**/node_modules/
+**/.DS_Store

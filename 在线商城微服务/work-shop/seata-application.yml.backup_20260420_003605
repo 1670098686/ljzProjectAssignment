@@ -1,0 +1,85 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+server:
+  port: 8091
+spring:
+  application:
+    name: seata-server
+  main:
+    web-application-type: none
+logging:
+  config: classpath:logback-spring.xml
+  file:
+    path: ${log.home:${user.home}/logs/seata}
+  extend:
+    logstash-appender:
+      # off by default
+      enabled: false
+      destination: 127.0.0.1:4560
+    kafka-appender:
+      # off by default
+      enabled: false
+      bootstrap-servers: 127.0.0.1:9092
+      topic: logback_to_logstash
+      producer:
+        acks: 0
+        linger-ms: 1000
+        max-block-ms: 0
+    metric-appender:
+      # off by default
+      enabled: false
+
+seata:
+  config:
+    # 使用Nacos作为配置中心
+    type: nacos
+    nacos:
+      server-addr: 127.0.0.1:8848
+      namespace: ""
+      group: "SEATA_GROUP"
+      data-id: "seataServer.properties"
+      username: ""
+      password: ""
+  registry:
+    # 使用Nacos作为注册中心
+    type: nacos
+    nacos:
+      application: "seata-server"
+      server-addr: 127.0.0.1:8848
+      group: "SEATA_GROUP"
+      namespace: ""
+      cluster: "default"
+      username: ""
+      password: ""
+  store:
+    # 使用数据库存储模式
+    mode: db
+    db:
+      datasource: "druid"
+      db-type: "mysql"
+      driver-class-name: "com.mysql.cj.jdbc.Driver"
+      url: "jdbc:mysql://127.0.0.1:3306/seata?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true"
+      user: "root"
+      password: "liujian3732028"
+      min-conn: 5
+      max-conn: 30
+      global-table: "global_table"
+      branch-table: "branch_table"
+      lock-table: "lock_table"
+      distributed-lock-table: "distributed_lock"
+      query-limit: 100
+      max-wait: 5000

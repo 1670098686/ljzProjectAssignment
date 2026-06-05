@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>任务列表 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+    <style>
+        .filter-bar {
+            height: 48px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: var(--nav-height);
+            z-index: 90;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .filter-item {
+            font-size: 14px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px;
+            user-select: none;
+        }
+        .filter-item.active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        .filter-icon {
+            font-size: 10px;
+            margin-left: 4px;
+            transition: transform 0.2s;
+        }
+        .filter-item.active .filter-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Filter Dropdown */
+        .filter-dropdown {
+            position: fixed;
+            top: calc(var(--nav-height) + 48px);
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            width: calc(100% - 24px);
+            max-width: 420px;
+            background: white;
+            z-index: 89;
+            padding: 0;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            display: none;
+            animation: slideDown 0.2s ease-out;
+            border-radius: 16px;
+            overflow: hidden;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .filter-dropdown.show {
+            display: block;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .filter-section {
+            padding: 12px 16px 4px;
+        }
+        
+        .filter-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .filter-tags {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+        
+        .filter-tag {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-body);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-primary);
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .filter-tag:active {
+            transform: scale(0.98);
+        }
+
+        .filter-tag.active {
+            background: var(--primary-light);
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        .filter-actions {
+            display: flex;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .filter-btn {
+            flex: 1;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .filter-btn.reset {
+            background: white;
+            color: var(--text-primary);
+        }
+        
+        .filter-btn.confirm {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Mask */
+        .mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 88;
+            display: none;
+        }
+        .mask.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="navbar-left"></div>
+            <div class="navbar-title">任务大厅</div>
+            <div class="navbar-right"></div>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-item active" onclick="sortTasks('default', this)">综合排序</div>
+            <div class="filter-item" onclick="sortTasks('distance', this)">距离最近</div>
+            <div class="filter-item" onclick="sortTasks('price', this)">报酬最高</div>
+            <div class="filter-item" onclick="toggleFilter(this)">筛选 <span class="filter-icon">▼</span></div>
+        </div>
+
+        <!-- Filter Dropdown -->
+        <div class="mask" id="mask" onclick="closeFilter()"></div>
+        <div class="filter-dropdown" id="filterDropdown">
+            <div class="filter-section">
+                <div class="filter-title">任务类型</div>
+                <div class="filter-tags">
+                    <div class="filter-tag active" data-value="all" onclick="selectFilterTag('all', this)">全部</div>
+                    <div class="filter-tag" data-value="express" onclick="selectFilterTag('express', this)">取快递</div>
+                    <div class="filter-tag" data-value="food" onclick="selectFilterTag('food', this)">带饭</div>
+                    <div class="filter-tag" data-value="file" onclick="selectFilterTag('file', this)">送文件</div>
+                    <div class="filter-tag" data-value="other" onclick="selectFilterTag('other', this)">其他</div>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <div class="filter-btn reset" onclick="resetFilter()">重置</div>
+                <div class="filter-btn confirm" onclick="confirmFilter()">确认</div>
+            </div>
+        </div>
+
+        <div class="page-content">
+            <div class="flex flex-col" style="gap: 12px;" id="taskList"></div>
+            <div id="taskEmpty" class="empty-state" style="display:none; margin-top: 24px;">
+                <div class="empty-icon"><img src="images/icon-package.svg" class="icon-img"></div>
+                <div class="empty-text">暂无可接任务</div>
+                <div class="empty-desc">可在任务发布页发布新任务后再来接单</div>
+            </div>
+        </div>
+
+        <!-- 底部标签栏 -->
+        <div class="tabbar">
+            <div class="tabbar-item" onclick="location.href='首页.html'">
+                <div class="tabbar-icon"><img src="images/icon-home.svg" class="icon-img"></div>
+                <span>首页</span>
+            </div>
+            <div class="tabbar-item active" onclick="location.href='任务列表.html'">
+                <div class="tabbar-icon"><img src="images/icon-tasks.svg" class="icon-img"></div>
+                <span>任务</span>
+            </div>
+            <div class="tabbar-item" onclick="location.href='任务发布.html'">
+                <div class="tabbar-icon fab"><img src="images/icon-publish-white.svg" class="icon-img"></div>
+                <span>发布</span>
+            </div>
+            <div class="tabbar-item" onclick="location.href='消息.html'">
+                <div class="tabbar-icon"><img src="images/icon-messages.svg" class="icon-img"></div>
+                <span>消息</span>
+            </div>
+            <div class="tabbar-item" onclick="location.href='个人中心.html'">
+                <div class="tabbar-icon"><img src="images/icon-profile.svg" class="icon-img"></div>
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        // 进入页面前校验跑腿员身份，纯用户直接弹窗并返回首页
+        document.addEventListener('DOMContentLoaded', function() {
+            const auth = CommonUtils.getAuth();
+            if (!auth || !auth.loggedIn) {
+                alert('请先登录后再查看任务大厅');
+                location.href = '登录.html';
+                return;
+            }
+            if (!['runner', 'dual', 'admin'].includes(auth.role)) {
+                alert('仅跑腿员可进入任务大厅');
+                location.href = '首页.html';
+                return;
+            }
+            if (auth.runnerStatus !== 'approved') {
+                alert('跑腿员认证通过后才可进入任务大厅');
+                location.href = '认证状态.html';
+                return;
+            }
+
+            // 渲染任务列表
+            try {
+                renderTaskList();
+            } catch (e) {
+                console.error('加载任务失败', e);
+                CommonUtils.showToast('任务加载失败', 'error');
+            }
+        });
+
+        let currentCategory = 'all';
+        let currentSort = 'default';
+        let tempCategory = 'all'; // Temporary selection for the dropdown
+
+        function toggleFilter(element) {
+            const dropdown = document.getElementById('filterDropdown');
+            const mask = document.getElementById('mask');
+            const isVisible = dropdown.classList.contains('show');
+            
+            if (isVisible) {
+                closeFilter();
+            } else {
+                // Open
+                dropdown.classList.add('show');
+                mask.classList.add('show');
+                
+                // Sync temp state with current actual state
+                tempCategory = currentCategory;
+                updateFilterTagsUI();
+
+                // Highlight the filter tab
+                document.querySelectorAll('.filter-item').forEach(item => item.classList.remove('active'));
+                element.classList.add('active');
+            }
+        }
+
+        function closeFilter() {
+            document.getElementById('filterDropdown').classList.remove('show');
+            document.getElementById('mask').classList.remove('show');
+            updateFilterBarState();
+        }
+
+        function updateFilterBarState() {
+            const items = document.querySelectorAll('.filter-item');
+            items.forEach(item => item.classList.remove('active'));
+            
+            if (currentSort === 'default') items[0].classList.add('active');
+            else if (currentSort === 'distance') items[1].classList.add('active');
+            else if (currentSort === 'price') items[2].classList.add('active');
+            
+            if (currentCategory !== 'all') {
+                items[3].classList.add('active'); // Highlight 'Filter' if filtered
+            }
+        }
+
+        function selectFilterTag(category, element) {
+            tempCategory = category;
+            updateFilterTagsUI();
+        }
+
+        function updateFilterTagsUI() {
+            document.querySelectorAll('.filter-tag').forEach(tag => {
+                if (tag.getAttribute('data-value') === tempCategory) {
+                    tag.classList.add('active');
+                } else {
+                    tag.classList.remove('active');
+                }
+            });
+        }
+
+        function resetFilter() {
+            tempCategory = 'all';
+            updateFilterTagsUI();
+        }
+
+        function confirmFilter() {
+            currentCategory = tempCategory;
+            applyFilterAndSort();
+            closeFilter();
+        }
+
+        function sortTasks(sortType, element) {
+            currentSort = sortType;
+            applyFilterAndSort();
+            updateFilterBarState();
+        }
+
+        function applyFilterAndSort() {
+            const list = document.getElementById('taskList');
+            const items = Array.from(list.getElementsByClassName('task-item'));
+
+            // 1. Filter
+            items.forEach(item => {
+                const itemCategory = item.getAttribute('data-category');
+                if (currentCategory === 'all' || itemCategory === currentCategory) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // 2. Sort
+            const visibleItems = items.filter(item => item.style.display !== 'none');
+
+            visibleItems.sort((a, b) => {
+                if (currentSort === 'price') {
+                    return parseFloat(b.getAttribute('data-price')) - parseFloat(a.getAttribute('data-price'));
+                } else if (currentSort === 'distance') {
+                    return parseFloat(a.getAttribute('data-distance')) - parseFloat(b.getAttribute('data-distance'));
+                }
+                return 0; // Default order (DOM order)
+            });
+
+            visibleItems.forEach(item => list.appendChild(item));
+            toggleEmptyState();
+        }
+
+        function renderTaskList() {
+            if (!window.dataStore) {
+                window.dataStore = new DataStore();
+            }
+            const listEl = document.getElementById('taskList');
+
+            const auth = CommonUtils.getAuth();
+            const tasks = window.TaskFlow ? TaskFlow.getAvailableTasks(auth) : (window.dataStore.buildTasksForAuth(auth) || []);
+            const hasTasks = Array.isArray(tasks) && tasks.length > 0;
+            listEl.innerHTML = '';
+
+            if (hasTasks) {
+                tasks.forEach(task => {
+                    const taskCard = buildTaskCard(task);
+                    listEl.appendChild(taskCard);
+                });
+                toggleEmptyState(false);
+            } else {
+                toggleEmptyState(true);
+            }
+        }
+
+        function buildTaskCard(task) {
+            const card = document.createElement('div');
+            const categoryMap = {
+                '快递': 'express',
+                '餐食': 'food',
+                '文件': 'file',
+                '其他': 'other'
+            };
+            const tagClassMap = {
+                'express': 'tag-primary',
+                'food': 'tag-success',
+                'file': 'tag-warning',
+                'other': 'tag-info'
+            };
+
+            const cat = categoryMap[task.type] || 'other';
+            const tagClass = tagClassMap[cat] || 'tag-info';
+            const distance = task.distance || 500;
+            const price = typeof task.price === 'number' ? task.price.toFixed(2) : (parseFloat(task.price) || 0).toFixed(2);
+            const title = task.title || `${task.type || '任务'}任务`;
+            const from = task.from || task.pickupLocation || '-';
+            const to = task.to || task.deliveryLocation || '-';
+            const remark = task.remark || task.note || '';
+            const publisher = task.publisherName || task.publisher || '发布者';
+
+            card.className = 'card task-item';
+            card.setAttribute('data-category', cat);
+            card.setAttribute('data-price', price);
+            card.setAttribute('data-distance', distance);
+            card.onclick = () => {
+                if (window.dataStore) dataStore.set('currentTaskId', task.id);
+                location.href = `任务详情.html?taskId=${encodeURIComponent(task.id)}`;
+            };
+
+            card.innerHTML = `
+                <div class="flex justify-between mb-8">
+                    <div class="flex items-center">
+                        <span class="tag ${tagClass}" style="margin-right: 8px;">${task.type || '任务'}</span>
+                        <span class="text-md font-bold">${from} -> ${to}</span>
+                    </div>
+                    <span class="text-error font-bold">¥ ${price}</span>
+                </div>
+                <div class="text-secondary text-sm mb-8">
+                    <p class="mb-4">${remark || '暂无备注'}</p>
+                </div>
+                <div class="flex justify-between items-center text-secondary text-xs border-t pt-8" style="border-color: var(--border-color);">
+                    <div class="flex items-center">
+                        <div class="avatar avatar-sm" style="width: 20px; height: 20px; margin-right: 8px; background: #ddd; border-radius: 50%;"></div>
+                        <span>${publisher}</span>
+                    </div>
+                    <span>距离 ${distance}m</span>
+                </div>
+            `;
+            return card;
+        }
+
+        function toggleEmptyState(forceShow = null) {
+            const listEl = document.getElementById('taskList');
+            const emptyEl = document.getElementById('taskEmpty');
+            const shouldShow = forceShow !== null ? forceShow : listEl.querySelectorAll('.task-item:not([style*="display: none"])').length === 0;
+            if (emptyEl) emptyEl.style.display = shouldShow ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>

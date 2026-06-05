@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>消息对话 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+    <style>
+        .chat-content {
+            padding: 16px;
+            padding-bottom: calc(60px + var(--safe-area-bottom));
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .message-item {
+            display: flex;
+            align-items: flex-start;
+            max-width: 80%;
+        }
+        .message-item.self {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            background: #eee url('images/default-avatar.svg') center/cover no-repeat;
+            flex-shrink: 0;
+        }
+        .message-bubble {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 15px;
+            line-height: 1.5;
+            position: relative;
+            word-break: break-all;
+        }
+        .message-item.other .message-bubble {
+            background: white;
+            margin-left: 10px;
+            border-top-left-radius: 0;
+        }
+        .message-item.self .message-bubble {
+            background: #95EC69; /* 微信气泡绿 */
+            margin-right: 10px;
+            border-top-right-radius: 0;
+            color: black;
+        }
+        .message-image-container {
+            display: inline-block;
+            max-width: 200px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 0;
+        }
+        .message-image {
+            max-width: 100%;
+            max-height: 200px;
+            display: block;
+        }
+        .message-emoji {
+            font-size: 24px;
+            line-height: 1;
+        }
+        .message-item.other .message-image-container {
+            margin-left: 10px;
+        }
+        .message-item.self .message-image-container {
+            margin-right: 10px;
+        }
+        .chat-input-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #F7F7F7;
+            border-top: 1px solid #E5E5E5;
+            padding: 12px 16px;
+            padding-bottom: calc(12px + var(--safe-area-bottom));
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 480px;
+            margin: 0 auto;
+            backdrop-filter: blur(10px);
+        }
+        .chat-input {
+            flex: 1;
+            height: 40px;
+            border-radius: 20px;
+            border: 1px solid #E5E5E5;
+            padding: 0 16px;
+            background: white;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        .chat-input:focus {
+            border-color: #1890FF;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+            outline: none;
+        }
+        .chat-send-btn {
+            height: 40px;
+            padding: 0 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #1890FF, #096DD9);
+            color: white;
+            box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .chat-send-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+        }
+        .chat-send-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(24, 144, 255, 0.3);
+        }
+        .chat-send-btn:disabled {
+            background: #D9D9D9;
+            color: #8C8C8C;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        .chat-send-btn:not(:disabled)::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        .chat-send-btn:not(:disabled):hover::before {
+            left: 100%;
+        }
+        .chat-btn-icon {
+            font-size: 24px;
+            color: #7F7F7F;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 8px;
+            border-radius: 50%;
+            background: transparent;
+        }
+        .chat-btn-icon:hover {
+            color: #1890FF;
+            background: rgba(24, 144, 255, 0.1);
+            transform: scale(1.1);
+        }
+        .chat-btn-icon:active {
+            transform: scale(0.95);
+        }
+        .emoji-picker {
+            position: fixed;
+            bottom: 60px;
+            left: 16px;
+            right: 16px;
+            background: white;
+            border: 1px solid #E5E5E5;
+            padding: 6px;
+            max-height: 120px; /* 减小高度以适应移动端 */
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            border-radius: 6px;
+            max-width: 280px; /* 限制最大宽度 */
+            margin: 0 auto; /* 居中显示 */
+        }
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 减少到5列使列表更紧凑 */
+            grid-auto-rows: 26px; /* 减小行高 */
+            gap: 0.5px;
+        }
+        .emoji-item {
+            font-size: 15px; /* 进一步减小字体大小 */
+            text-align: center;
+            cursor: pointer;
+            padding: 1px;
+            border-radius: 2px;
+            transition: all 0.2s;
+            user-select: none;
+            min-width: 0;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 22px;
+        }
+        .emoji-item:hover {
+            background: #F0F8FF;
+            transform: scale(1.1);
+        }
+        .emoji-item:active {
+            background: #E6F7FF;
+            transform: scale(0.95);
+        }
+        .image-preview {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border: none;
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 1001;
+            display: none;
+            max-width: 85%;
+            max-height: 85%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+        .image-preview img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto;
+        }
+        .preview-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 12px;
+        }
+        .preview-controls .btn {
+            min-width: 80px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="background: #EDEDED;">
+        <div class="navbar">
+            <div class="navbar-left">
+                <div class="navbar-back" onclick="history.back()">←</div>
+            </div>
+            <div id="chatTitle" class="navbar-title">李同学</div>
+            <div class="navbar-right">
+                <span style="font-size: 20px;">...</span>
+            </div>
+        </div>
+
+        <div id="chatContent" class="chat-content"></div>
+
+        <!-- 日志监测面板 -->
+        <div id="logPanel" style="display:none; position:fixed; right:12px; bottom:80px; width:260px; max-height:240px; background: rgba(0,0,0,0.78); color:#fff; border-radius:8px; padding:10px; overflow:auto; z-index:2000; font-size:12px; line-height:1.4; box-shadow:0 8px 24px rgba(0,0,0,0.25);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span>日志监测</span>
+                <button id="clearLogBtn" class="btn btn-sm" style="background:#444; color:#fff; border:none;">清空</button>
+            </div>
+            <div id="logEntries"></div>
+        </div>
+        <button id="toggleLogBtn" class="btn btn-sm" style="position:fixed; right:12px; bottom:20px; z-index:2001;">日志</button>
+
+        <div class="chat-input-bar">
+            <div class="chat-btn-icon" id="voiceBtn">🎤</div>
+            <input type="text" class="chat-input" placeholder="请输入消息..." id="messageInput">
+            <div class="chat-btn-icon" id="emojiBtn">☺</div>
+            <div class="chat-btn-icon" id="imageBtn">⊕</div>
+            <button id="sendBtn" class="btn btn-primary btn-sm chat-send-btn">发送</button>
+        </div>
+
+        <!-- 表情包选择器 -->
+        <div class="emoji-picker" id="emojiPicker">
+            <div class="emoji-grid">
+                <span class="emoji-item">😀</span>
+                <span class="emoji-item">😃</span>
+                <span class="emoji-item">😄</span>
+                <span class="emoji-item">😁</span>
+                <span class="emoji-item">😆</span>
+                <span class="emoji-item">😅</span>
+                <span class="emoji-item">😂</span>
+                <span class="emoji-item">🤣</span>
+                <span class="emoji-item">😊</span>
+                <span class="emoji-item">😇</span>
+                <span class="emoji-item">🙂</span>
+                <span class="emoji-item">🙃</span>
+                <span class="emoji-item">😉</span>
+                <span class="emoji-item">😌</span>
+                <span class="emoji-item">😍</span>
+                <span class="emoji-item">🥰</span>
+                <span class="emoji-item">😘</span>
+                <span class="emoji-item">😗</span>
+                <span class="emoji-item">😙</span>
+                <span class="emoji-item">😚</span>
+                <span class="emoji-item">😋</span>
+                <span class="emoji-item">😛</span>
+                <span class="emoji-item">😝</span>
+                <span class="emoji-item">😜</span>
+                <span class="emoji-item">🤪</span>
+                <span class="emoji-item">🤨</span>
+                <span class="emoji-item">🧐</span>
+                <span class="emoji-item">🤓</span>
+                <span class="emoji-item">😎</span>
+                <span class="emoji-item">🤩</span>
+                <span class="emoji-item">🥳</span>
+                <span class="emoji-item">😏</span>
+                <span class="emoji-item">😒</span>
+                <span class="emoji-item">😞</span>
+                <span class="emoji-item">😔</span>
+                <span class="emoji-item">😟</span>
+                <span class="emoji-item">😕</span>
+                <span class="emoji-item">🙁</span>
+                <span class="emoji-item">☹️</span>
+                <span class="emoji-item">😣</span>
+                <span class="emoji-item">😖</span>
+                <span class="emoji-item">😫</span>
+                <span class="emoji-item">😩</span>
+                <span class="emoji-item">🥺</span>
+                <span class="emoji-item">😢</span>
+                <span class="emoji-item">😭</span>
+                <span class="emoji-item">😤</span>
+                <span class="emoji-item">😠</span>
+                <span class="emoji-item">😡</span>
+                <span class="emoji-item">🤬</span>
+                <span class="emoji-item">🤯</span>
+                <span class="emoji-item">😳</span>
+                <span class="emoji-item">🥵</span>
+                <span class="emoji-item">🥶</span>
+                <span class="emoji-item">😱</span>
+                <span class="emoji-item">😨</span>
+                <span class="emoji-item">😰</span>
+                <span class="emoji-item">😥</span>
+                <span class="emoji-item">😓</span>
+                <span class="emoji-item">🤗</span>
+                <span class="emoji-item">🤔</span>
+                <span class="emoji-item">🤭</span>
+                <span class="emoji-item">🤫</span>
+                <span class="emoji-item">🤥</span>
+                <span class="emoji-item">😶</span>
+                <span class="emoji-item">😐</span>
+                <span class="emoji-item">😑</span>
+                <span class="emoji-item">😬</span>
+                <span class="emoji-item">🙄</span>
+                <span class="emoji-item">😯</span>
+                <span class="emoji-item">😦</span>
+                <span class="emoji-item">😧</span>
+                <span class="emoji-item">😮</span>
+                <span class="emoji-item">😲</span>
+                <span class="emoji-item">🥱</span>
+                <span class="emoji-item">😴</span>
+                <span class="emoji-item">🤤</span>
+                <span class="emoji-item">😪</span>
+                <span class="emoji-item">😵</span>
+                <span class="emoji-item">🤐</span>
+                <span class="emoji-item">🥴</span>
+                <span class="emoji-item">🤢</span>
+                <span class="emoji-item">🤮</span>
+                <span class="emoji-item">🤧</span>
+                <span class="emoji-item">😷</span>
+                <span class="emoji-item">🤒</span>
+                <span class="emoji-item">🤕</span>
+                <span class="emoji-item">🤑</span>
+                <span class="emoji-item">🤠</span>
+                <span class="emoji-item">😈</span>
+                <span class="emoji-item">👿</span>
+                <span class="emoji-item">👹</span>
+                <span class="emoji-item">👺</span>
+                <span class="emoji-item">🤡</span>
+                <span class="emoji-item">💩</span>
+                <span class="emoji-item">👻</span>
+                <span class="emoji-item">💀</span>
+                <span class="emoji-item">☠️</span>
+                <span class="emoji-item">👽</span>
+                <span class="emoji-item">👾</span>
+                <span class="emoji-item">🤖</span>
+                <span class="emoji-item">🎃</span>
+                <span class="emoji-item">😺</span>
+                <span class="emoji-item">😸</span>
+                <span class="emoji-item">😹</span>
+                <span class="emoji-item">😻</span>
+                <span class="emoji-item">😼</span>
+                <span class="emoji-item">😽</span>
+                <span class="emoji-item">🙀</span>
+                <span class="emoji-item">😿</span>
+                <span class="emoji-item">😾</span>
+            </div>
+        </div>
+
+        <!-- 图片预览弹窗 -->
+        <div class="image-preview" id="imagePreview">
+            <img id="previewImage" src="" alt="预览图片">
+            <div class="preview-controls">
+                <button class="btn btn-secondary btn-sm" id="cancelUpload">取消</button>
+                <button class="btn btn-primary btn-sm" id="confirmUpload">发送</button>
+            </div>
+        </div>
+
+        <!-- 隐藏的文件输入框 -->
+        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 日志监测：截获 console 输出到面板
+            (function setupLogMonitor(){
+                const logPanel = document.getElementById('logPanel');
+                const logEntries = document.getElementById('logEntries');
+                const toggleBtn = document.getElementById('toggleLogBtn');
+                const clearBtn = document.getElementById('clearLogBtn');
+                if (!logPanel || !logEntries || !toggleBtn) return;
+
+                const appendLog = (level, args) => {
+                    const item = document.createElement('div');
+                    item.textContent = `[${level}] ${Array.from(args).map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')}`;
+                    item.style.marginBottom = '4px';
+                    logEntries.appendChild(item);
+                    logEntries.scrollTop = logEntries.scrollHeight;
+                };
+
+                ['log','warn','error'].forEach(level => {
+                    const original = console[level];
+                    console[level] = function(){
+                        appendLog(level, arguments);
+                        return original.apply(console, arguments);
+                    };
+                });
+
+                toggleBtn.addEventListener('click', () => {
+                    const show = logPanel.style.display === 'none';
+                    logPanel.style.display = show ? 'block' : 'none';
+                });
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', () => {
+                        logEntries.innerHTML = '';
+                    });
+                }
+            })();
+
+            // 若全局 MessageStore 未初始化，创建内存兜底实现
+            if (!window.MessageStore) {
+                console.warn('MessageStore 未找到，使用内存兜底实现');
+                window.MessageStore = {
+                    _threads: {
+                        chat: { id: 'chat', title: '临时会话', unread: 0, lastText: '', lastTime: new Date().toISOString(), disableInput: false, messages: [] }
+                    },
+                    ensure() { return this._threads; },
+                    getThread(id) { return this._threads[id]; },
+                    upsertThread(thread) { this._threads[thread.id] = { messages: [], unread:0, lastText:'', lastTime:new Date().toISOString(), disableInput:false, ...thread }; return this._threads[thread.id]; },
+                    markRead(id) { if (this._threads[id]) this._threads[id].unread = 0; },
+                    addMessage(threadId, text, side='self', extra={}) {
+                        if (!this._threads[threadId]) this.upsertThread({ id: threadId, title: extra.title || threadId });
+                        const t = this._threads[threadId];
+                        const msg = { id: `mem_${Date.now()}`, text, side, time: new Date().toISOString(), type: extra.type, imageUrl: extra.imageUrl };
+                        t.messages.push(msg);
+                        t.lastText = text;
+                        t.lastTime = msg.time;
+                        if (side === 'other') t.unread = (t.unread || 0) + 1;
+                        return msg;
+                    }
+                };
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            const type = params.get('type') || 'chat';
+            const name = params.get('name') || (type === 'system' ? '系统通知' : type === 'trade' ? '交易通知' : '李同学');
+            const titleEl = document.getElementById('chatTitle');
+            if (titleEl) titleEl.textContent = name;
+
+            const chatContent = document.getElementById('chatContent');
+            const inputEl = document.querySelector('.chat-input');
+            const sendBtn = document.getElementById('sendBtn');
+
+            function formatChatTime(time) {
+                if (!time) return '';
+                const d = new Date(time);
+                return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+            }
+
+            function renderMessages(thread) {
+                if (!chatContent || !thread) return;
+                if (!Array.isArray(thread.messages)) {
+                    thread.messages = [];
+                }
+                chatContent.innerHTML = '';
+                thread.messages.forEach(msg => {
+                    const item = document.createElement('div');
+                    item.className = `message-item ${msg.side === 'self' ? 'self' : 'other'}`;
+                    
+                    // 判断消息类型
+                    let messageContent = msg.text;
+                    if (msg.type === 'image' && msg.imageUrl) {
+                        messageContent = `<div class="message-image-container">
+                            <img src="${msg.imageUrl}" alt="发送的图片" class="message-image">
+                        </div>`;
+                    } else if (msg.text && msg.text.includes('<img')) {
+                        // 已经是图片消息
+                        messageContent = msg.text;
+                    } else {
+                        // 文本消息，检查是否包含表情
+                        messageContent = `<div class="message-bubble">${msg.text}</div>`;
+                    }
+                    
+                    item.innerHTML = `
+                        <div class="message-avatar" ${msg.side === 'self' ? 'style="background: var(--primary-color);"' : ''}></div>
+                        <div>
+                            ${messageContent}
+                            <div class="text-xs text-secondary" style="margin-top: 6px;">${formatChatTime(msg.time)}</div>
+                        </div>
+                    `;
+                    chatContent.appendChild(item);
+                });
+                chatContent.scrollTop = chatContent.scrollHeight;
+            }
+
+            function refreshThread() {
+                const threads = MessageStore.ensure();
+                let thread = threads[type];
+                if (!thread) {
+                    thread = MessageStore.upsertThread({ id: type, title: name, disableInput: type !== 'chat' });
+                } else if (thread.title !== name) {
+                    MessageStore.upsertThread({ ...thread, title: name });
+                }
+                MessageStore.markRead(type);
+                renderMessages(MessageStore.getThread(type));
+                return MessageStore.getThread(type);
+            }
+
+            function sendMessage() {
+                if (!inputEl) return;
+                const value = inputEl.value.trim();
+                if (!value) {
+                    if (window.CommonUtils && CommonUtils.showToast) {
+                        CommonUtils.showToast('请输入消息内容', 'warning');
+                    }
+                    return;
+                }
+                try {
+                    const threads = window.MessageStore ? MessageStore.ensure() : null;
+                    if (!threads) throw new Error('消息存储未初始化');
+                    MessageStore.addMessage(type, value, 'self', { title: name });
+                    inputEl.value = '';
+                    renderMessages(MessageStore.getThread(type));
+                } catch (err) {
+                    console.error('发送消息失败', err);
+                    if (window.CommonUtils && CommonUtils.showToast) {
+                        CommonUtils.showToast('发送失败，请稍后重试', 'error');
+                    } else {
+                        alert('发送失败，请稍后重试');
+                    }
+                }
+            }
+
+            const threadData = refreshThread();
+            if (threadData && threadData.disableInput) {
+                const inputBar = document.querySelector('.chat-input-bar');
+                if (inputBar) inputBar.style.display = 'none';
+            } else {
+                if (inputEl) {
+                    inputEl.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            sendMessage();
+                        }
+                    });
+                }
+                if (sendBtn) {
+                    sendBtn.addEventListener('click', sendMessage);
+                }
+            }
+
+            // 表情包功能
+            const emojiBtn = document.getElementById('emojiBtn');
+            const emojiPicker = document.getElementById('emojiPicker');
+            const emojiItems = document.querySelectorAll('.emoji-item');
+            
+            if (emojiBtn && emojiPicker) {
+                emojiBtn.addEventListener('click', () => {
+                    const isVisible = emojiPicker.style.display === 'block';
+                    emojiPicker.style.display = isVisible ? 'none' : 'block';
+                    if (!isVisible) {
+                        // 隐藏图片预览
+                        const imagePreview = document.getElementById('imagePreview');
+                        if (imagePreview) imagePreview.style.display = 'none';
+                    }
+                });
+            }
+
+            // 表情选择事件
+            emojiItems.forEach(emoji => {
+                emoji.addEventListener('click', () => {
+                    if (inputEl) {
+                        inputEl.value += emoji.textContent;
+                        inputEl.focus();
+                    }
+                    // 选择后自动关闭表情选择器
+                    if (emojiPicker) emojiPicker.style.display = 'none';
+                });
+            });
+
+            // 图片上传功能
+            const imageBtn = document.getElementById('imageBtn');
+            const imageInput = document.getElementById('imageInput');
+            const imagePreview = document.getElementById('imagePreview');
+            const previewImage = document.getElementById('previewImage');
+            const cancelUpload = document.getElementById('cancelUpload');
+            const confirmUpload = document.getElementById('confirmUpload');
+            
+            let selectedImageFile = null;
+
+            if (imageBtn && imageInput) {
+                imageBtn.addEventListener('click', () => {
+                    imageInput.click();
+                });
+            }
+
+            if (imageInput) {
+                imageInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file && file.type.startsWith('image/')) {
+                        selectedImageFile = file;
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            if (previewImage) {
+                                previewImage.src = event.target.result;
+                                if (imagePreview) {
+                                    imagePreview.style.display = 'block';
+                                    // 隐藏表情选择器
+                                    if (emojiPicker) emojiPicker.style.display = 'none';
+                                }
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        if (window.CommonUtils && CommonUtils.showToast) {
+                            CommonUtils.showToast('请选择图片文件', 'warning');
+                        } else {
+                            alert('请选择图片文件');
+                        }
+                    }
+                });
+            }
+
+            if (cancelUpload) {
+                cancelUpload.addEventListener('click', () => {
+                    if (imagePreview) imagePreview.style.display = 'none';
+                    if (imageInput) imageInput.value = '';
+                    selectedImageFile = null;
+                });
+            }
+
+            if (confirmUpload) {
+                confirmUpload.addEventListener('click', () => {
+                    if (!selectedImageFile) {
+                        if (window.CommonUtils && CommonUtils.showToast) {
+                            CommonUtils.showToast('请先选择图片', 'warning');
+                        }
+                        return;
+                    }
+
+                    try {
+                        // 生成图片消息内容
+                        const imageUrl = URL.createObjectURL(selectedImageFile);
+                        const imageMessage = `<div class="message-image-container">
+                            <img src="${imageUrl}" alt="发送的图片" class="message-image">
+                        </div>`;
+                        
+                        const threads = window.MessageStore ? MessageStore.ensure() : null;
+                        if (!threads) throw new Error('消息存储未初始化');
+                        
+                        MessageStore.addMessage(type, imageMessage, 'self', { 
+                            title: name,
+                            type: 'image',
+                            imageUrl: imageUrl
+                        });
+                        
+                        // 关闭预览
+                        if (imagePreview) imagePreview.style.display = 'none';
+                        if (imageInput) imageInput.value = '';
+                        selectedImageFile = null;
+                        
+                        renderMessages(MessageStore.getThread(type));
+                        
+                        if (window.CommonUtils && CommonUtils.showToast) {
+                            CommonUtils.showToast('图片发送成功', 'success');
+                        }
+                    } catch (err) {
+                        console.error('发送图片失败', err);
+                        if (window.CommonUtils && CommonUtils.showToast) {
+                            CommonUtils.showToast('发送失败，请稍后重试', 'error');
+                        } else {
+                            alert('发送失败，请稍后重试');
+                        }
+                    }
+                });
+            }
+
+            // 点击页面其他地方关闭表情选择器和图片预览
+            document.addEventListener('click', (e) => {
+                if (emojiPicker && emojiPicker.style.display === 'block') {
+                    if (!emojiPicker.contains(e.target) && e.target !== emojiBtn) {
+                        emojiPicker.style.display = 'none';
+                    }
+                }
+                if (imagePreview && imagePreview.style.display === 'block') {
+                    if (!imagePreview.contains(e.target) && e.target !== imageBtn && e.target !== imageInput) {
+                        imagePreview.style.display = 'none';
+                        if (imageInput) imageInput.value = '';
+                        selectedImageFile = null;
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

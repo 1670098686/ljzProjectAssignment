@@ -1,0 +1,137 @@
+# Prometheus预计算规则
+# 用于创建复合指标和简化查询
+
+groups:
+  # 系统性能预计算
+  - name: system_performance
+    interval: 30s
+    rules:
+      # 系统负载率
+      - record: node:load_normalized
+        expr: |
+          (
+            (node_load1 / count(node_cpu_seconds_total{mode="idle"}) by (instance)) * 100
+          )
+        
+      # 内存使用率
+      - record: node:memory_utilization
+        expr: |
+          (
+            (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100
+          )
+        
+      # 网络吞吐量 (字节/秒)
+      - record: node:network_receive_bytes_per_second
+        expr: rate(node_network_receive_bytes_total[1m])
+        
+      - record: node:network_transmit_bytes_per_second  
+        expr: rate(node_network_transmit_bytes_total[1m])
+
+  # 应用性能预计算
+  - name: application_performance
+    interval: 30s
+    rules:
+      # 95分位响应时间
+      - record: app:http_request_duration_95p
+        expr: histogram_quantile(0.95, rate(http_server_requests_seconds_bucket[5m]))
+        
+      # 50分位响应时间  
+      - record: app:http_request_duration_50p
+        expr: histogram_quantile(0.50, rate(http_server_requests_seconds_bucket[5m]))
+        
+      # 请求成功率
+      - record: app:http_success_rate
+        expr: |
+          (
+            sum(rate(http_server_requests_total{status!~"5.."}[5m])) 
+            / 
+            sum(rate(http_server_requests_total[5m])) * 100
+          )
+        
+      # 每分钟请求数
+      - record: app:requests_per_minute
+        expr: sum(rate(http_requests_total[1m])) * 60
+        
+  # JVM性能预计算  
+  - name: jvm_performance
+    interval: 30s
+    rules:
+      # JVM堆内存使用率
+      - record: jvm:heap_utilization
+        expr: |
+          (
+            jvm_memory_used_bytes{area="heap"} 
+            / 
+            jvm_memory_max_bytes{area="heap"} * 100
+          )
+          
+      # GC暂停时间
+      - record: jvm:gc_pause_duration
+        expr: histogram_quantile(0.95, rate(jvm_gc_pause_seconds_bucket[5m]))
+        
+      # GC频率
+      - record: jvm:gc_frequency
+        expr: rate(jvm_gc_pause_seconds_count[5m])
+
+  # 数据库性能预计算
+  - name: database_performance  
+    interval: 30s
+    rules:
+      # 数据库连接池使用率
+      - record: db:connection_pool_utilization
+        expr: |
+          (
+            hikaricp_connections_active 
+            / 
+            hikaricp_connections_max * 100
+          )
+          
+      # 数据库查询响应时间
+      - record: db:query_duration_95p
+        expr: histogram_quantile(0.95, rate(database_query_duration_seconds_bucket[5m]))
+
+  # 业务指标预计算
+  - name: business_metrics
+    interval: 60s
+    rules:
+      # 每小时交易数量
+      - record: business:transactions_per_hour
+        expr: sum(rate(transaction_count[1h]))
+        
+      # 交易成功率
+      - record: business:transaction_success_rate
+        expr: |
+          (
+            sum(rate(transaction_success_count[1h]))
+            /
+            sum(rate(transaction_total_count[1h])) * 100
+          )
+          
+      # 活跃用户数
+      - record: business:active_users
+        expr: count(count by (user_id) (http_requests_total{uri=~"/api/.*"}))
+        
+      # 分类使用频率
+      - record: business:category_usage_rate
+        expr: sum(rate(category_usage_total[1h])) by (category)
+        
+      # 预算执行率
+      - record: business:budget_utilization
+        expr: sum(budget_spent_amount) by (category) / sum(budget_target_amount) by (category) * 100
+
+  # 缓存性能预计算
+  - name: cache_performance
+    interval: 30s
+    rules:
+      # Redis缓存命中率
+      - record: cache:hit_rate
+        expr: |
+          (
+            sum(rate(redis_keyspace_hits_total[1m]))
+            / 
+            (sum(rate(redis_keyspace_hits_total[1m])) + sum(rate(redis_keyspace_misses_total[1m]))) * 100
+          )
+          
+      # Redis内存使用率
+      - record: cache:memory_utilization
+        expr: redis_memory_used_bytes / redis_memory_max_bytes * 100

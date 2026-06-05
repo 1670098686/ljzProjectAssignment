@@ -1,0 +1,89 @@
+server:
+  port: 8761
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: finance-registry
+  
+  # 安全配置
+  security:
+    user:
+      name: admin
+      password: ${EUREKA_ADMIN_PASSWORD:finance123}
+  
+  # 配置文件配置
+  profiles:
+    active: dev
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,eureka
+  endpoint:
+    health:
+      show-details: always
+
+# Eureka Server配置
+eureka:
+  instance:
+    hostname: localhost
+    # 30秒心跳
+    lease-renewal-interval-in-seconds: 30
+    # 90秒剔除
+    lease-expiration-duration-in-seconds: 90
+    # 启用IP模式
+    prefer-ip-address: true
+    
+  client:
+    # 是否注册到其他Eureka Server（单节点为false）
+    register-with-eureka: false
+    # 是否从其他Eureka Server获取注册信息（单节点为false）
+    fetch-registry: false
+    
+    # 服务注册中心URL
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+    
+    # 健康检查配置
+    health-check:
+      enabled: true
+    
+    # 客户端缓存刷新配置
+    registry-fetch-interval-seconds: 30
+    
+  server:
+    # 关闭自我保护机制（开发环境）
+    enable-self-preservation: false
+    # 清理无效服务时间间隔（毫秒）
+    eviction-interval-timer-in-ms: 60000
+    
+    # 服务剔除延迟（毫秒）
+    renewal-percent-threshold: 0.85
+    
+    # 服务剔除配置
+    response-cache-update-interval-ms: 30000
+    
+    # 状态页和健康检查页URL
+    renewal-percent-threshold: 0.85
+
+# 日志配置
+logging:
+  level:
+    com.netflix.eureka: WARN
+    com.netflix.discovery: INFO
+    org.springframework.cloud.netflix.eureka: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/finance-registry.log
+
+# 系统信息
+info:
+  app:
+    name: Finance Registry Service
+    description: Eureka Service Registry for Finance Microservices
+    version: 1.0.0

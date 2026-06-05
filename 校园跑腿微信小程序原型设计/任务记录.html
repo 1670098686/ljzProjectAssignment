@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>任务记录 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="navbar-left">
+                <div class="navbar-back" onclick="history.back()">←</div>
+            </div>
+            <div class="navbar-title">任务记录</div>
+            <div class="navbar-right"></div>
+        </div>
+
+        <div class="page-content">
+            <div class="card mb-16" style="padding: 8px;">
+                <div class="flex">
+                    <button id="btn-all" class="btn btn-sm flex-1 active" onclick="switchTab('all')" style="background: var(--primary-light); color: var(--primary-color); border: none;">全部</button>
+                    <button id="btn-published" class="btn btn-sm flex-1" onclick="switchTab('published')" style="background: transparent; border: none;">我发布的</button>
+                    <button id="btn-accepted" class="btn btn-sm flex-1" onclick="switchTab('accepted')" style="background: transparent; border: none;">我完成的</button>
+                </div>
+            </div>
+
+            <div class="flex flex-col" style="gap: 12px;" id="recordList">
+                <!-- 清空任务记录数据 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        let recordTasks = [];
+        let currentTab = 'all';
+        const normalizeId = (val) => (val === undefined || val === null ? '' : String(val).trim());
+        const getIdentitySet = (auth) => {
+            const ids = [auth?.id, auth?.openid, auth?.name, auth?.nickname, auth?.phone].map(normalizeId).filter(Boolean);
+            return new Set(ids);
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            currentTab = params.get('tab') || 'all';
+            loadRecords();
+            switchTab(currentTab);
+        });
+
+        function loadRecords() {
+            // 尽量使用当前登录信息，若auth缺失则回退到本地保存的currentUser，避免身份丢失后看不到已发布/已完成记录
+            const auth = CommonUtils.getAuth() || {};
+            const fallbackUser = (window.dataStore && dataStore.get('currentUser')) || {};
+            const mergedAuth = {
+                ...fallbackUser,
+                ...auth,
+                id: auth.id || fallbackUser.id,
+                openid: auth.openid || fallbackUser.openid,
+                name: auth.name || fallbackUser.name,
+                nickname: auth.nickname || fallbackUser.nickname,
+                phone: auth.phone || fallbackUser.phone
+            };
+            const identitySet = getIdentitySet(mergedAuth);
+
+            // 当按身份过滤结果为空时，回退到完整任务列表，确保历史任务不会因身份信息缺失被漏掉
+            const tasksForUser = (window.TaskFlow && TaskFlow.getTasksForUser)
+                ? (TaskFlow.getTasksForUser(auth) || [])
+                : [];
+            const allTasks = (window.TaskFlow && TaskFlow.getTasks)
+                ? TaskFlow.getTasks()
+                : (window.dataStore ? dataStore.get('tasks') || [] : []);
+            const tasks = tasksForUser.length > 0 ? tasksForUser : allTasks;
+
+            recordTasks = (tasks || []).map(task => normalizeTask(task, identitySet));
+            renderList();
+        }
+
+        function normalizeTask(task, identitySet) {
+            const stage = task.progressStage || task.status;
+            const statusMap = {
+                pending: '待接单',
+                'in-progress': '进行中',
+                accepted: '进行中',
+                picking_up: '进行中',
+                delivering: '配送中',
+                delivered: '待确认',
+                completed: '已完成'
+            };
+            const statusText = statusMap[task.status] || statusMap[stage] || '待接单';
+            const publisherId = normalizeId(task.publisherId || task.publisher || task.publisherName);
+            const runnerId = normalizeId(task.runnerId || task.runner || task.runnerName);
+            const publisherName = normalizeId(task.publisherName || task.publisher);
+            const runnerName = normalizeId(task.runnerName || task.runner);
+            const isPublisher = identitySet.size > 0 && (identitySet.has(publisherId) || identitySet.has(publisherName));
+            const isRunner = identitySet.size > 0 && (identitySet.has(runnerId) || identitySet.has(runnerName));
+            return {
+                ...task,
+                displayStatus: statusText,
+                stage,
+                isPublisher,
+                isRunner,
+                from: task.from || task.pickupLocation || '-',
+                to: task.to || task.deliveryLocation || '-',
+                price: Number(task.price || 0)
+            };
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.btn-sm').forEach(btn => {
+                btn.style.background = 'transparent';
+                btn.style.color = 'var(--text-primary)';
+                btn.classList.remove('active');
+            });
+
+            const activeBtn = document.getElementById('btn-' + tab);
+            if (activeBtn) {
+                activeBtn.style.background = 'var(--primary-light)';
+                activeBtn.style.color = 'var(--primary-color)';
+                activeBtn.classList.add('active');
+            }
+
+            renderList();
+        }
+
+        function renderList() {
+            const listEl = document.getElementById('recordList');
+            listEl.innerHTML = '';
+
+            const filtered = recordTasks.filter(t => {
+                if (currentTab === 'published') return t.isPublisher;
+                if (currentTab === 'accepted') return t.isRunner;
+                return t.isPublisher || t.isRunner;
+            });
+
+            if (filtered.length === 0) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = 'text-center text-secondary';
+                emptyDiv.style.padding = '40px 0';
+                emptyDiv.innerHTML = '暂无任务记录';
+                listEl.appendChild(emptyDiv);
+                return;
+            }
+
+            filtered
+                .sort((a, b) => new Date(b.createTime || 0) - new Date(a.createTime || 0))
+                .forEach(task => listEl.appendChild(renderCard(task)));
+        }
+
+        function renderCard(task) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.style.padding = '16px';
+            const statusClass = getStatusClass(task.displayStatus);
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-8">
+                    <div>
+                        <div class="flex items-center mb-4" style="gap: 8px;">
+                            <span class="tag tag-primary">${task.type || '任务'}</span>
+                            <span class="text-md font-bold">${task.title || task.type || '任务'}</span>
+                        </div>
+                        <div class="text-xs text-secondary">${task.from} → ${task.to}</div>
+                        <div class="text-xs text-secondary">状态：${task.displayStatus}</div>
+                    </div>
+                    <div class="text-primary font-bold">¥${task.price.toFixed(2)}</div>
+                </div>
+                <div class="flex" style="gap: 8px;">
+                    <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); viewProgress('${task.id}')">查看进度</button>
+                    ${renderActions(task)}
+                </div>
+            `;
+            return card;
+        }
+
+        function getStatusClass(statusText) {
+            const map = {
+                '待接单': 'pending',
+                '进行中': 'processing',
+                '配送中': 'processing',
+                '待确认': 'pending',
+                '已完成': 'approved'
+            };
+            return map[statusText] || 'pending';
+        }
+
+        function renderActions(task) {
+            if (task.displayStatus === '已完成') {
+                if (task.evaluated) {
+                    return `<button class="btn btn-sm btn-secondary" disabled>已评价</button>`;
+                }
+                return `<button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); openEvaluation('${task.id}')">去评价</button>`;
+            }
+
+            if (task.isPublisher) {
+                return `<button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); startSimulation('${task.id}')">开始模拟配送</button>`;
+            }
+
+            if (task.isRunner && task.displayStatus === '进行中') {
+                return `<button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); runnerMarkDeliveredFromStatus('${task.id}')">标记送达</button>`;
+            }
+
+            return `<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); viewProgress('${task.id}')">查看</button>`;
+        }
+
+        function viewProgress(taskId) {
+            if (window.dataStore) dataStore.set('currentTaskId', taskId);
+            window.location.href = `任务追踪.html?taskId=${encodeURIComponent(taskId)}`;
+        }
+
+        function startSimulation(taskId) {
+            if (!window.TaskFlow) return;
+            const result = TaskFlow.startSimulationForPublisher(taskId, { simulateConfig: TaskFlow.getSimulationConfig() });
+            if (!result.ok) {
+                CommonUtils.showToast(result.message || '无法开始模拟', 'error');
+                return;
+            }
+            CommonUtils.showToast('已开始模拟配送', 'success');
+            loadRecords();
+
+            const delay = (result.totalDuration || 0) + 800;
+            setTimeout(() => openEvaluation(taskId), delay);
+        }
+
+        function openEvaluation(taskId) {
+            // 缓存当前任务ID，避免从模拟完成跳转时丢失，保证评价页能获取到任务
+            try {
+                if (window.dataStore) dataStore.set('currentTaskId', taskId);
+                localStorage.setItem('currentEvaluationTaskId', taskId);
+            } catch (e) {
+                console.warn('缓存评价任务ID失败', e);
+            }
+            window.location.href = `评价.html?taskId=${encodeURIComponent(taskId)}`;
+        }
+    </script>
+</body>
+</html>

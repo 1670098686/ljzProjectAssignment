@@ -1,0 +1,12 @@
+Hi {{recipientName}}，
+
+订单（{{orderNo}}）状态有更新：{{title}}。
+{{message}}
+
+商品：{{productTitle}}
+金额：¥{{price}}
+当前状态：{{statusLabel}}
+查看详情：{{orderUrl}}
+
+如需帮助请联系 {{supportEmail}}。
+{{signature}}

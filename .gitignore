@@ -1,0 +1,47 @@
+# 编译输出
+target/
+build/
+dist/
+*.class
+*.jar
+*.war
+*.ear
+
+# Node模块
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+
+# 日志
+*.log
+logs/
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+
+# 临时文件
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.sessionStore/

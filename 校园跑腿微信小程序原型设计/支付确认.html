@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>确认支付 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="navbar-left">
+                <div class="navbar-back" onclick="history.back()">←</div>
+            </div>
+            <div class="navbar-title">确认支付</div>
+            <div class="navbar-right"></div>
+        </div>
+
+        <div class="page-content">
+            <div class="text-center mb-32 mt-32">
+                <div class="text-secondary mb-8">支付金额</div>
+                <div id="payAmount" class="text-xxl font-bold" style="font-size: 36px;">¥ 0.00</div>
+            </div>
+
+            <div class="card mb-16">
+                <div class="list-group" style="border: none;">
+                    <div class="list-item" style="padding: 12px 0; border: none;">
+                        <span class="text-secondary flex-1">订单编号</span>
+                        <span id="orderId">--</span>
+                    </div>
+                    <div class="list-item" style="padding: 12px 0; border: none;">
+                        <span class="text-secondary flex-1">服务内容</span>
+                        <span id="serviceName">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-32">
+                <div class="card-header">
+                    <span class="card-title">支付方式</span>
+                </div>
+                <div class="list-group" style="border: none;">
+                    <div class="list-item" style="padding: 12px 0; border: none;">
+                        <div class="flex items-center flex-1">
+                            <span style="margin-right: 12px; color: #07C160; font-size: 20px;"><img src="images/icon-messages.svg" class="icon-img"></span>
+                            <span>微信支付</span>
+                        </div>
+                        <input type="radio" checked style="transform: scale(1.2);">
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-block btn-lg" onclick="pay()">立即支付</button>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const fmtPrice = (val) => `¥ ${(Number(val) || 0).toFixed(2)}`;
+
+        function loadPaymentInfo() {
+            const params = new URLSearchParams(window.location.search);
+            const taskId = params.get('taskId');
+            let task = null;
+
+            if (window.TaskFlow && typeof TaskFlow.findTask === 'function' && taskId) {
+                task = TaskFlow.findTask(taskId);
+            }
+            if (!task && window.dataStore) {
+                const tasks = dataStore.get('tasks') || [];
+                task = tasks.find(t => String(t.id) === String(taskId));
+            }
+
+            const payAmountEl = document.getElementById('payAmount');
+            const orderIdEl = document.getElementById('orderId');
+            const serviceNameEl = document.getElementById('serviceName');
+
+            // 若找不到任务，尝试使用最近发布的缓存，保证金额显示一致
+            if (!task) {
+                try {
+                    const cachedId = localStorage.getItem('lastPublishedTaskId');
+                    const cachedPrice = localStorage.getItem('lastPublishedPrice');
+                    const cachedTitle = localStorage.getItem('lastPublishedTitle');
+                    if (!taskId || (cachedId && cachedId === taskId)) {
+                        task = {
+                            id: taskId || cachedId,
+                            price: cachedPrice ? Number(cachedPrice) : 0,
+                            title: cachedTitle || '任务'
+                        };
+                    }
+                } catch (e) {
+                    console.warn('读取缓存发布任务失败', e);
+                }
+            }
+
+            if (task) {
+                payAmountEl.textContent = fmtPrice(task.price);
+                orderIdEl.textContent = task.id || '--';
+                serviceNameEl.textContent = task.title || task.type || '任务';
+            } else {
+                payAmountEl.textContent = fmtPrice(0);
+                orderIdEl.textContent = taskId || '--';
+                serviceNameEl.textContent = '任务';
+            }
+
+            return taskId;
+        }
+
+        function pay() {
+            const btn = document.querySelector('.btn-primary');
+            btn.disabled = true;
+            btn.innerText = '支付中...';
+
+            setTimeout(() => {
+                alert('支付成功！');
+                location.href = '任务状态.html';
+            }, 1500);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadPaymentInfo);
+    </script>
+</body>
+</html>

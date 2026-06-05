@@ -1,0 +1,139 @@
+# API限流配置
+# 
+# 该配置文件定义了不同类型接口的限流规则
+# 配置说明：
+# - limitForPeriod: 时间窗口内允许的请求数量
+# - limitRefreshPeriod: 限流器刷新周期
+# - timeoutDuration: 等待许可的超时时间
+# 
+# @author Finance Application Team
+# @since 2025-01
+
+# 全局限流配置
+resilience4j:
+  ratelimiter:
+    instances:
+      # 默认限流器：每分钟100个请求
+      defaultRateLimiter:
+        limitForPeriod: 100
+        limitRefreshPeriod: 1m
+        timeoutDuration: 500ms
+        
+      # 严格限流器：每5分钟10个请求
+      strictRateLimiter:
+        limitForPeriod: 10
+        limitRefreshPeriod: 5m
+        timeoutDuration: 1000ms
+        
+      # IP级限流器：每分钟1000个请求
+      ipRateLimiter:
+        limitForPeriod: 1000
+        limitRefreshPeriod: 1m
+        timeoutDuration: 300ms
+        
+      # 认证限流器：每分钟5个请求
+      authLimiter:
+        limitForPeriod: 5
+        limitRefreshPeriod: 1m
+        timeoutDuration: 1000ms
+        
+      # 查询限流器：每分钟60个请求
+      queryLimiter:
+        limitForPeriod: 60
+        limitRefreshPeriod: 1m
+        timeoutDuration: 500ms
+        
+      # 修改限流器：每分钟20个请求
+      modifyLimiter:
+        limitForPeriod: 20
+        limitRefreshPeriod: 1m
+        timeoutDuration: 800ms
+        
+      # 导出限流器：每10分钟3个请求
+      exportLimiter:
+        limitForPeriod: 3
+        limitRefreshPeriod: 10m
+        timeoutDuration: 2000ms
+
+# 业务限流配置
+rate-limit:
+  # 启用限流功能
+  enabled: true
+  
+  # 记录限流统计
+  statistics-enabled: true
+  
+  # 限流事件监听
+  event-listener-enabled: true
+  
+  # 限流策略映射
+  strategies:
+    # 认证相关接口
+    auth:
+      patterns:
+        - "/api/auth/**"
+        - "/api/user/login"
+        - "/api/user/register"
+      rate-limiter: authLimiter
+      
+    # 数据查询接口
+    query:
+      patterns:
+        - "/api/transactions"
+        - "/api/saving-goals"
+        - "/api/budgets"
+        - "/api/categories"
+        - "/api/statistics"
+      rate-limiter: queryLimiter
+      
+    # 数据修改接口
+    modify:
+      patterns:
+        - "/api/transactions/**"
+        - "/api/saving-goals/**"
+        - "/api/budgets/**"
+      rate-limiter: modifyLimiter
+      
+    # 数据导出接口
+    export:
+      patterns:
+        - "/api/export/**"
+      rate-limiter: exportLimiter
+  
+  # 白名单配置（不受限流限制的IP或用户）
+  whitelist:
+    enabled: false
+    ips:
+      - "127.0.0.1"
+      - "localhost"
+      - "::1"
+    users:
+      - "admin"
+      - "test-user"
+      
+  # 黑名单配置（直接拒绝的IP或用户）
+  blacklist:
+    enabled: false
+    ips: []
+    users: []
+    
+  # 限流响应配置
+  response:
+    status-code: 429
+    content-type: "application/json;charset=UTF-8"
+    retry-after-header: "60"
+    error-message: "请求频率超限，请稍后重试"
+    
+  # 监控配置
+  monitoring:
+    # 启用指标收集
+    metrics-enabled: true
+    
+    # 启用事件追踪
+    event-tracking-enabled: true
+    
+    # 限流拒绝事件追踪
+    track-rejected-calls: true
+    
+    # 限流状态事件追踪
+    track-state-calls: true

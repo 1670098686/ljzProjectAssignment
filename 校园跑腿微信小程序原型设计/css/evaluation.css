@@ -1,0 +1,350 @@
+/* 评价页面样式 */
+/* .evaluation-container removed, using .container from app.css */
+
+.evaluation-header {
+    background: white;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.evaluation-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    text-align: center;
+    flex: 1;
+}
+
+/* 任务信息卡片 */
+.task-info-card {
+    background: white;
+    padding: 15px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.task-header {
+    display: flex;
+    align-items: center;
+}
+
+.task-type-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: white;
+    margin-right: 12px;
+}
+
+.task-details {
+    flex: 1;
+}
+
+.task-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.task-runner, .task-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 2px;
+}
+
+.task-price {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--success-color);
+}
+
+/* 评分区域 */
+.rating-section, .tag-section, .comment-section {
+    background: white;
+    padding: 20px 15px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+}
+
+/* 星级评分 */
+.star-rating {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.star {
+    font-size: 32px;
+    color: #ddd;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 0 5px;
+}
+
+.star:hover,
+.star.active {
+    color: #ffc107;
+    transform: scale(1.1);
+}
+
+.rating-text {
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-secondary);
+    min-height: 20px;
+}
+
+/* 标签评价 */
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tag {
+    padding: 8px 16px;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tag:hover,
+.tag.selected {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* 文字评价 */
+.comment-input {
+    width: 100%;
+    height: 120px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    resize: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.comment-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.char-count {
+    text-align: right;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 5px;
+}
+
+.char-count.warning {
+    color: var(--error-color);
+}
+
+/* 匿名评价 */
+.anonymous-section {
+    background: white;
+    padding: 15px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    margin-right: 12px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+.anonymous-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.anonymous-tip {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-left: 8px;
+}
+
+/* 提交区域 */
+.submit-section {
+    padding: 0 15px;
+    margin-top: 20px;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--border-color);
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: not-allowed;
+    transition: all 0.3s ease;
+}
+
+.submit-btn:enabled {
+    background: var(--primary-color);
+    color: white;
+    cursor: pointer;
+}
+
+.submit-btn:enabled:hover {
+    background: #1577d9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(25, 144, 255, 0.3);
+}
+
+/* 评价提示 */
+.evaluation-tips {
+    margin: 20px 15px 0;
+    padding: 15px;
+    background: rgba(25, 144, 255, 0.05);
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.tip-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.tip-item:last-child {
+    margin-bottom: 0;
+}
+
+.tip-icon {
+    margin-right: 8px;
+    font-size: 14px;
+}
+
+.tip-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* 响应式设计 */
+@media (max-width: 375px) {
+    .star {
+        font-size: 28px;
+        margin: 0 3px;
+    }
+    
+    .tag-list {
+        gap: 8px;
+    }
+    
+    .tag {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    
+    .comment-input {
+        height: 100px;
+    }
+}
+
+/* 动画效果 */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.submit-btn:enabled:active {
+    animation: pulse 0.3s ease;
+}
+
+/* 评分文本颜色变化 */
+.rating-text.excellent {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.rating-text.good {
+    color: #52c41a;
+    font-weight: 600;
+}
+
+.rating-text.average {
+    color: #faad14;
+    font-weight: 600;
+}
+
+.rating-text.poor {
+    color: #f5222d;
+    font-weight: 600;
+}

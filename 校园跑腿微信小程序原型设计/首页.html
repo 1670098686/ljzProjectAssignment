@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>首页 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+    <style>
+        /* Banner Styles */
+        .banner-container {
+            overflow: hidden;
+            position: relative;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 16px;
+            height: 160px;
+            background-color: #eee;
+        }
+        .banner-wrapper {
+            display: flex;
+            height: 100%;
+            width: 100%;
+            /* Transition will be handled by JS */
+        }
+        .banner-slide {
+            flex: 0 0 100%; /* Don't shrink, take full width */
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            background-size: cover;
+            background-position: center;
+        }
+        .banner-dots {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 10;
+        }
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.6);
+            transition: all 0.3s;
+        }
+        .dot.active {
+            background: white;
+            width: 16px;
+            border-radius: 3px;
+        }
+
+        /* Nav Grid Styles */
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+        .nav-item:active {
+            opacity: 0.8;
+        }
+        .nav-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--bg-card);
+            border-radius: var(--border-radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航 -->
+        <div class="navbar">
+            <div class="navbar-left">
+                <!-- Removed Location -->
+            </div>
+            <div class="navbar-title">校园跑腿</div>
+            <div class="navbar-right">
+                <!-- Removed Search Icon -->
+            </div>
+        </div>
+
+        <div class="page-content">
+            <!-- 轮播图 -->
+            <div class="banner-container">
+                <div class="banner-wrapper" id="bannerWrapper">
+                    <!-- Slide 1 -->
+                    <div class="banner-slide" style="background: linear-gradient(135deg, #1890FF 0%, #36cfc9 100%);">
+                        校园跑腿
+                    </div>
+                    <!-- Slide 2 -->
+                    <div class="banner-slide" style="background: linear-gradient(135deg, #52C41A 0%, #95de64 100%);">
+                        极速送达
+                    </div>
+                    <!-- Slide 3 -->
+                    <div class="banner-slide" style="background: linear-gradient(135deg, #722ED1 0%, #b37feb 100%);">
+                        安全可靠
+                    </div>
+                    <!-- Clone of Slide 1 for seamless loop -->
+                    <div class="banner-slide" style="background: linear-gradient(135deg, #1890FF 0%, #36cfc9 100%);">
+                        校园跑腿
+                    </div>
+                </div>
+                <div class="banner-dots" id="bannerDots">
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+
+            <!-- 任务发布快捷方式 -->
+            <div class="nav-grid">
+                <div class="nav-item" onclick="location.href='任务发布.html?type=快递'">
+                    <div class="nav-icon" style="color: #1890FF; background: #E6F7FF;"><img src="images/icon-package.svg" class="icon-img"></div>
+                    <span class="text-sm">取快递</span>
+                </div>
+                <div class="nav-item" onclick="location.href='任务发布.html?type=餐食'">
+                    <div class="nav-icon" style="color: #52C41A; background: #F6FFED;"><img src="images/icon-food.svg" class="icon-img"></div>
+                    <span class="text-sm">带饭</span>
+                </div>
+                <div class="nav-item" onclick="location.href='任务发布.html?type=文件'">
+                    <div class="nav-icon" style="color: #FAAD14; background: #FFF7E6;"><img src="images/icon-document.svg" class="icon-img"></div>
+                    <span class="text-sm">送文件</span>
+                </div>
+                <div class="nav-item" onclick="location.href='任务发布.html?type=其他'">
+                    <div class="nav-icon" style="color: #722ED1; background: #F9F0FF;"><img src="images/icon-other.svg" class="icon-img"></div>
+                    <span class="text-sm">其他</span>
+                </div>
+            </div>
+
+            <!-- 推荐任务 -->
+            <div id="latestTasksSection">
+                <div class="section-title">
+                    <span>最新任务</span>
+                    <a href="任务列表.html" class="text-sm text-secondary" style="font-weight: normal;">查看更多 ></a>
+                </div>
+
+                <div class="flex flex-col" style="gap: 12px;">
+                    <!-- 任务卡片 1 -->
+                    <div class="card" onclick="location.href='任务详情.html'">
+                        <div class="flex justify-between mb-8">
+                            <div class="flex items-center">
+                                <span class="tag tag-primary" style="margin-right: 8px;">取快递</span>
+                                <span class="text-md font-bold">南门快递点 -> 宿舍楼A栋</span>
+                            </div>
+                            <span class="text-error font-bold">¥ 5.0</span>
+                        </div>
+                        <div class="flex justify-between items-center text-secondary text-xs">
+                            <span><img src="images/icon-clock.svg" class="icon-img" style="margin-right: 4px;">30分钟内送达</span>
+                            <span>刚刚发布</span>
+                        </div>
+                    </div>
+
+                    <!-- 任务卡片 2 -->
+                    <div class="card" onclick="location.href='任务详情.html'">
+                        <div class="flex justify-between mb-8">
+                            <div class="flex items-center">
+                                <span class="tag tag-success" style="margin-right: 8px;">带饭</span>
+                                <span class="text-md font-bold">二食堂 -> 图书馆</span>
+                            </div>
+                            <span class="text-error font-bold">¥ 3.0</span>
+                        </div>
+                        <div class="flex justify-between items-center text-secondary text-xs">
+                            <span><img src="images/icon-clock.svg" class="icon-img" style="margin-right: 4px;">12:00 前送达</span>
+                            <span>5分钟前</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部标签栏 -->
+        <div class="tabbar">
+            <div class="tabbar-item active" onclick="location.href='首页.html'">
+                <div class="tabbar-icon"><img src="images/icon-home.svg" class="icon-img"></div>
+                <span>首页</span>
+            </div>
+            <div class="tabbar-item" data-runner-required data-href="任务列表.html">
+                <div class="tabbar-icon"><img src="images/icon-tasks.svg" class="icon-img"></div>
+                <span>任务</span>
+            </div>
+            <div class="tabbar-item" onclick="location.href='任务发布.html'">
+                <div class="tabbar-icon fab"><img src="images/icon-publish-white.svg" class="icon-img"></div>
+                <span>发布</span>
+            </div>
+            <div class="tabbar-item" onclick="location.href='消息.html'">
+                <div class="tabbar-icon"><img src="images/icon-messages.svg" class="icon-img"></div>
+                <span>消息</span>
+            </div>
+            <div class="tabbar-item" onclick="location.href='个人中心.html'">
+                <div class="tabbar-icon"><img src="images/icon-profile.svg" class="icon-img"></div>
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        // 轮播图逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            CommonUtils.bindRunnerGuards();
+            CommonUtils.requireIdentityChosen();
+
+            // 仅跑腿员/双身份/管理员可见接单相关区域
+            const auth = CommonUtils.getAuth();
+            const isCertifiedRunner = auth && ['runner', 'dual'].includes(auth.role) && auth.runnerStatus === 'approved';
+            const isAdmin = auth && auth.role === 'admin';
+            if (!isCertifiedRunner && !isAdmin) {
+                const latestSection = document.getElementById('latestTasksSection');
+                if (latestSection) latestSection.style.display = 'none';
+            }
+
+            const wrapper = document.getElementById('bannerWrapper');
+            const dots = document.querySelectorAll('.dot');
+            const totalSlides = 3; // 实际图片数量
+            let currentIndex = 0;
+            let intervalId;
+
+            function updateDots(index) {
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index % totalSlides);
+                });
+            }
+
+            function nextSlide() {
+                currentIndex++;
+                wrapper.style.transition = 'transform 0.5s ease';
+                wrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+                // 如果到了克隆的最后一张（即视觉上的第一张）
+                if (currentIndex === totalSlides) {
+                    updateDots(0);
+                    // 等待动画结束后，瞬间切换回真正的第一张
+                    setTimeout(() => {
+                        wrapper.style.transition = 'none';
+                        currentIndex = 0;
+                        wrapper.style.transform = `translateX(0)`;
+                    }, 500);
+                } else {
+                    updateDots(currentIndex);
+                }
+            }
+
+            // 启动自动轮播
+            function startAutoPlay() {
+                intervalId = setInterval(nextSlide, 3000);
+            }
+
+            // 停止自动轮播（可选：触摸时停止）
+            function stopAutoPlay() {
+                clearInterval(intervalId);
+            }
+
+            startAutoPlay();
+
+            // 简单的触摸滑动支持
+            let startX = 0;
+            let isDragging = false;
+
+            wrapper.addEventListener('touchstart', (e) => {
+                stopAutoPlay();
+                startX = e.touches[0].clientX;
+                isDragging = true;
+            });
+
+            wrapper.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                // 这里可以添加跟随手指移动的逻辑，简化起见暂不添加
+            });
+
+            wrapper.addEventListener('touchend', (e) => {
+                isDragging = false;
+                const endX = e.changedTouches[0].clientX;
+                const diff = startX - endX;
+
+                if (Math.abs(diff) > 50) { // 滑动超过50px
+                    if (diff > 0) {
+                        nextSlide();
+                    } else {
+                        // 上一张逻辑（简化版：只处理下一张需求，上一张略复杂因涉及无限循环）
+                        if (currentIndex > 0) {
+                            currentIndex--;
+                            wrapper.style.transition = 'transform 0.5s ease';
+                            wrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
+                            updateDots(currentIndex);
+                        }
+                    }
+                }
+                startAutoPlay();
+            });
+        });
+    </script>
+</body>
+</html>

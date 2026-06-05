@@ -1,0 +1,419 @@
+/* 任务追踪页面样式 */
+.task-tracking-container {
+    min-height: 100vh;
+    background: var(--bg-color);
+    padding-bottom: 20px;
+}
+
+.task-tracking-header {
+    background: var(--primary-color);
+    color: white;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.task-tracking-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    text-align: center;
+    flex: 1;
+}
+
+.task-id {
+    font-size: 12px;
+    opacity: 0.8;
+    position: absolute;
+    right: 15px;
+    top: 50px;
+}
+
+/* 任务状态进度条 */
+.task-status-progress {
+    background: white;
+    padding: 20px 15px;
+    margin-bottom: 10px;
+}
+
+.progress-bar {
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 3px;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--success-color);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.status-steps {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+}
+
+.status-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+.status-step.active .step-icon {
+    background: var(--success-color);
+    color: white;
+}
+
+.status-step.active .step-text {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.step-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+}
+
+.step-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+/* 地图容器 */
+.map-container {
+    height: 250px;
+    background: white;
+    margin-bottom: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.map-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    position: relative;
+}
+
+.map-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.map-points {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.point {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 10;
+}
+
+.start-point {
+    top: 20%;
+    left: 20%;
+}
+
+.end-point {
+    bottom: 20%;
+    right: 20%;
+}
+
+.runner-point {
+    top: 50%;
+    left: 60%;
+    animation: moveRunner 3s ease-in-out infinite;
+}
+
+.point-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    margin-bottom: 5px;
+}
+
+.start-point .point-icon {
+    background: var(--primary-color);
+    color: white;
+}
+
+.end-point .point-icon {
+    background: var(--success-color);
+    color: white;
+}
+
+.runner-point .point-icon {
+    background: #ff9800;
+    color: white;
+}
+
+.point-label {
+    font-size: 12px;
+    color: var(--text-primary);
+    background: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.route-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.route-line::before {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 20%;
+    bottom: 20%;
+    right: 20%;
+    border: 2px dashed var(--primary-color);
+    border-radius: 10px;
+}
+
+.route-line::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 60%;
+    width: 20px;
+    height: 20px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes moveRunner {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.2); opacity: 1; }
+}
+
+/* 跑腿员信息卡片 */
+.runner-info-card {
+    background: white;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.runner-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.runner-avatar {
+    margin-right: 12px;
+}
+
+.avatar-placeholder {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.runner-details {
+    flex: 1;
+}
+
+.runner-name {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.runner-rating {
+    display: flex;
+    align-items: center;
+}
+
+.stars {
+    color: #ffc107;
+    margin-right: 8px;
+}
+
+.rating-score {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.runner-status {
+    background: var(--success-color);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+.runner-stats {
+    display: flex;
+    justify-content: space-around;
+    border-top: 1px solid var(--border-color);
+    padding-top: 15px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.stat-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* 任务详情卡片 */
+.task-details-card {
+    background: white;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.detail-value {
+    font-size: 14px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.detail-value.price {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+/* 操作按钮 */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    padding: 0 15px;
+    margin-bottom: 20px;
+}
+
+.action-buttons .btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-icon {
+    font-size: 16px;
+}
+
+/* 实时更新提示 */
+.update-notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    background: rgba(25, 144, 255, 0.1);
+    border-radius: 8px;
+    margin: 0 15px;
+    animation: fadeInOut 2s ease-in-out infinite;
+}
+
+.notice-icon {
+    margin-right: 8px;
+    animation: spin 1s linear infinite;
+}
+
+.notice-text {
+    font-size: 12px;
+    color: var(--primary-color);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeInOut {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+/* 响应式设计 */
+@media (max-width: 375px) {
+    .map-container {
+        height: 200px;
+    }
+    
+    .runner-stats {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+}

@@ -1,0 +1,3331 @@
+openapi: 3.0.3
+info:
+  title: 校园二手交易 APP API
+  version: 1.0.0
+  description: |
+    Android 客户端使用的校园二手交易平台后端接口。所有定义与 `api.md`、`db_schema.md.md`、`spec.md`、
+    《后端 API 接口开发规划文档》保持一致。
+servers:
+  - url: http://localhost:8080/api/v1
+    description: 开发环境
+  - url: https://api.campus-trade.com/api/v1
+    description: 生产示例
+security:
+  - BearerAuth: []
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: OK
+        errorCode:
+          type: string
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+        data:
+          description: 具体数据载荷
+          nullable: true
+    PaginatedMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+    UserSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        username: { type: string }
+        role:
+          type: string
+          enum: [STUDENT, TEACHER, STAFF]
+        email: { type: string }
+        phone: { type: string, nullable: true }
+        avatar: { type: string, nullable: true }
+        school: { type: string, nullable: true }
+        emailVerified: { type: boolean }
+    Product:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: string, nullable: true }
+        price: { type: number, format: double }
+        category:
+          type: string
+          enum: [BOOKS, ELECTRONICS, CLOTHING, SPORTS, DAILY, OTHER]
+        categoryId:
+          type: integer
+          nullable: true
+          description: 动态分类ID（可选）
+        categoryCode:
+          type: string
+          nullable: true
+          description: 动态分类编码（可选）
+        categoryName:
+          type: string
+          nullable: true
+          description: 动态分类名称（可选）
+        images:
+          type: array
+          items: { type: string }
+        tags:
+          type: array
+          items: { type: string }
+        status:
+          type: string
+          enum: [DRAFT, ON_SALE, OFF_SALE, SOLD, DELETED]
+        auditStatus:
+          type: string
+          enum: [PENDING, APPROVED, REJECTED]
+        viewCount: { type: integer }
+        likeCount: { type: integer }
+        contactInfo: { type: string, nullable: true }
+        location: { type: string, nullable: true }
+        remark: { type: string, nullable: true }
+        seller:
+          $ref: '#/components/schemas/UserSummary'
+        createTime: { type: string, format: date-time }
+        favorited: { type: boolean }
+    FavoriteStatusResponse:
+      type: object
+      properties:
+        productId: { type: integer }
+        favorited: { type: boolean }
+    FavoriteCategoryStat:
+      type: object
+      properties:
+        category:
+          type: string
+          enum: [BOOKS, ELECTRONICS, CLOTHING, SPORTS, DAILY, OTHER]
+        count: { type: integer }
+        ratio: { type: number, format: double }
+    FavoriteTopProduct:
+      type: object
+      properties:
+        productId: { type: integer }
+        productTitle: { type: string }
+        favoriteCount: { type: integer }
+    FavoriteSummary:
+      type: object
+      properties:
+        totalFavorites: { type: integer }
+        onSaleFavorites: { type: integer }
+        soldOutFavorites: { type: integer }
+        removedFavorites: { type: integer }
+        lastUpdatedAt: { type: string, format: date-time, nullable: true }
+        categoryDistribution:
+          type: array
+          items: { $ref: '#/components/schemas/FavoriteCategoryStat' }
+        trendingProducts:
+          type: array
+          items: { $ref: '#/components/schemas/FavoriteTopProduct' }
+    ProductSearchClause:
+      type: object
+      properties:
+        field:
+          type: string
+          enum: [CATEGORY, STATUS, AUDIT_STATUS, PRICE, LOCATION, SELLER_SCHOOL, CREATED_TIME]
+        operator:
+          type: string
+          enum: [EQ, NE, IN, NOT_IN, GT, GTE, LT, LTE, BETWEEN, CONTAINS, STARTS_WITH, ENDS_WITH]
+        values:
+          type: array
+          items: { type: string }
+        relation:
+          type: string
+          enum: [AND, OR]
+          default: AND
+    AdvancedProductSearchRequest:
+      type: object
+      properties:
+        categories:
+          type: array
+          items:
+            type: string
+            enum: [BOOKS, ELECTRONICS, CLOTHING, SPORTS, DAILY, OTHER]
+        categoryIds:
+          type: array
+          items: { type: integer }
+        statuses:
+          type: array
+          items:
+            type: string
+            enum: [DRAFT, ON_SALE, OFF_SALE, SOLD, DELETED]
+
+        keyword: { type: string, nullable: true }
+        keywords:
+          type: array
+          items: { type: string }
+        minPrice: { type: number, format: double, nullable: true }
+        maxPrice: { type: number, format: double, nullable: true }
+        location: { type: string, nullable: true }
+        locationKeywords:
+          type: array
+          items: { type: string }
+        sellerSchool: { type: string, nullable: true }
+        includeInactive: { type: boolean, default: false }
+        publishedWithinDays: { type: integer, nullable: true }
+        onlyWithImages: { type: boolean, default: false }
+        sortMode:
+          type: string
+          enum: [RELEVANCE, NEWEST, PRICE_ASC, PRICE_DESC, POPULAR, RECOMMENDED]
+        sortBy: { type: string, nullable: true }
+        direction:
+          type: string
+          enum: [ASC, DESC]
+          default: DESC
+        clauses:
+          type: array
+          items: { $ref: '#/components/schemas/ProductSearchClause' }
+        page:
+          type: integer
+          default: 1
+          minimum: 1
+        size:
+          type: integer
+          default: 10
+          minimum: 1
+          maximum: 50
+    Order:
+      type: object
+      properties:
+        id: { type: integer }
+        orderNo: { type: string }
+        product: { $ref: '#/components/schemas/Product' }
+        buyer: { $ref: '#/components/schemas/UserSummary' }
+        seller: { $ref: '#/components/schemas/UserSummary' }
+        price: { type: number, format: double }
+        status:
+          type: string
+          enum: [PENDING_PAYMENT, PENDING_SHIPMENT, PENDING_RECEIPT, COMPLETED, CANCELLED]
+        paymentStatus:
+          type: string
+          enum: [NOT_INITIATED, PENDING, PROCESSING, SUCCEEDED, FAILED, EXPIRED, CANCELLED, REFUND_PENDING, REFUNDED]
+        paymentMethod:
+          type: string
+          enum: [ALIPAY, WECHAT, CASH]
+          nullable: true
+        paymentReference: { type: string, nullable: true }
+        paymentExpireTime: { type: string, format: date-time, nullable: true }
+        paymentTime: { type: string, format: date-time, nullable: true }
+        paymentMetadata:
+          type: object
+          nullable: true
+          additionalProperties: true
+        deliveryTime: { type: string, format: date-time, nullable: true }
+        receiveTime: { type: string, format: date-time, nullable: true }
+        buyerNote: { type: string, nullable: true }
+        sellerNote: { type: string, nullable: true }
+        buyerRating: { type: integer, nullable: true, minimum: 1, maximum: 5 }
+        buyerComment: { type: string, nullable: true }
+        sellerRating: { type: integer, nullable: true, minimum: 1, maximum: 5 }
+        sellerComment: { type: string, nullable: true }
+        refundStatus:
+          type: string
+          enum: [NONE, REQUESTED, PROCESSING, REFUNDED, FAILED]
+        refundTime: { type: string, format: date-time, nullable: true }
+    Message:
+      type: object
+      properties:
+        id: { type: integer }
+        sender: { $ref: '#/components/schemas/UserSummary' }
+        receiver: { $ref: '#/components/schemas/UserSummary' }
+        content: { type: string }
+        messageType:
+          type: string
+          enum: [TEXT, IMAGE, SYSTEM]
+        relatedType: { type: string, enum: [PRODUCT, ORDER], nullable: true }
+        relatedId: { type: integer, nullable: true }
+        attachmentUrl: { type: string, nullable: true }
+        isRead: { type: boolean }
+        readTime: { type: string, format: date-time, nullable: true }
+        createTime: { type: string, format: date-time }
+    ConversationSummary:
+      type: object
+      properties:
+        partner: { $ref: '#/components/schemas/UserSummary' }
+        lastMessage: { $ref: '#/components/schemas/Message' }
+        unreadCount: { type: integer }
+        relatedType:
+          type: string
+          enum: [PRODUCT, ORDER]
+          nullable: true
+        relatedId: { type: integer, nullable: true }
+    PresenceStatusResponse:
+      type: object
+      properties:
+        userId: { type: integer }
+        username: { type: string }
+        displayName: { type: string, nullable: true }
+        status:
+          type: string
+          enum: [ONLINE, OFFLINE]
+        lastActive:
+          type: string
+          format: date-time
+          nullable: true
+        sessionCount:
+          type: integer
+          format: int32
+    PaginatedConversations:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConversationSummary'
+        meta:
+          $ref: '#/components/schemas/PaginatedMeta'
+    CartItem:
+      type: object
+      properties:
+        id: { type: integer }
+        quantity: { type: integer }
+        product: { $ref: '#/components/schemas/Product' }
+        createTime: { type: string, format: date-time, nullable: true }
+        updateTime: { type: string, format: date-time, nullable: true }
+    PaginatedCartItems:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+        meta:
+          $ref: '#/components/schemas/PaginatedMeta'
+    CartSummary:
+      type: object
+      properties:
+        totalQuantity: { type: integer }
+        uniqueProducts: { type: integer }
+        totalAmount: { type: number, format: double }
+    CartCount:
+      type: object
+      properties:
+        totalItems: { type: integer }
+    AccountStatus:
+      type: object
+      properties:
+        deleteRequested: { type: boolean }
+        deleteReason: { type: string, nullable: true }
+        deleteScheduleTime: { type: string, format: date-time, nullable: true }
+        status: { type: string, enum: [ACTIVE, DISABLED] }
+    AddressRequest:
+      type: object
+      required: [receiverName, phone, province, city, detailAddress]
+      properties:
+        receiverName: { type: string, maxLength: 50 }
+        phone: { type: string, maxLength: 20 }
+        province: { type: string, maxLength: 50 }
+        city: { type: string, maxLength: 50 }
+        district: { type: string, maxLength: 50, nullable: true }
+        detailAddress: { type: string, maxLength: 200 }
+        isDefault: { type: boolean, nullable: true }
+    AddressResponse:
+      type: object
+      properties:
+        id: { type: integer }
+        receiverName: { type: string }
+        phone: { type: string }
+        province: { type: string }
+        city: { type: string }
+        district: { type: string, nullable: true }
+        detailAddress: { type: string }
+        isDefault: { type: boolean }
+    NotificationSettingRequest:
+      type: object
+      properties:
+        notifyChat: { type: boolean, nullable: true }
+        notifyOrders: { type: boolean, nullable: true }
+        notifySystem: { type: boolean, nullable: true }
+        notifyMarketing: { type: boolean, nullable: true }
+    NotificationSettingResponse:
+      type: object
+      properties:
+        notifyChat: { type: boolean }
+        notifyOrders: { type: boolean }
+        notifySystem: { type: boolean }
+        notifyMarketing: { type: boolean }
+    VerificationStatus:
+      type: string
+      enum: [NONE, PENDING, APPROVED, REJECTED]
+    RealNameSubmitRequest:
+      type: object
+      required: [realName, idNumber]
+      properties:
+        realName: { type: string, maxLength: 50 }
+        idNumber: { type: string, maxLength: 30 }
+    RealNameStatusResponse:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/VerificationStatus'
+        realName: { type: string, nullable: true }
+        idNumberLast4: { type: string, nullable: true }
+        submittedAt: { type: string, format: date-time, nullable: true }
+        rejectReason: { type: string, nullable: true }
+    DailyMetric:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        count:
+          type: integer
+          format: int64
+    AdminStatisticsResponse:
+      type: object
+      properties:
+        totalUsers: { type: integer, format: int64 }
+        totalProducts: { type: integer, format: int64 }
+        totalOrders: { type: integer, format: int64 }
+        pendingProducts: { type: integer, format: int64 }
+        todayNewUsers: { type: integer, format: int64 }
+        todayNewOrders: { type: integer, format: int64 }
+        userTrends:
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyMetric'
+        orderTrends:
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyMetric'
+    AdminOrderReportResponse:
+      type: object
+      properties:
+        summary:
+          $ref: '#/components/schemas/AdminOrderReportSummary'
+        statusDistribution:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderStatusMetric'
+        topCategories:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryMetric'
+        topSchools:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolMetric'
+        salesTrend:
+          type: array
+          items:
+            $ref: '#/components/schemas/SalesTrendMetric'
+        userBehavior:
+          $ref: '#/components/schemas/UserBehaviorAnalytics'
+        productHeat:
+          $ref: '#/components/schemas/ProductHeatAnalytics'
+    AdminOrderReportSummary:
+      type: object
+      properties:
+        completedOrders: { type: integer, format: int64 }
+        pendingPaymentOrders: { type: integer, format: int64 }
+        pendingShipmentOrders: { type: integer, format: int64 }
+        pendingReceiptOrders: { type: integer, format: int64 }
+        cancelledOrders: { type: integer, format: int64 }
+        refundedOrders: { type: integer, format: int64 }
+        totalRevenue: { type: number, format: double }
+        averageOrderValue: { type: number, format: double }
+    OrderStatusMetric:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [PENDING_PAYMENT, PENDING_SHIPMENT, PENDING_RECEIPT, COMPLETED, CANCELLED]
+        count: { type: integer, format: int64 }
+    CategoryMetric:
+      type: object
+      properties:
+        category:
+          type: string
+          enum: [BOOKS, ELECTRONICS, CLOTHING, SPORTS, DAILY, OTHER]
+          nullable: true
+        count: { type: integer, format: int64 }
+    SchoolMetric:
+      type: object
+      properties:
+        school: { type: string, nullable: true }
+        count: { type: integer, format: int64 }
+    SalesTrendMetric:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        orders: { type: integer, format: int64 }
+        revenue: { type: number, format: double }
+    UserBehaviorAnalytics:
+      type: object
+      properties:
+        newUsers: { type: integer, format: int64 }
+        activeBuyers: { type: integer, format: int64 }
+        activeSellers: { type: integer, format: int64 }
+        ordersCreated: { type: integer, format: int64 }
+        favoriteActions: { type: integer, format: int64 }
+        messageInteractions: { type: integer, format: int64 }
+        favoriteTrend:
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyActionMetric'
+        messageTrend:
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyActionMetric'
+    DailyActionMetric:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        count: { type: integer, format: int64 }
+    ProductHeatAnalytics:
+      type: object
+      properties:
+        mostViewed:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductHeatMetric'
+        mostFavorited:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductHeatMetric'
+        bestSellers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductHeatMetric'
+    ProductHeatMetric:
+      type: object
+      properties:
+        productId: { type: integer, format: int64 }
+        title: { type: string }
+        value: { type: integer, format: int64 }
+    PaymentIntentResponse:
+      type: object
+      properties:
+        paymentId: { type: integer }
+        orderId: { type: integer }
+        referenceNo: { type: string }
+        status:
+          type: string
+          enum: [PENDING, PROCESSING, SUCCEEDED, FAILED, EXPIRED, CANCELLED, REFUND_PENDING, REFUNDED]
+        method:
+          type: string
+          enum: [ALIPAY, WECHAT, CASH]
+        channel:
+          type: string
+          enum: [MOCK_QR, MOCK_TRANSFER, CASH]
+          nullable: true
+        amount: { type: number, format: double }
+        currency: { type: string }
+        expiresAt: { type: string, format: date-time }
+        qrCodeUrl: { type: string, nullable: true }
+        payload:
+          type: object
+          additionalProperties: true
+    PaymentRecord:
+      type: object
+      properties:
+        paymentId: { type: integer }
+        referenceNo: { type: string }
+        status:
+          type: string
+          enum: [PENDING, PROCESSING, SUCCEEDED, FAILED, EXPIRED, CANCELLED, REFUND_PENDING, REFUNDED]
+        method:
+          type: string
+          enum: [ALIPAY, WECHAT, CASH]
+        channel:
+          type: string
+          enum: [MOCK_QR, MOCK_TRANSFER, CASH]
+          nullable: true
+        amount: { type: number, format: double }
+        currency: { type: string }
+        expiresAt: { type: string, format: date-time, nullable: true }
+        statusTimeline:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentStatusEvent'
+        requestPayload:
+          type: object
+          nullable: true
+          additionalProperties: true
+        responsePayload:
+          type: object
+          nullable: true
+          additionalProperties: true
+        webhookStatus:
+          type: string
+          enum: [NONE, PENDING, SUCCESS, FAILED]
+        callbackAt: { type: string, format: date-time, nullable: true }
+        createTime: { type: string, format: date-time }
+        updateTime: { type: string, format: date-time }
+    PaymentStatusEvent:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [PENDING, PROCESSING, SUCCEEDED, FAILED, EXPIRED, CANCELLED, REFUND_PENDING, REFUNDED]
+        timestamp:
+          type: string
+          format: date-time
+    PaymentStatusResponse:
+      type: object
+      properties:
+        orderId: { type: integer }
+        orderStatus:
+          type: string
+          enum: [PENDING_PAYMENT, PENDING_SHIPMENT, PENDING_RECEIPT, COMPLETED, CANCELLED]
+        paymentStatus:
+          type: string
+          enum: [NOT_INITIATED, PENDING, PROCESSING, SUCCEEDED, FAILED, EXPIRED, CANCELLED, REFUND_PENDING, REFUNDED]
+        paymentMethod:
+          type: string
+          enum: [ALIPAY, WECHAT, CASH]
+          nullable: true
+        paymentReference: { type: string, nullable: true }
+        paymentTime: { type: string, format: date-time, nullable: true }
+        paymentExpireTime: { type: string, format: date-time, nullable: true }
+        paymentMetadata:
+          type: object
+          nullable: true
+          additionalProperties: true
+        refundStatus:
+          type: string
+          enum: [NONE, REQUESTED, PROCESSING, REFUNDED, FAILED]
+        refundTime: { type: string, format: date-time, nullable: true }
+        latestIntent:
+          $ref: '#/components/schemas/PaymentIntentResponse'
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentRecord'
+    PaymentIntentRequest:
+      type: object
+      required: [method]
+      properties:
+        method:
+          type: string
+          enum: [ALIPAY, WECHAT, CASH]
+        channel:
+          type: string
+          enum: [MOCK_QR, MOCK_TRANSFER, CASH]
+          nullable: true
+    PaymentSimulationRequest:
+      type: object
+      required: [result]
+      properties:
+        result:
+          type: string
+          enum: [SUCCESS, FAILURE, EXPIRED]
+    PaymentWebhookRequest:
+      type: object
+      required: [referenceNo, status, signature]
+      properties:
+        referenceNo: { type: string }
+        status:
+          type: string
+          enum: [SUCCESS, FAILURE, EXPIRED]
+        signature: { type: string }
+        payload:
+          type: object
+          nullable: true
+          additionalProperties: true
+    BatchOperationResult:
+      type: object
+      properties:
+        totalCount: { type: integer }
+        successCount: { type: integer }
+        failedCount: { type: integer }
+        message:
+          type: string
+          nullable: true
+    BatchStatusRequest:
+      type: object
+      required: [userIds, targetStatus]
+      properties:
+        userIds:
+          type: array
+          minItems: 1
+          maxItems: 200
+          items: { type: integer }
+        targetStatus:
+          type: string
+          enum: [ACTIVE, DISABLED]
+        reason:
+          type: string
+          maxLength: 200
+        idempotencyKey:
+          type: string
+          description: 防重复提交标识
+    BatchNotifyRequest:
+      type: object
+      required: [userIds, title, content]
+      properties:
+        userIds:
+          type: array
+          minItems: 1
+          maxItems: 500
+          items: { type: integer }
+        channel:
+          type: string
+          enum: [INBOX, EMAIL]
+          default: INBOX
+        title: { type: string }
+        content: { type: string }
+        metadata:
+          type: object
+          additionalProperties: true
+    BatchProductReviewRequest:
+      type: object
+      required: [productIds, approved]
+      properties:
+        productIds:
+          type: array
+          minItems: 1
+          maxItems: 200
+          items: { type: integer }
+        approved:
+          type: boolean
+          description: true=通过，false=驳回
+        reason:
+          type: string
+          maxLength: 200
+
+    BatchUserFinalizeDeletionRequest:
+      type: object
+      required: [userIds]
+      properties:
+        userIds:
+          type: array
+          minItems: 1
+          maxItems: 200
+          items: { type: integer }
+
+    DashboardOverviewResponse:
+      type: object
+      properties:
+        userMetrics:
+          type: array
+          items: { $ref: '#/components/schemas/DashboardMetricCard' }
+        productMetrics:
+          type: array
+          items: { $ref: '#/components/schemas/DashboardMetricCard' }
+        orderMetrics:
+          type: array
+          items: { $ref: '#/components/schemas/DashboardMetricCard' }
+        interactionMetrics:
+          type: array
+          items: { $ref: '#/components/schemas/DashboardMetricCard' }
+        orderStatusBreakdown:
+          type: array
+          items: { $ref: '#/components/schemas/DashboardStatusBreakdown' }
+        categoryRankings:
+          type: array
+          items: { $ref: '#/components/schemas/DashboardRankingItem' }
+        schoolRankings:
+          type: array
+          items: { $ref: '#/components/schemas/DashboardRankingItem' }
+        trends:
+          type: array
+          items: { $ref: '#/components/schemas/DashboardTrendSeries' }
+
+    DashboardMetricCard:
+      type: object
+      properties:
+        title: { type: string }
+        value: { oneOf: [ { type: number }, { type: integer } ] }
+        unit: { type: string, nullable: true }
+        delta: { type: number, format: double }
+
+    DashboardStatusBreakdown:
+      type: object
+      properties:
+        label: { type: string }
+        count: { type: integer }
+
+    DashboardRankingItem:
+      type: object
+      properties:
+        label: { type: string }
+        value: { type: integer }
+
+    DashboardTrendSeries:
+      type: object
+      properties:
+        name: { type: string }
+        points:
+          type: array
+          items: { $ref: '#/components/schemas/DashboardTrendPoint' }
+
+    DashboardTrendPoint:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        value: { oneOf: [ { type: number }, { type: integer } ] }
+    ReportCreateRequest:
+      type: object
+      required: [targetType, reason]
+      properties:
+        targetType:
+          type: string
+          enum: [PRODUCT, USER, ORDER, MESSAGE, OTHER]
+        targetId:
+          type: integer
+          nullable: true
+        reason:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+          nullable: true
+        evidenceUrls:
+          type: array
+          maxItems: 5
+          items: { type: string }
+        contactInfo:
+          type: string
+          maxLength: 100
+          nullable: true
+    ReportResponse:
+      type: object
+      properties:
+        id: { type: integer }
+        targetType:
+          type: string
+          enum: [PRODUCT, USER, ORDER, MESSAGE, OTHER]
+        targetId: { type: integer, nullable: true }
+        targetSnapshot: { type: string, nullable: true }
+        reason: { type: string }
+        description: { type: string, nullable: true }
+        evidenceUrls:
+          type: array
+          items: { type: string }
+        status:
+          type: string
+          enum: [PENDING, IN_PROGRESS, RESOLVED, REJECTED]
+        contactInfo: { type: string, nullable: true }
+        resolution: { type: string, nullable: true }
+        handledBy: { type: string, nullable: true }
+        handledTime: { type: string, format: date-time, nullable: true }
+        autoFlagged: { type: boolean }
+        autoReason: { type: string, nullable: true }
+        reporter:
+          $ref: '#/components/schemas/UserSummary'
+        createTime: { type: string, format: date-time }
+    ReportDetailResponse:
+      type: object
+      properties:
+        id: { type: integer }
+        targetType:
+          type: string
+          enum: [PRODUCT, USER, ORDER, MESSAGE, OTHER]
+        targetId: { type: integer, nullable: true }
+        targetSnapshot: { type: string, nullable: true }
+        reason: { type: string }
+        description: { type: string, nullable: true }
+        evidenceUrls:
+          type: array
+          items: { type: string }
+        status:
+          type: string
+          enum: [PENDING, IN_PROGRESS, RESOLVED, REJECTED]
+        contactInfo: { type: string, nullable: true }
+        resolution: { type: string, nullable: true }
+        handledBy: { type: string, nullable: true }
+        handledTime: { type: string, format: date-time, nullable: true }
+        autoFlagged: { type: boolean }
+        autoReason: { type: string, nullable: true }
+        createTime: { type: string, format: date-time }
+        reporter:
+          $ref: '#/components/schemas/UserSummary'
+    ReportAuditRequest:
+      type: object
+      required: [status, resolution]
+      properties:
+        status:
+          type: string
+          enum: [RESOLVED, REJECTED]
+        resolution:
+          type: string
+          maxLength: 200
+    ReportBatchAuditRequest:
+      type: object
+      required: [ids, status, resolution]
+      properties:
+        ids:
+          type: array
+          minItems: 1
+          maxItems: 200
+          items: { type: integer }
+        status:
+          type: string
+          enum: [RESOLVED, REJECTED]
+        resolution:
+          type: string
+          maxLength: 200
+    ReportStatusSummary:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [PENDING, IN_PROGRESS, RESOLVED, REJECTED]
+        count: { type: integer }
+    ReportStatsResponse:
+      type: object
+      properties:
+        totalReports: { type: integer }
+        pendingReports: { type: integer }
+        inProgressReports: { type: integer }
+        resolvedReports: { type: integer }
+        rejectedReports: { type: integer }
+        autoFlaggedReports: { type: integer }
+        todayReports: { type: integer }
+        distribution:
+          type: array
+          items: { $ref: '#/components/schemas/ReportStatusSummary' }
+    ExportJobRequest:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [USERS, PRODUCTS, ORDERS, REPORTS, CUSTOM]
+        format:
+          type: string
+          enum: [CSV, XLSX]
+          default: CSV
+        filters:
+          type: object
+          additionalProperties: true
+        columns:
+          type: array
+          items: { type: string }
+    ExportJobSummary:
+      type: object
+      properties:
+        jobId: { type: string }
+        type:
+          type: string
+          enum: [USERS, PRODUCTS, ORDERS, REPORTS, CUSTOM]
+        status:
+          type: string
+          enum: [PENDING, RUNNING, SUCCEEDED, FAILED, CANCELLED]
+        format:
+          type: string
+          enum: [CSV, XLSX]
+        fileName: { type: string, nullable: true }
+        progress: { type: number, format: double, nullable: true }
+        createdBy: { type: string }
+        createdAt: { type: string, format: date-time }
+        finishedAt: { type: string, format: date-time, nullable: true }
+        downloadUrl: { type: string, nullable: true }
+        expiresAt: { type: string, format: date-time, nullable: true }
+    ExportJobListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/ExportJobSummary' }
+        meta:
+          $ref: '#/components/schemas/PaginatedMeta'
+    SystemConfig:
+      type: object
+      properties:
+        configKey: { type: string }
+        value: { type: string }
+        valueType:
+          type: string
+          enum: [STRING, NUMBER, BOOLEAN, JSON]
+        category: { type: string }
+        scope:
+          type: string
+          enum: [APP, ADMIN, ALL]
+        description: { type: string }
+        editable: { type: boolean }
+        version: { type: integer }
+        updatedBy: { type: string }
+        updatedAt: { type: string, format: date-time }
+    SystemConfigRequest:
+      type: object
+      required: [configKey, value, valueType]
+      properties:
+        configKey: { type: string }
+        value: { type: string }
+        valueType:
+          type: string
+          enum: [STRING, NUMBER, BOOLEAN, JSON]
+        category: { type: string }
+        scope:
+          type: string
+          enum: [APP, ADMIN, ALL]
+          default: ALL
+        description: { type: string }
+        editable: { type: boolean, default: true }
+    SystemConfigUpdateRequest:
+      type: object
+      required: [value]
+      properties:
+        value: { type: string }
+        memo: { type: string }
+        publish:
+          type: boolean
+          default: true
+    ConfigHistoryEntry:
+      type: object
+      properties:
+        version: { type: integer }
+        value: { type: string }
+        operator: { type: string }
+        memo: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+paths:
+  /auth/register:
+    post:
+      summary: 用户注册
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password, email, role]
+              properties:
+                username: { type: string, minLength: 3, maxLength: 20 }
+                password: { type: string, minLength: 6, maxLength: 20 }
+                email: { type: string, format: email }
+                phone: { type: string }
+                role:
+                  type: string
+                  enum: [STUDENT, TEACHER, STAFF]
+      responses:
+        '200':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/UserSummary'
+  /auth/verify-email/request:
+    post:
+      summary: 发送邮箱验证码
+      description: 注册后或验证码过期时重新发送 6 位数字验证码
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '200': { description: 已发送, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /auth/verify-email:
+    post:
+      summary: 邮箱验证
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, verificationCode]
+              properties:
+                email: { type: string, format: email }
+                verificationCode: { type: string }
+      responses:
+        '200': { description: 激活成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /auth/login:
+    post:
+      summary: 用户登录
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          accessToken: { type: string }
+                          expiresIn: { type: integer }
+                          user: { $ref: '#/components/schemas/UserSummary' }
+  /auth/reset-password/request:
+    post:
+      summary: 发送密码重置验证码
+      description: 仅邮箱已验证的账号可以请求发送验证码
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '200': { description: 已发送, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /auth/logout:
+    post:
+      summary: 注销当前 Token
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /auth/reset-password:
+    post:
+      summary: 邮箱重置密码
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, verificationCode, newPassword]
+              properties:
+                email: { type: string, format: email }
+                verificationCode: { type: string }
+                newPassword: { type: string, minLength: 6 }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /users/password:
+    put:
+      summary: 修改密码
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [oldPassword, newPassword]
+              properties:
+                oldPassword: { type: string }
+                newPassword: { type: string, minLength: 6 }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /users/me:
+    get:
+      summary: 获取当前用户信息
+      responses:
+        '200':
+          description: 用户信息
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/UserSummary'
+  /users/me/account-status:
+    get:
+      summary: 查询账号状态/注销进度
+      responses:
+        '200':
+          description: 状态
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AccountStatus'
+  /users/me/delete-request:
+    post:
+      summary: 申请注销
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string }
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AccountStatus'
+  /users/me/cancel-delete:
+    post:
+      summary: 取消注销
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AccountStatus'
+  /users/me/addresses:
+    get:
+      summary: 获取我的地址列表
+      responses:
+        '200':
+          description: 地址列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AddressResponse'
+    post:
+      summary: 新增地址
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AddressResponse'
+  /users/me/addresses/{id}:
+    put:
+      summary: 更新地址
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AddressResponse'
+    delete:
+      summary: 删除地址
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /users/me/addresses/{id}/default:
+    post:
+      summary: 设为默认地址
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AddressResponse'
+  /users/me/notification-settings:
+    get:
+      summary: 获取通知设置
+      responses:
+        '200':
+          description: 设置
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/NotificationSettingResponse'
+    put:
+      summary: 更新通知设置
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationSettingRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/NotificationSettingResponse'
+  /users/me/real-name:
+    get:
+      summary: 获取实名认证状态
+      responses:
+        '200':
+          description: 状态
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/RealNameStatusResponse'
+    post:
+      summary: 提交实名认证
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RealNameSubmitRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/RealNameStatusResponse'
+  /favorites:
+    get:
+      summary: 我的收藏
+      description: 分页获取当前登录用户收藏的商品列表
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 10, maximum: 50 }
+        - in: query
+          name: category
+          schema:
+            type: string
+            enum: [BOOKS, ELECTRONICS, CLOTHING, SPORTS, DAILY, OTHER]
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [ON_SALE, OFF_SALE, SOLD, DELETED]
+        - in: query
+          name: keyword
+          schema: { type: string }
+        - in: query
+          name: sortMode
+          schema:
+            type: string
+            enum: [LATEST, PRICE_ASC, PRICE_DESC, POPULARITY]
+            default: LATEST
+        - in: query
+          name: onlyAvailable
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: 收藏列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items: { $ref: '#/components/schemas/Product' }
+                          meta:
+                            $ref: '#/components/schemas/PaginatedMeta'
+  /favorites/status:
+    get:
+      summary: 收藏状态批量查询
+      parameters:
+        - in: query
+          name: productIds
+          required: true
+          schema:
+            type: array
+            items: { type: integer }
+          style: form
+          explode: true
+      responses:
+        '200':
+          description: 收藏状态列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FavoriteStatusResponse'
+  /favorites/{productId}:
+    post:
+      summary: 收藏商品
+      description: 将指定商品加入收藏
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /favorites/summary:
+    get:
+      summary: 收藏统计
+      parameters:
+        - in: query
+          name: top
+          schema: { type: integer, default: 5, minimum: 3, maximum: 20 }
+      responses:
+        '200':
+          description: 收藏概览
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/FavoriteSummary'
+    delete:
+      summary: 取消收藏
+      description: 取消对指定商品的收藏
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /products:
+    get:
+      summary: 商品列表
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 10, maximum: 50 }
+        - in: query
+          name: category
+          schema: { type: string, enum: [BOOKS, ELECTRONICS, CLOTHING, SPORTS, DAILY, OTHER] }
+        - in: query
+          name: keyword
+          schema: { type: string }
+        - in: query
+          name: sortBy
+          schema: { type: string, enum: [createTime, price, viewCount], default: createTime }
+        - in: query
+          name: sortOrder
+          schema: { type: string, enum: [asc, desc], default: desc }
+      responses:
+        '200':
+          description: 列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items: { $ref: '#/components/schemas/Product' }
+                          meta:
+                            $ref: '#/components/schemas/PaginatedMeta'
+    post:
+      summary: 发布商品
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, price, category]
+              properties:
+                title: { type: string }
+                description: { type: string }
+                price: { type: number }
+                category: { type: string, enum: [BOOKS, ELECTRONICS, CLOTHING, SPORTS, DAILY, OTHER] }
+                images:
+                  type: array
+                  items: { type: string }
+                contactInfo: { type: string }
+                location: { type: string }
+      responses:
+        '200':
+          description: 发布成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Product'
+  /products/{id}:
+    get:
+      summary: 商品详情
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: 详情
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Product'
+    delete:
+      summary: 删除商品（逻辑）
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /products/{id}/status:
+    patch:
+      summary: 更新商品状态
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [ON_SALE, OFF_SALE, SOLD, DELETED]
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /products/search:
+    get:
+      summary: 商品搜索
+      parameters:
+        - in: query
+          name: keyword
+          schema: { type: string }
+        - in: query
+          name: category
+          schema: { type: string }
+        - in: query
+          name: status
+          schema: { type: string }
+        - in: query
+          name: minPrice
+          schema: { type: number }
+        - in: query
+          name: maxPrice
+          schema: { type: number }
+        - in: query
+          name: location
+          schema: { type: string }
+        - in: query
+          name: sellerSchool
+          schema: { type: string }
+        - in: query
+          name: includeInactive
+          schema: { type: boolean, default: false }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 10 }
+        - in: query
+          name: sortBy
+          schema: { type: string }
+        - in: query
+          name: sortOrder
+          schema: { type: string }
+        - in: query
+          name: sortMode
+          schema:
+            type: string
+            enum: [RELEVANCE, NEWEST, PRICE_ASC, PRICE_DESC, POPULAR]
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /products/search/advanced:
+    post:
+      summary: 高级搜索
+      description: 通过 JSON 请求体组合地理位置、价格区间与多条件筛选
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvancedProductSearchRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items: { $ref: '#/components/schemas/Product' }
+                          meta:
+                            $ref: '#/components/schemas/PaginatedMeta'
+  /users/me/products:
+    get:
+      summary: 我的商品
+      parameters:
+        - in: query
+          name: status
+          schema: { type: string, enum: [all, on_sale, off_sale, sold], default: all }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 10 }
+      responses:
+        '200': { description: 列表, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /orders:
+    post:
+      summary: 创建订单
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productId]
+              properties:
+                productId: { type: integer }
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Order'
+  /orders/me:
+    get:
+      summary: 我买到的订单
+      parameters:
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [all, pending, confirmed, shipping, completed, cancelled]
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 10 }
+      responses:
+        '200': { description: 列表, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /orders/sold:
+    get:
+      summary: 我卖出的订单
+      parameters:
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [all, pending, confirmed, shipping, completed, cancelled]
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 10 }
+      responses:
+        '200': { description: 列表, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /orders/{id}:
+    get:
+      summary: 订单详情
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: 详情
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/Order' }
+  /orders/{id}/confirm:
+    post:
+      summary: 卖家确认订单
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /orders/{id}/reject:
+    post:
+      summary: 卖家拒绝订单
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /orders/{id}/cancel:
+    post:
+      summary: 买家取消订单
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /orders/{id}/complete:
+    post:
+      summary: 买家确认收货
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rating: { type: integer, minimum: 1, maximum: 5 }
+                comment: { type: string }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /orders/{id}/seller-review:
+    post:
+      summary: 卖家评价买家
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rating: { type: integer, minimum: 1, maximum: 5 }
+                comment: { type: string }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /payments/orders/{orderId}/intent:
+    post:
+      summary: 创建或刷新支付意图
+      tags: [支付]
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema: { type: integer }
+          description: 订单 ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentIntentRequest'
+      responses:
+        '200':
+          description: 支付意图已创建
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PaymentIntentResponse'
+  /payments/orders/{orderId}:
+    get:
+      summary: 查询订单支付状态
+      tags: [支付]
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema: { type: integer }
+        - in: query
+          name: includeHistory
+          schema: { type: boolean, default: false }
+          description: 是否返回全部支付记录
+      responses:
+        '200':
+          description: 支付状态返回
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PaymentStatusResponse'
+  /payments/{paymentId}/cancel:
+    post:
+      summary: 取消支付意图
+      tags: [支付]
+      parameters:
+        - in: path
+          name: paymentId
+          required: true
+          schema: { type: integer }
+      responses:
+        '204':
+          description: 已取消，且无返回体
+  /payments/{paymentId}/simulate:
+    post:
+      summary: 模拟支付结果（测试环境）
+      tags: [支付]
+      parameters:
+        - in: path
+          name: paymentId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentSimulationRequest'
+      responses:
+        '200':
+          description: 支付状态已更新
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PaymentStatusResponse'
+  /payments/webhook/mock:
+    post:
+      summary: 模拟支付网关回调
+      description: 公共接口，用于 QA 或演示手动触发支付成功/失败
+      tags: [支付]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentWebhookRequest'
+      responses:
+        '200':
+          description: 回调处理成功
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiResponse' }
+  /admin/payments:
+    get:
+      summary: 管理员查看支付记录
+      tags: [管理员]
+      parameters:
+        - in: query
+          name: orderNo
+          schema: { type: string }
+        - in: query
+          name: buyerPhone
+          schema: { type: string }
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [PENDING, PROCESSING, SUCCEEDED, FAILED, EXPIRED, CANCELLED, REFUND_PENDING, REFUNDED]
+        - in: query
+          name: dateFrom
+          schema: { type: string, format: date-time }
+        - in: query
+          name: dateTo
+          schema: { type: string, format: date-time }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 10 }
+      responses:
+        '200':
+          description: 支付记录分页
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/PaymentRecord'
+                          meta:
+                            $ref: '#/components/schemas/PaginatedMeta'
+  /admin/payments/{paymentId}/refund:
+    post:
+      summary: 管理员触发退款
+      tags: [管理员]
+      parameters:
+        - in: path
+          name: paymentId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string, nullable: true }
+      responses:
+        '200':
+          description: 退款流程已触发
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiResponse' }
+  /admin/payments/{paymentId}/close:
+    post:
+      summary: 管理员强制关闭支付记录
+      description: 将卡住的支付记录标记为 FAILED 并解除订单占用
+      tags: [管理员]
+      parameters:
+        - in: path
+          name: paymentId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string, nullable: true }
+      responses:
+        '200':
+          description: 支付记录已关闭
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiResponse' }
+  /messages:
+    post:
+      summary: 发送消息
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [toUserId, content]
+              properties:
+                toUserId: { type: integer }
+                productId: { type: integer, nullable: true }
+                orderId: { type: integer, nullable: true }
+                messageType:
+                  type: string
+                  enum: [TEXT, IMAGE, AUDIO, SYSTEM]
+                  default: TEXT
+                content: { type: string }
+                attachmentUrl: { type: string, nullable: true }
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/Message' }
+  /messages/conversations:
+    get:
+      summary: 对话列表
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 10 }
+      responses:
+        '200':
+          description: 列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PaginatedConversations'
+    delete:
+      summary: 删除会话（逻辑）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [toUserId]
+              properties:
+                toUserId: { type: integer }
+                productId:
+                  type: integer
+                  nullable: true
+                  description: 商品上下文（与 orderId 互斥）
+                orderId:
+                  type: integer
+                  nullable: true
+                  description: 订单上下文（与 productId 互斥）
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /messages/history:
+    get:
+      summary: 对话历史
+      parameters:
+        - in: query
+          name: toUserId
+          required: true
+          schema: { type: integer }
+        - in: query
+          name: productId
+          schema: { type: integer }
+        - in: query
+          name: orderId
+          schema: { type: integer }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 20 }
+      responses:
+        '200': { description: 列表, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /messages/read:
+    post:
+      summary: 批量置已读
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [messageIds]
+              properties:
+                messageIds:
+                  type: array
+                  items: { type: integer }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /messages/conversations/read:
+    post:
+      summary: 对话置已读
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [toUserId]
+              properties:
+                toUserId: { type: integer }
+                productId:
+                  type: integer
+                  nullable: true
+                  description: 商品上下文（与 orderId 互斥）
+                orderId:
+                  type: integer
+                  nullable: true
+                  description: 订单上下文（与 productId 互斥）
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /messages/report:
+    post:
+      summary: 举报消息
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [messageId, description]
+              properties:
+                messageId: { type: integer }
+                description: { type: string }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /reports:
+    post:
+      summary: 提交举报
+      description: 举报商品、用户、订单或聊天消息，支持附带最多 5 张证据截图
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportCreateRequest'
+      responses:
+        '200':
+          description: 举报已接收
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    get:
+      summary: 我的举报
+      description: 按状态/类型筛选当前用户提交的举报记录
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [PENDING, IN_PROGRESS, RESOLVED, REJECTED]
+        - in: query
+          name: targetType
+          schema:
+            type: string
+            enum: [PRODUCT, USER, ORDER, MESSAGE, OTHER]
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 10, maximum: 50 }
+      responses:
+        '200':
+          description: 举报列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/ReportResponse'
+                          meta:
+                            $ref: '#/components/schemas/PaginatedMeta'
+  /reports/{id}:
+    get:
+      summary: 举报详情
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: 举报详细信息
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ReportDetailResponse'
+  /messages/system:
+    get:
+      summary: 系统通知
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 10 }
+      responses:
+        '200': { description: 列表, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /presence/online-users:
+    get:
+      summary: 在线用户列表
+      responses:
+        '200':
+          description: 当前在线用户
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PresenceStatusResponse'
+  /presence/status/{userId}:
+    get:
+      summary: 查询指定用户在线状态
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: 在线状态
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PresenceStatusResponse'
+  /presence/me:
+    get:
+      summary: 当前用户在线状态
+      responses:
+        '200':
+          description: 自身在线状态
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PresenceStatusResponse'
+  /cart/items:
+    post:
+      summary: 添加商品到购物车
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productId]
+              properties:
+                productId: { type: integer }
+                quantity:
+                  type: integer
+                  minimum: 1
+                  description: 为空时默认 1
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CartItem'
+    get:
+      summary: 查看购物车列表
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 10 }
+      responses:
+        '200':
+          description: 列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PaginatedCartItems'
+    delete:
+      summary: 清空购物车
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /cart/items/{id}:
+    patch:
+      summary: 更新购物车商品数量
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quantity]
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CartItem'
+    delete:
+      summary: 移除指定购物车条目
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /cart/items/product/{productId}:
+    delete:
+      summary: 根据商品 ID 移除购物车条目
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /cart/items/summary:
+    get:
+      summary: 购物车汇总
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CartSummary'
+  /cart/items/count:
+    get:
+      summary: 购物车商品数量
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CartCount'
+  /profile:
+    get:
+      summary: 个人资料
+      responses:
+        '200':
+          description: 资料
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/UserSummary'
+    put:
+      summary: 更新资料
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone: { type: string }
+                school: { type: string }
+                avatar: { type: string }
+                contactInfo: { type: string }
+      responses:
+        '200': { description: 更新成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /profile/products:
+    get:
+      summary: 我的商品（个人中心入口）
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 10 }
+      responses:
+        '200': { description: 列表, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /profile/account-status:
+    get:
+      summary: 查询账号状态/注销进度
+      responses:
+        '200':
+          description: 状态
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/AccountStatus' }
+  /profile/delete-request:
+    post:
+      summary: 申请注销
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /profile/cancel-delete:
+    post:
+      summary: 取消注销
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /admin/login:
+    post:
+      summary: 管理员登录
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          accessToken: { type: string }
+                          role:
+                            type: string
+                            enum: [SUPER_ADMIN, ADMIN, MODERATOR]
+  /admin/register:
+    post:
+      summary: 创建管理员
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password, email, role]
+              properties:
+                username: { type: string }
+                password: { type: string }
+                email: { type: string }
+                role: { type: string, enum: [SUPER_ADMIN, ADMIN, MODERATOR] }
+                permissions:
+                  type: array
+                  items: { type: string }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /admin/products/pending:
+    get:
+      summary: 待审核商品
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 10 }
+      responses:
+        '200': { description: 列表, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /admin/products/{id}/review:
+    patch:
+      summary: 审核商品
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [approved]
+              properties:
+                approved: { type: boolean }
+                reason: { type: string }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /admin/products/review/batch:
+    post:
+      summary: 批量审核商品
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchProductReviewRequest'
+      responses:
+        '200':
+          description: 批量处理结果
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/BatchOperationResult'
+  /admin/users:
+    get:
+      summary: 用户列表
+      parameters:
+        - in: query
+          name: role
+          schema: { type: string, enum: [STUDENT, TEACHER, STAFF], nullable: true }
+        - in: query
+          name: status
+          schema: { type: string, enum: [ACTIVE, DISABLED], nullable: true }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 10 }
+      responses:
+        '200': { description: 列表, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /admin/users/{id}/status:
+    patch:
+      summary: 调整用户状态
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [ACTIVE, DISABLED] }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /admin/users/batch/status:
+    post:
+      summary: 批量调整用户状态
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchStatusRequest'
+      responses:
+        '200':
+          description: 批量处理结果
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/BatchOperationResult'
+  /admin/users/batch/notify:
+    post:
+      summary: 批量发送通知
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchNotifyRequest'
+      responses:
+        '200':
+          description: 已创建通知任务
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /admin/moderation/reports:
+    get:
+      summary: 举报列表
+      description: 管理员按条件筛选举报记录，默认按自动预警优先 + 创建时间倒序
+      parameters:
+        - in: query
+          name: status
+          schema: { type: string, enum: [PENDING, IN_PROGRESS, RESOLVED, REJECTED] }
+        - in: query
+          name: targetType
+          schema: { type: string, enum: [PRODUCT, USER, ORDER, MESSAGE, OTHER] }
+        - in: query
+          name: reporterKeyword
+          schema: { type: string }
+        - in: query
+          name: autoFlaggedOnly
+          schema: { type: boolean }
+        - in: query
+          name: startTime
+          schema: { type: string, format: date-time }
+        - in: query
+          name: endTime
+          schema: { type: string, format: date-time }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 20, maximum: 100 }
+      responses:
+        '200':
+          description: 举报列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items: { $ref: '#/components/schemas/ReportResponse' }
+                          meta:
+                            $ref: '#/components/schemas/PaginatedMeta'
+  /admin/moderation/reports/stats:
+    get:
+      summary: 举报统计
+      responses:
+        '200':
+          description: 统计信息
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ReportStatsResponse'
+  /admin/moderation/reports/{id}:
+    get:
+      summary: 举报详情
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: 举报详情
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ReportDetailResponse'
+    patch:
+      summary: 处理举报
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportAuditRequest'
+      responses:
+        '200':
+          description: 举报已处理
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /admin/moderation/reports/batch:
+    post:
+      summary: 批量处理举报
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportBatchAuditRequest'
+      responses:
+        '200':
+          description: 批量处理结果
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/BatchOperationResult'
+  /admin/users/{id}/delete/finalize:
+    post:
+      summary: 立即完成账号注销
+      description: 管理员手动执行账号注销，绕过倒计时，直接将账号置为禁用并清理敏感信息
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /admin/users/{id}/delete/cancel:
+    post:
+      summary: 取消账号注销申请
+      description: 管理员撤销用户的注销流程，清除 deleteRequested 等字段
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: 成功, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /admin/users/delete/finalize/batch:
+    post:
+      summary: 批量完成账号注销
+      description: 管理员批量执行账号注销，绕过倒计时
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchUserFinalizeDeletionRequest'
+      responses:
+        '200':
+          description: 批量处理结果
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/BatchOperationResult'
+  /admin/statistics/overview:
+    get:
+      summary: 获取后台统计概览
+      description: 返回管理端看板概览（含用户增长、订单量、GMV 等指标）
+      parameters:
+        - in: query
+          name: days
+          description: 趋势天数（1~30）
+          schema:
+            type: integer
+            default: 7
+            minimum: 1
+            maximum: 30
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DashboardOverviewResponse'
+  /admin/reports/orders:
+    get:
+      summary: 综合运营报表
+      description: 返回销售统计、用户行为分析及商品热度榜单
+      parameters:
+        - in: query
+          name: days
+          description: 趋势天数（1~30，默认 7）
+          schema:
+            type: integer
+            default: 7
+            minimum: 1
+            maximum: 30
+        - in: query
+          name: top
+          description: Top N 排名数量（1~10，默认 5）
+          schema:
+            type: integer
+            default: 5
+            minimum: 1
+            maximum: 10
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AdminOrderReportResponse'
+  /admin/exports:
+    post:
+      summary: 创建导出任务
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportJobRequest'
+      responses:
+        '200':
+          description: 已创建
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ExportJobSummary'
+    get:
+      summary: 导出任务列表
+      parameters:
+        - in: query
+          name: type
+          schema: { type: string, enum: [USERS, PRODUCTS, ORDERS, REPORTS, CUSTOM], nullable: true }
+        - in: query
+          name: status
+          schema: { type: string, enum: [PENDING, RUNNING, SUCCEEDED, FAILED, CANCELLED], nullable: true }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 10 }
+      responses:
+        '200':
+          description: 列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ExportJobListResponse'
+  /admin/exports/{jobId}:
+    get:
+      summary: 导出任务详情
+      parameters:
+        - in: path
+          name: jobId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: 详情
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ExportJobSummary'
+    delete:
+      summary: 失效导出任务
+      parameters:
+        - in: path
+          name: jobId
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: 已删除, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+  /admin/exports/{jobId}/download:
+    get:
+      summary: 下载导出文件
+      parameters:
+        - in: path
+          name: jobId
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: 返回临时下载 URL
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ExportJobSummary'
+  /admin/configs:
+    get:
+      summary: 系统配置列表
+      parameters:
+        - in: query
+          name: category
+          schema: { type: string, nullable: true }
+        - in: query
+          name: scope
+          schema: { type: string, enum: [APP, ADMIN, ALL], nullable: true }
+        - in: query
+          name: keyword
+          schema: { type: string, nullable: true }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: size
+          schema: { type: integer, default: 10 }
+      responses:
+        '200':
+          description: 列表
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/SystemConfig'
+                          meta:
+                            $ref: '#/components/schemas/PaginatedMeta'
+    post:
+      summary: 新增配置
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SystemConfigRequest'
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SystemConfig'
+  /admin/configs/{key}:
+    put:
+      summary: 更新配置
+      parameters:
+        - in: path
+          name: key
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SystemConfigUpdateRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SystemConfig'
+  /admin/configs/{key}/history:
+    get:
+      summary: 查看配置历史
+      parameters:
+        - in: path
+          name: key
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: 历史记录
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ConfigHistoryEntry'
+  /admin/configs/{key}/rollback:
+    post:
+      summary: 回滚配置
+      parameters:
+        - in: path
+          name: key
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [version]
+              properties:
+                version: { type: integer }
+                memo: { type: string }
+      responses:
+        '200':
+          description: 回滚成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SystemConfig'
+  /configs/public:
+    get:
+      summary: 公开配置
+      security: []
+      parameters:
+        - in: query
+          name: scope
+          schema: { type: string, enum: [APP, ADMIN, ALL], default: APP }
+      responses:
+        '200':
+          description: 配置
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SystemConfig'
+  /files/upload/avatar:
+    post:
+      summary: 上传头像
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          url: { type: string }
+                          thumbnailUrl: { type: string, nullable: true }
+  /files/upload/product-image:
+    post:
+      summary: 上传商品图片
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                productId:
+                  type: integer
+                  nullable: true
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          url: { type: string }
+                          thumbnailUrl: { type: string, nullable: true }
+  /files/upload/chat-image:
+    post:
+      summary: 上传聊天图片
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          url: { type: string }
+                          thumbnailUrl: { type: string, nullable: true }
+  /files/upload/chat-audio:
+    post:
+      summary: 上传聊天语音
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          url: { type: string }
+                          thumbnailUrl: { type: string, nullable: true }

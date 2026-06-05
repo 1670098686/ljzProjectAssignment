@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>消息 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+    <style>
+        .unread-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--error-color);
+            margin-left: 8px;
+            visibility: hidden;
+        }
+        .unread-dot.active {
+            visibility: visible;
+        }
+        .badge-tab {
+            position: absolute;
+            top: -2px;
+            right: -6px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--error-color);
+            display: none;
+        }
+        .badge-tab.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="navbar-left"></div>
+            <div class="navbar-title">消息中心</div>
+            <div class="navbar-right"></div>
+        </div>
+
+        <div class="page-content">
+            <div class="list-group">
+                <!-- 系统通知 -->
+                <div class="list-item" data-thread="system" onclick="openThread('system','消息对话.html?type=system')">
+                    <div class="avatar mr-16" style="margin-right: 12px; background: #FAAD14; color: white; display: flex; align-items: center; justify-content: center;"><img src="images/icon-info.svg" class="icon-img"></div>
+                    <div class="list-content">
+                        <div class="flex justify-between mb-4">
+                            <span class="list-title font-bold">系统通知</span>
+                            <span class="text-xs text-secondary">10:00</span>
+                        </div>
+                        <div class="list-subtitle text-truncate">您的任务已发布成功，正在等待接单...</div>
+                    </div>
+                    <span class="unread-dot"></span>
+                </div>
+
+                <!-- 交易通知 -->
+                <div class="list-item" data-thread="trade" onclick="openThread('trade','消息对话.html?type=trade')">
+                    <div class="avatar mr-16" style="margin-right: 12px; background: #52C41A; color: white; display: flex; align-items: center; justify-content: center;"><img src="images/icon-money.svg" class="icon-img"></div>
+                    <div class="list-content">
+                        <div class="flex justify-between mb-4">
+                            <span class="list-title font-bold">交易通知</span>
+                            <span class="text-xs text-secondary">昨天</span>
+                        </div>
+                        <div class="list-subtitle text-truncate">您有一笔新的收入到账，请查收。</div>
+                    </div>
+                    <span class="unread-dot"></span>
+                </div>
+
+                <!-- 私信 -->
+                <div class="list-item" data-thread="chat" onclick="openThread('chat','消息对话.html?type=chat&name=李同学')">
+                    <div class="avatar mr-16" style="margin-right: 12px;"></div>
+                    <div class="list-content">
+                        <div class="flex justify-between mb-4">
+                            <span class="list-title font-bold">李同学</span>
+                            <span class="text-xs text-secondary">昨天</span>
+                        </div>
+                        <div class="list-subtitle text-truncate">你好，请问大概什么时候能送到？</div>
+                    </div>
+                    <span class="unread-dot"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部标签栏 -->
+        <div class="tabbar">
+            <div class="tabbar-item" onclick="location.href='首页.html'">
+                <div class="tabbar-icon"><img src="images/icon-home.svg" class="icon-img"></div>
+                <span>首页</span>
+            </div>
+            <div class="tabbar-item" onclick="goTaskIfAllowed()">
+                <div class="tabbar-icon"><img src="images/icon-tasks.svg" class="icon-img"></div>
+                <span>任务</span>
+            </div>
+            <div class="tabbar-item" onclick="location.href='任务发布.html'">
+                <div class="tabbar-icon fab"><img src="images/icon-publish-white.svg" class="icon-img"></div>
+                <span>发布</span>
+            </div>
+            <div class="tabbar-item active" onclick="location.href='消息.html'" style="position: relative;">
+                <div class="tabbar-icon"><img src="images/icon-messages.svg" class="icon-img"></div>
+                <span>消息</span>
+                <span id="tabBadge" class="badge-tab"></span>
+            </div>
+            <div class="tabbar-item" onclick="location.href='个人中心.html'">
+                <div class="tabbar-icon"><img src="images/icon-profile.svg" class="icon-img"></div>
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+    <script src="js/common.js"></script>
+    <script>
+        function formatShortTime(time) {
+            if (!time) return '';
+            const date = new Date(time);
+            const now = new Date();
+            const isToday = date.toDateString() === now.toDateString();
+            return isToday ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : `${date.getMonth() + 1}-${date.getDate()}`;
+        }
+
+        function renderThreads() {
+            const threads = MessageStore.ensure();
+            let totalUnread = 0;
+            document.querySelectorAll('[data-thread]').forEach(item => {
+                const key = item.getAttribute('data-thread');
+                const thread = threads[key];
+                if (!thread) return;
+                const titleEl = item.querySelector('.list-title');
+                const subtitleEl = item.querySelector('.list-subtitle');
+                const timeEl = item.querySelector('.text-xs.text-secondary');
+                const unreadDot = item.querySelector('.unread-dot');
+                if (titleEl && thread.title) titleEl.textContent = thread.title;
+                if (subtitleEl) subtitleEl.textContent = thread.lastText || '暂无消息';
+                if (timeEl) timeEl.textContent = formatShortTime(thread.lastTime);
+                if (unreadDot) unreadDot.classList.toggle('active', (thread.unread || 0) > 0);
+                totalUnread += thread.unread || 0;
+            });
+            const tabBadge = document.getElementById('tabBadge');
+            if (tabBadge) {
+                tabBadge.classList.toggle('active', totalUnread > 0);
+            }
+        }
+
+        function openThread(thread, href) {
+            MessageStore.markRead(thread);
+            renderThreads();
+            location.href = href;
+        }
+
+        function goTaskIfAllowed() {
+            const auth = CommonUtils.getAuth();
+            if (!auth || !auth.loggedIn) {
+                alert('请先登录后再查看任务大厅');
+                return;
+            }
+            if (!['runner', 'dual', 'admin'].includes(auth.role)) {
+                alert('仅跑腿员可进入任务大厅');
+                return;
+            }
+            if (auth.runnerStatus !== 'approved') {
+                alert('跑腿员认证通过后才可进入任务大厅');
+                return;
+            }
+            location.href = '任务列表.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            MessageStore.ensure();
+            MessageStore.markAllRead();
+            renderThreads();
+            if (typeof EventBus !== 'undefined') {
+                EventBus.on('messageUpdate', renderThreads);
+            }
+        });
+    </script>
+</body>
+</html>

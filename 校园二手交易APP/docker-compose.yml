@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: ./campus-trade-backend
+      dockerfile: Dockerfile
+    image: campus-trade-backend:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ai
+      DB_USERNAME: campus
+      DB_PASSWORD: campus123
+      JWT_SECRET: campus-trade-secret-key-with-minimum-256-bits-length-required
+      FILE_UPLOAD_ROOT: /app/uploads
+    ports:
+      - "8080:8080"
+    volumes:
+      - app-uploads:/app/uploads
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ai
+      MYSQL_USER: test
+      MYSQL_PASSWORD: ""
+      MYSQL_ROOT_PASSWORD: root123
+    command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init_database.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "3306:3306"
+
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - app
+
+volumes:
+  mysql-data:
+  app-uploads:

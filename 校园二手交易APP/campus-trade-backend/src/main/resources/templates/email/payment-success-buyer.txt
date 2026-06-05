@@ -1,0 +1,8 @@
+Hi {{recipientName}}，
+
+您对「{{productTitle}}」的订单（{{orderNo}}）已支付成功。
+卖家会在约定时间内与您交付商品，可随时在 {{orderUrl}} 查看最新进度。
+
+金额：¥{{price}}
+如需帮助可联系 {{supportEmail}}。
+{{signature}}

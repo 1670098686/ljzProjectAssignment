@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>后台管理 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 导航栏 -->
+        <div class="navbar">
+            <div class="navbar-left">
+                <div class="navbar-back" onclick="location.href='个人中心.html'"></div>
+            </div>
+            <div class="navbar-title">后台管理</div>
+            <div class="navbar-right">
+                <button class="navbar-btn" onclick="refreshData(this)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M22 12.5a10 10 0 0 1-18.8 4.3L2.5 16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="page-content">
+            
+            <!-- 概览 Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div class="section-title mb-16">数据概览</div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-users">1,248</div>
+                        <div class="stat-label">用户总数</div>
+                        <div class="stat-trend positive">↑ 12%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="active-tasks">156</div>
+                        <div class="stat-label">活跃任务</div>
+                        <div class="stat-trend positive">↑ 8%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="completed-tasks">892</div>
+                        <div class="stat-label">已完成</div>
+                        <div class="stat-trend positive">↑ 15%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-income">¥8,456</div>
+                        <div class="stat-label">总收入</div>
+                        <div class="stat-trend positive">↑ 23%</div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mb-16 mt-32">
+                    <div class="section-title" style="margin-bottom: 0;">待处理事项</div>
+                    <div class="text-primary text-sm" onclick="viewAllPending()">查看全部 ></div>
+                </div>
+
+                <div class="list-group">
+                    <div class="admin-list-item">
+                        <div class="admin-list-header">
+                            <span class="admin-list-title">用户认证申请</span>
+                            <span class="status-tag pending">待审核</span>
+                        </div>
+                        <div class="admin-list-meta">
+                            <span>申请人: 张三</span>
+                            <span>14:30</span>
+                        </div>
+                        <div class="admin-list-actions">
+                            <button class="btn btn-sm btn-outline" onclick="reviewUser('user1')">查看详情</button>
+                            <button class="btn btn-sm btn-primary" onclick="approveUser('user1')">通过</button>
+                        </div>
+                    </div>
+
+                    <div class="admin-list-item">
+                        <div class="admin-list-header">
+                            <span class="admin-list-title">任务内容审核</span>
+                            <span class="status-tag pending">待审核</span>
+                        </div>
+                        <div class="admin-list-meta">
+                            <span>类型: 快递取件</span>
+                            <span>13:45</span>
+                        </div>
+                        <div class="admin-list-actions">
+                            <button class="btn btn-sm btn-outline" onclick="reviewTask('task1')">查看详情</button>
+                            <button class="btn btn-sm btn-primary" onclick="approveTask('task1')">通过</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 用户管理 Tab -->
+            <div id="users" class="tab-content">
+                <div class="search-bar">
+                    <div class="search-input-wrapper">
+                        <span><img src="images/icon-search.svg" class="icon-img"></span>
+                        <input type="text" class="search-input" placeholder="搜索用户姓名/手机号..." id="user-search">
+                    </div>
+                </div>
+
+                <div class="filter-scroll">
+                    <div class="filter-chip active" onclick="filterUsers('all', this)">全部</div>
+                    <div class="filter-chip" onclick="filterUsers('pending', this)">待审核</div>
+                    <div class="filter-chip" onclick="filterUsers('approved', this)">已通过</div>
+                    <div class="filter-chip" onclick="filterUsers('rejected', this)">已拒绝</div>
+                </div>
+
+                <div class="list-group" id="users-list">
+                    <!-- 动态生成 -->
+                    <div class="admin-list-item">
+                        <div class="flex items-center mb-8">
+                            <div class="avatar mr-16" style="width: 40px; height: 40px; margin-right: 12px;"></div>
+                            <div>
+                                <div class="font-bold">李四</div>
+                                <div class="text-xs text-secondary">跑腿员</div>
+                            </div>
+                            <span class="status-tag approved ml-auto" style="margin-left: auto;">正常</span>
+                        </div>
+                        <div class="admin-list-actions">
+                            <button class="btn btn-sm btn-outline">禁用</button>
+                            <button class="btn btn-sm btn-secondary">编辑</button>
+                        </div>
+                    </div>
+
+                    <div class="admin-list-item">
+                        <div class="flex items-center mb-8">
+                            <div class="avatar mr-16" style="width: 40px; height: 40px; margin-right: 12px;"></div>
+                            <div>
+                                <div class="font-bold">王五</div>
+                                <div class="text-xs text-secondary">用户</div>
+                            </div>
+                            <span class="status-tag pending ml-auto" style="margin-left: auto;">审核中</span>
+                        </div>
+                        <div class="admin-list-actions">
+                            <button class="btn btn-sm btn-primary">审核</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 任务管理 Tab -->
+            <div id="tasks" class="tab-content">
+                <div class="search-bar">
+                    <div class="search-input-wrapper">
+                        <span><img src="images/icon-search.svg" class="icon-img"></span>
+                        <input type="text" class="search-input" placeholder="搜索任务ID/内容..." id="task-search">
+                    </div>
+                </div>
+
+                <div class="filter-scroll">
+                    <div class="filter-chip active" onclick="filterTasks('all', this)">全部</div>
+                    <div class="filter-chip" onclick="filterTasks('pending', this)">待审核</div>
+                    <div class="filter-chip" onclick="filterTasks('processing', this)">进行中</div>
+                    <div class="filter-chip" onclick="filterTasks('completed', this)">已完成</div>
+                </div>
+
+                <div class="list-group" id="tasks-list">
+                    <div class="admin-list-item">
+                        <div class="admin-list-header">
+                            <span class="admin-list-title">取快递到宿舍</span>
+                            <span class="text-primary font-bold">¥5.00</span>
+                        </div>
+                        <div class="admin-list-meta">
+                            <span>ID: T001</span>
+                            <span class="status-tag processing">进行中</span>
+                        </div>
+                        <div class="admin-list-actions">
+                            <button class="btn btn-sm btn-outline">查看详情</button>
+                        </div>
+                    </div>
+
+                    <div class="admin-list-item">
+                        <div class="admin-list-header">
+                            <span class="admin-list-title">食堂带饭</span>
+                            <span class="text-primary font-bold">¥12.00</span>
+                        </div>
+                        <div class="admin-list-meta">
+                            <span>ID: T002</span>
+                            <span class="status-tag pending">待接单</span>
+                        </div>
+                        <div class="admin-list-actions">
+                            <button class="btn btn-sm btn-outline">查看详情</button>
+                            <button class="btn btn-sm btn-error">下架</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 反馈管理 Tab -->
+            <div id="feedback" class="tab-content">
+                <div class="section-title mb-16">反馈管理</div>
+                
+                <div class="search-bar">
+                    <div class="search-input-wrapper">
+                        <span><img src="images/icon-search.svg" class="icon-img"></span>
+                        <input type="text" class="search-input" placeholder="搜索反馈内容..." id="feedback-search">
+                    </div>
+                </div>
+
+                <div class="filter-scroll">
+                    <div class="filter-chip active" onclick="filterFeedback('all', this)">全部</div>
+                    <div class="filter-chip" onclick="filterFeedback('pending', this)">待处理</div>
+                    <div class="filter-chip" onclick="filterFeedback('processing', this)">处理中</div>
+                    <div class="filter-chip" onclick="filterFeedback('resolved', this)">已解决</div>
+                </div>
+
+                <div class="list-group" id="feedback-list">
+                    <!-- 动态生成反馈列表 -->
+                    <div class="admin-list-item">
+                        <div class="admin-list-header">
+                            <span class="admin-list-title">功能建议：希望增加夜间模式</span>
+                            <span class="status-tag pending">待处理</span>
+                        </div>
+                        <div class="admin-list-meta">
+                            <span>用户：张三</span>
+                            <span>2024-01-01 14:30</span>
+                        </div>
+                        <div class="admin-list-actions">
+                            <button class="btn btn-sm btn-outline" onclick="viewFeedback('feedback1')">查看详情</button>
+                            <button class="btn btn-sm btn-primary" onclick="processFeedback('feedback1')">标记处理中</button>
+                            <button class="btn btn-sm btn-success" onclick="resolveFeedback('feedback1')">标记已解决</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 设置 Tab -->
+            <div id="settings" class="tab-content">
+                <div class="section-title mb-16">系统设置</div>
+                
+                <div class="card mb-16">
+                    <div class="list-group" style="border: none;">
+                        <div class="list-item">
+                            <div class="list-content">系统通知推送</div>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-content">自动审核任务</div>
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-content">系统维护模式</div>
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-outline btn-block text-error" onclick="logout()">退出管理后台</button>
+            </div>
+
+        </div>
+
+        <!-- 底部标签栏 -->
+        <div class="tabbar">
+            <div class="tabbar-item active" onclick="switchTab('dashboard', this)">
+                <div class="tabbar-icon"><img src="images/icon-tasks.svg" class="icon-img"></div>
+                <span>概览</span>
+            </div>
+            <div class="tabbar-item" onclick="switchTab('users', this)">
+                <div class="tabbar-icon"><img src="images/icon-profile.svg" class="icon-img"></div>
+                <span>用户</span>
+            </div>
+            <div class="tabbar-item" onclick="switchTab('tasks', this)">
+                <div class="tabbar-icon"><img src="images/icon-tasks.svg" class="icon-img"></div>
+                <span>任务</span>
+            </div>
+            <div class="tabbar-item" onclick="switchTab('feedback', this)">
+                <div class="tabbar-icon"><img src="images/icon-messages.svg" class="icon-img"></div>
+                <span>反馈</span>
+            </div>
+            <div class="tabbar-item" onclick="switchTab('settings', this)">
+                <div class="tabbar-icon"><img src="images/icon-other.svg" class="icon-img"></div>
+                <span>设置</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        const ADMIN_STORAGE_KEY = 'adminData';
+        let adminData = null;
+        let currentUserFilter = 'all';
+        let currentTaskFilter = 'all';
+        let currentFeedbackFilter = 'all';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!CommonUtils.requireAdminAccess()) return;
+
+            adminData = loadAdminData();
+            syncAuthUser();
+            TaskFlow.ensureSeedTasks(CommonUtils.getAuth());
+            ensureTaskAuditSeeds();
+            bindAdminEvents();
+
+            renderStats();
+            renderPendingList();
+            renderUsers();
+            renderTasks();
+            loadFeedbackList(currentFeedbackFilter);
+        });
+
+        function bindAdminEvents() {
+            const userSearch = document.getElementById('user-search');
+            if (userSearch) {
+                userSearch.addEventListener('input', (e) => {
+                    renderUsers(currentUserFilter, e.target.value);
+                });
+            }
+
+            const taskSearch = document.getElementById('task-search');
+            if (taskSearch) {
+                taskSearch.addEventListener('input', (e) => {
+                    renderTasks(currentTaskFilter, e.target.value);
+                });
+            }
+        }
+
+        function loadAdminData() {
+            const defaults = {
+                users: [
+                    { id: 'runner_lisi', name: '李四', role: 'runner', status: 'approved', phone: '13800000001', creditScore: 96 },
+                    { id: 'publisher_zhangsan', name: '张三', role: 'publisher', status: 'approved', phone: '13800000002', creditScore: 90 },
+                    { id: 'runner_wangwu', name: '王五', role: 'runner', status: 'pending', phone: '13800000003', creditScore: 88 }
+                ],
+                taskAudits: {}
+            };
+
+            try {
+                const saved = localStorage.getItem(ADMIN_STORAGE_KEY);
+                if (!saved) {
+                    localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(defaults));
+                    return CommonUtils.deepClone(defaults);
+                }
+                const parsed = JSON.parse(saved);
+                return {
+                    users: Array.isArray(parsed.users) ? parsed.users : defaults.users,
+                    taskAudits: parsed.taskAudits || {}
+                };
+            } catch (e) {
+                console.warn('加载管理员数据失败，已重置', e);
+                localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(defaults));
+                return CommonUtils.deepClone(defaults);
+            }
+        }
+
+        function saveAdminData() {
+            localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(adminData));
+        }
+
+        function syncAuthUser() {
+            const auth = CommonUtils.getAuth();
+            if (!auth || !auth.id) return;
+            const exists = adminData.users.some(u => u.id === auth.id);
+            if (!exists) {
+                adminData.users.push({
+                    id: auth.id,
+                    name: auth.name || auth.nickname || '管理员',
+                    role: auth.role || 'admin',
+                    status: 'approved',
+                    phone: auth.phone || '',
+                    creditScore: auth.creditScore || 100
+                });
+                saveAdminData();
+            }
+        }
+
+        function ensureTaskAuditSeeds() {
+            if (!adminData.taskAudits) {
+                adminData.taskAudits = {};
+            }
+
+            const hasPending = Object.values(adminData.taskAudits).includes('pending');
+            if (hasPending) return;
+
+            const tasks = TaskFlow.ensureSeedTasks(CommonUtils.getAuth());
+            if (tasks.length > 0) {
+                adminData.taskAudits[tasks[0].id] = 'pending';
+            }
+            if (tasks.length > 1 && !adminData.taskAudits[tasks[1].id]) {
+                adminData.taskAudits[tasks[1].id] = 'approved';
+            }
+            saveAdminData();
+        }
+
+        function getAllUsers() {
+            return Array.isArray(adminData?.users) ? adminData.users : [];
+        }
+
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+
+            if (element) {
+                document.querySelectorAll('.tabbar-item').forEach(item => item.classList.remove('active'));
+                element.classList.add('active');
+            }
+
+            if (tabId === 'dashboard') {
+                renderStats();
+                renderPendingList();
+            } else if (tabId === 'users') {
+                renderUsers();
+            } else if (tabId === 'tasks') {
+                renderTasks();
+            } else if (tabId === 'feedback') {
+                loadFeedbackList(currentFeedbackFilter);
+            }
+        }
+
+        function renderStats() {
+            const tasks = TaskFlow.ensureSeedTasks(CommonUtils.getAuth());
+            const users = getAllUsers();
+
+            setTextContent('total-users', users.length);
+
+            const active = tasks.filter(t => t.status === 'pending' || t.status === 'in-progress');
+            const completed = tasks.filter(t => t.status === 'completed');
+            setTextContent('active-tasks', active.length);
+            setTextContent('completed-tasks', completed.length);
+
+            const income = completed.reduce((sum, t) => sum + (Number(t.price) || 0), 0);
+            setTextContent('total-income', `¥${income.toFixed(2)}`);
+        }
+
+        function setTextContent(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+        }
+
+        function renderPendingList() {
+            const list = document.querySelector('#dashboard .list-group');
+            if (!list) return;
+
+            const tasks = TaskFlow.ensureSeedTasks(CommonUtils.getAuth());
+            const pendingUsers = getAllUsers().filter(u => u.status === 'pending');
+            const pendingTasks = tasks.filter(t => (adminData.taskAudits[t.id] || 'approved') === 'pending');
+
+            if (pendingUsers.length === 0 && pendingTasks.length === 0) {
+                list.innerHTML = '<p class="text-center text-secondary">暂无待处理事项</p>';
+                return;
+            }
+
+            let html = '';
+            pendingUsers.slice(0, 3).forEach(u => {
+                html += `
+                    <div class="admin-list-item">
+                        <div class="admin-list-header">
+                            <span class="admin-list-title">用户认证申请</span>
+                            <span class="status-tag pending">待审核</span>
+                        </div>
+                        <div class="admin-list-meta">
+                            <span>申请人: ${u.name}</span>
+                            <span>${u.phone || ''}</span>
+                        </div>
+                        <div class="admin-list-actions">
+                            <button class="btn btn-sm btn-outline" onclick="reviewUser('${u.id}')">查看详情</button>
+                            <button class="btn btn-sm btn-primary" onclick="approveUser('${u.id}')">通过</button>
+                            <button class="btn btn-sm btn-error" onclick="rejectUser('${u.id}')">拒绝</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            pendingTasks.slice(0, 3).forEach(t => {
+                html += `
+                    <div class="admin-list-item">
+                        <div class="admin-list-header">
+                            <span class="admin-list-title">任务内容审核</span>
+                            <span class="status-tag pending">待审核</span>
+                        </div>
+                        <div class="admin-list-meta">
+                            <span>类型: ${t.type || '任务'}</span>
+                            <span>ID: ${t.id}</span>
+                        </div>
+                        <div class="admin-list-actions">
+                            <button class="btn btn-sm btn-outline" onclick="reviewTask('${t.id}')">查看详情</button>
+                            <button class="btn btn-sm btn-primary" onclick="approveTask('${t.id}')">通过</button>
+                            <button class="btn btn-sm btn-error" onclick="rejectTask('${t.id}')">下架</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            list.innerHTML = html;
+        }
+
+        function refreshData(btn) {
+            if (btn) {
+                const icon = btn.querySelector('svg');
+                if (icon) {
+                    icon.style.transition = 'transform 0.5s ease';
+                    icon.style.transform = 'rotate(360deg)';
+                    setTimeout(() => {
+                        icon.style.transition = 'none';
+                        icon.style.transform = 'rotate(0deg)';
+                    }, 500);
+                }
+            }
+            renderStats();
+            renderPendingList();
+            renderUsers();
+            renderTasks();
+            loadFeedbackList(currentFeedbackFilter);
+            CommonUtils.showToast('数据已刷新', 'success');
+        }
+
+        function logout() {
+            if (confirm('确定要退出管理后台吗？')) {
+                window.location.href = '个人中心.html';
+            }
+        }
+
+        function filterUsers(type, element) {
+            currentUserFilter = type;
+            if (element) {
+                element.parentElement.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
+                element.classList.add('active');
+            }
+            renderUsers(type);
+        }
+
+        function filterTasks(type, element) {
+            currentTaskFilter = type;
+            if (element) {
+                element.parentElement.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
+                element.classList.add('active');
+            }
+            renderTasks(type);
+        }
+
+        function renderUsers(filter = currentUserFilter, keyword = '') {
+            const list = document.getElementById('users-list');
+            if (!list) return;
+
+            const normalized = (keyword || document.getElementById('user-search')?.value || '').trim().toLowerCase();
+            let users = getAllUsers();
+
+            if (filter !== 'all') {
+                users = users.filter(u => u.status === filter);
+            }
+
+            if (normalized) {
+                users = users.filter(u =>
+                    (u.name || '').toLowerCase().includes(normalized) ||
+                    (u.phone || '').toLowerCase().includes(normalized)
+                );
+            }
+
+            if (users.length === 0) {
+                list.innerHTML = '<p class="text-center text-secondary">暂无相关用户</p>';
+                return;
+            }
+
+            list.innerHTML = users.map(u => {
+                const statusInfo = getUserStatusInfo(u.status);
+                return `
+                    <div class="admin-list-item">
+                        <div class="flex items-center mb-8">
+                            <div class="avatar mr-16" style="width: 40px; height: 40px; margin-right: 12px;"></div>
+                            <div>
+                                <div class="font-bold">${u.name}</div>
+                                <div class="text-xs text-secondary">${u.role === 'runner' ? '跑腿员' : (u.role === 'admin' ? '管理员' : '用户')}</div>
+                            </div>
+                            <span class="status-tag ${statusInfo.className} ml-auto" style="margin-left: auto;">${statusInfo.text}</span>
+                        </div>
+                        <div class="admin-list-meta">
+                            <span>${u.phone || '未绑定手机号'}</span>
+                            <span>信用分: ${u.creditScore || 100}</span>
+                        </div>
+                        <div class="admin-list-actions">
+                            ${u.status !== 'approved' ? `<button class="btn btn-sm btn-primary" onclick="approveUser('${u.id}')">通过</button>` : `<button class="btn btn-sm btn-outline" onclick="toggleUser('${u.id}')">${u.status === 'disabled' ? '启用' : '禁用'}</button>`}
+                            ${u.status === 'pending' ? `<button class="btn btn-sm btn-error" onclick="rejectUser('${u.id}')">拒绝</button>` : ''}
+                            <button class="btn btn-sm btn-secondary" onclick="reviewUser('${u.id}')">详情</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getUserStatusInfo(status) {
+            const map = {
+                pending: { text: '审核中', className: 'pending' },
+                approved: { text: '正常', className: 'approved' },
+                rejected: { text: '已拒绝', className: 'rejected' },
+                disabled: { text: '已禁用', className: 'rejected' }
+            };
+            return map[status] || map.approved;
+        }
+
+        function reviewUser(id) {
+            const user = getAllUsers().find(u => u.id === id);
+            if (!user) {
+                CommonUtils.showToast('未找到该用户', 'error');
+                return;
+            }
+            const detail = `姓名: ${user.name}\n角色: ${user.role || '用户'}\n手机号: ${user.phone || '未绑定'}\n状态: ${getUserStatusInfo(user.status).text}`;
+            alert(detail);
+        }
+
+        function approveUser(id) {
+            updateUserStatus(id, 'approved');
+            CommonUtils.showToast('用户审核已通过', 'success');
+        }
+
+        function rejectUser(id) {
+            updateUserStatus(id, 'rejected');
+            CommonUtils.showToast('已拒绝该用户', 'warning');
+        }
+
+        function toggleUser(id) {
+            const users = getAllUsers();
+            const idx = users.findIndex(u => u.id === id);
+            if (idx === -1) return;
+            const nextStatus = users[idx].status === 'disabled' ? 'approved' : 'disabled';
+            users[idx].status = nextStatus;
+            saveAdminData();
+            renderUsers();
+        }
+
+        function updateUserStatus(id, status) {
+            const users = getAllUsers();
+            const idx = users.findIndex(u => u.id === id);
+            if (idx === -1) return;
+            users[idx].status = status;
+            saveAdminData();
+            renderUsers();
+            renderPendingList();
+        }
+
+        function renderTasks(filter = currentTaskFilter, keyword = '') {
+            const list = document.getElementById('tasks-list');
+            if (!list) return;
+
+            const normalized = (keyword || document.getElementById('task-search')?.value || '').trim().toLowerCase();
+            let tasks = TaskFlow.ensureSeedTasks(CommonUtils.getAuth());
+            tasks = tasks.filter(t => (adminData.taskAudits[t.id] || 'approved') !== 'removed');
+
+            if (filter === 'pending') {
+                tasks = tasks.filter(t => (adminData.taskAudits[t.id] || 'approved') === 'pending');
+            } else if (filter === 'processing') {
+                tasks = tasks.filter(t => t.status === 'in-progress');
+            } else if (filter === 'completed') {
+                tasks = tasks.filter(t => t.status === 'completed');
+            }
+
+            if (normalized) {
+                tasks = tasks.filter(t =>
+                    (String(t.id).toLowerCase().includes(normalized)) ||
+                    (t.title || '').toLowerCase().includes(normalized) ||
+                    (t.description || '').toLowerCase().includes(normalized)
+                );
+            }
+
+            if (tasks.length === 0) {
+                list.innerHTML = '<p class="text-center text-secondary">暂无相关任务</p>';
+                return;
+            }
+
+            list.innerHTML = tasks.map(task => {
+                const auditStatus = adminData.taskAudits[task.id] || 'approved';
+                const statusInfo = auditStatus === 'pending' ? { text: '待审核', className: 'pending' } : getTaskStatusInfo(task.status);
+                return `
+                    <div class="admin-list-item">
+                        <div class="admin-list-header">
+                            <span class="admin-list-title">${task.title || '任务'}</span>
+                            <span class="text-primary font-bold">¥${Number(task.price || 0).toFixed(2)}</span>
+                        </div>
+                        <div class="admin-list-meta">
+                            <span>ID: ${task.id}</span>
+                            <span class="status-tag ${statusInfo.className}">${statusInfo.text}</span>
+                        </div>
+                        <div class="admin-list-actions">
+                            <button class="btn btn-sm btn-outline" onclick="openTaskDetail('${task.id}')">查看详情</button>
+                            ${auditStatus === 'pending' ? `<button class="btn btn-sm btn-primary" onclick="approveTask('${task.id}')">通过</button>` : ''}
+                            ${auditStatus === 'pending' ? `<button class="btn btn-sm btn-error" onclick="rejectTask('${task.id}')">下架</button>` : `<button class="btn btn-sm btn-error" onclick="suspendTask('${task.id}')">下架</button>`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getTaskStatusInfo(status) {
+            const map = {
+                pending: { text: '待接单', className: 'pending' },
+                'in-progress': { text: '进行中', className: 'processing' },
+                completed: { text: '已完成', className: 'approved' }
+            };
+            return map[status] || map.pending;
+        }
+
+        function openTaskDetail(id) {
+            dataStore.set('currentTaskId', id);
+            window.location.href = `任务详情.html?taskId=${encodeURIComponent(id)}`;
+        }
+
+        function reviewTask(id) {
+            const task = TaskFlow.getTasks().find(t => String(t.id) === String(id));
+            if (!task) {
+                CommonUtils.showToast('任务不存在', 'error');
+                return;
+            }
+            alert(`任务详情\n标题: ${task.title}\n类型: ${task.type || '任务'}\n报酬: ¥${Number(task.price || 0).toFixed(2)}\n描述: ${task.description || '无'}`);
+        }
+
+        function approveTask(id) {
+            adminData.taskAudits[id] = 'approved';
+            saveAdminData();
+            renderTasks();
+            renderPendingList();
+            CommonUtils.showToast('任务已通过审核', 'success');
+        }
+
+        function rejectTask(id) {
+            adminData.taskAudits[id] = 'removed';
+            TaskFlow.saveTasks(TaskFlow.getTasks().filter(t => String(t.id) !== String(id)));
+            saveAdminData();
+            renderStats();
+            renderTasks();
+            renderPendingList();
+            CommonUtils.showToast('任务已下架', 'warning');
+        }
+
+        function suspendTask(id) {
+            rejectTask(id);
+        }
+
+        function viewAllPending() {
+            switchTab('users', document.querySelector('.tabbar-item:nth-child(2)'));
+            filterUsers('pending');
+        }
+
+        // 反馈管理
+        function loadFeedbackList(filter = 'all') {
+            currentFeedbackFilter = filter;
+            const feedbackList = document.getElementById('feedback-list');
+            if (!feedbackList) return;
+
+            let feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
+            if (filter !== 'all') {
+                feedbacks = feedbacks.filter(item => item.status === filter);
+            }
+
+            if (feedbacks.length === 0) {
+                feedbackList.innerHTML = '<p class="text-center text-secondary">暂无反馈数据</p>';
+                return;
+            }
+
+            let html = '';
+            feedbacks.forEach(feedback => {
+                const statusInfo = getFeedbackStatusInfo(feedback.status);
+                const createTime = new Date(feedback.createTime).toLocaleString();
+                html += `
+                    <div class="admin-list-item">
+                        <div class="admin-list-header">
+                            <span class="admin-list-title">${feedback.typeText}：${feedback.content.substring(0, 20)}${feedback.content.length > 20 ? '...' : ''}</span>
+                            <span class="status-tag ${statusInfo.className}">${statusInfo.text}</span>
+                        </div>
+                        <div class="admin-list-meta">
+                            <span>ID: ${feedback.id}</span>
+                            <span>${createTime}</span>
+                        </div>
+                        <div class="admin-list-actions">
+                            <button class="btn btn-sm btn-outline" onclick="viewFeedback('${feedback.id}')">查看详情</button>
+                            ${feedback.status !== 'processing' ? `<button class="btn btn-sm btn-primary" onclick="processFeedback('${feedback.id}')">标记处理中</button>` : ''}
+                            ${feedback.status !== 'resolved' ? `<button class="btn btn-sm btn-success" onclick="resolveFeedback('${feedback.id}')">标记已解决</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            feedbackList.innerHTML = html;
+        }
+
+        function getFeedbackStatusInfo(status) {
+            const map = {
+                pending: { text: '待处理', className: 'pending' },
+                processing: { text: '处理中', className: 'processing' },
+                resolved: { text: '已解决', className: 'approved' }
+            };
+            return map[status] || map.pending;
+        }
+
+        function filterFeedback(type, element) {
+            currentFeedbackFilter = type;
+            if (element) {
+                element.parentElement.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
+                element.classList.add('active');
+            }
+            loadFeedbackList(type);
+        }
+
+        function viewFeedback(id) {
+            const feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
+            const feedback = feedbacks.find(item => item.id === id);
+
+            if (!feedback) {
+                CommonUtils.showToast('反馈不存在', 'error');
+                return;
+            }
+
+            const status = getFeedbackStatusInfo(feedback.status).text;
+            const createTime = new Date(feedback.createTime).toLocaleString();
+            const imageCount = (feedback.images || []).length;
+            const message = [
+                `ID: ${feedback.id}`,
+                `类型: ${feedback.typeText}`,
+                `状态: ${status}`,
+                `创建时间: ${createTime}`,
+                `联系方式: ${feedback.contact || '未填写'}`,
+                `图片数量: ${imageCount}`,
+                '',
+                `反馈内容: ${feedback.content}`
+            ].join('\n');
+
+            alert(message);
+        }
+
+        function processFeedback(id) {
+            updateFeedbackStatus(id, 'processing');
+        }
+
+        function resolveFeedback(id) {
+            updateFeedbackStatus(id, 'resolved');
+        }
+
+        function updateFeedbackStatus(id, status) {
+            let feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
+            const feedbackIndex = feedbacks.findIndex(item => item.id === id);
+
+            if (feedbackIndex === -1) {
+                CommonUtils.showToast('反馈不存在', 'error');
+                return;
+            }
+
+            feedbacks[feedbackIndex].status = status;
+            localStorage.setItem('feedbacks', JSON.stringify(feedbacks));
+
+            loadFeedbackList(currentFeedbackFilter);
+            const statusText = status === 'processing' ? '处理中' : '已解决';
+            CommonUtils.showToast(`反馈已标记为${statusText}`, 'success');
+        }
+    </script>
+</body>
+</html>

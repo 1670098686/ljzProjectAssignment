@@ -1,0 +1,286 @@
+# API网关配置文件
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# 应用名称和服务发现
+spring:
+  application:
+    name: finance-gateway
+  
+  # Cloud Gateway配置
+  cloud:
+    gateway:
+      # 路由配置
+      routes:
+        # 主服务 - 用户管理、收支记录等核心功能
+        - id: finance-main-service
+          uri: lb://finance-main-service
+          predicates:
+            - Path=/api/v1/**
+            - Method=GET,POST,PUT,DELETE,OPTIONS
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: '#{@userKeyResolver}'
+            - name: CircuitBreaker
+              args:
+                name: finance-main-service
+                fallbackUri: forward:/fallback/main-service
+            - StripPrefix=1
+            - AddRequestHeader=X-Forwarded-For, %{REMOTE_ADDR}
+            - AddResponseHeader=X-Response-Time, %{RESPONSE_TIME}
+            
+        # 统计服务路由
+        - id: finance-statistics-service
+          uri: lb://finance-statistics-service
+          predicates:
+            - Path=/api/v1/statistics/**,/api/v1/analytics/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: '#{@userKeyResolver}'
+            - name: CircuitBreaker
+              args:
+                name: finance-statistics-service
+                fallbackUri: forward:/fallback/statistics-service
+            - StripPrefix=2
+            - AddRequestHeader=X-Forwarded-For, %{REMOTE_ADDR}
+            - name: RequestSize
+              args:
+                maxSize: 10MB
+            
+        # 预警服务路由
+        - id: finance-alert-service
+          uri: lb://finance-alert-service
+          predicates:
+            - Path=/api/v1/alerts/**,/api/v1/notifications/**,/api/v1/budget/alert/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+                key-resolver: '#{@userKeyResolver}'
+            - name: CircuitBreaker
+              args:
+                name: finance-alert-service
+                fallbackUri: forward:/fallback/alert-service
+            - StripPrefix=2
+            - AddRequestHeader=X-Request-Source, gateway
+            - AddResponseHeader=X-Alert-Service, true
+            
+        # 用户配置路由（直接访问主服务）
+        - id: finance-user-config
+          uri: lb://finance-main-service
+          predicates:
+            - Path=/api/v1/users/**,/api/v1/settings/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 30
+                redis-rate-limiter.burstCapacity: 60
+                key-resolver: '#{@userKeyResolver}'
+            - StripPrefix=1
+            - AddRequestHeader=X-Config-Request, true
+            
+      # 全局过滤器配置
+      default-filters:
+        # 添加请求追踪ID
+        - AddRequestHeader=X-Trace-Id, #{T(java.util.UUID).randomUUID().toString()}
+        - AddRequestHeader=X-Gateway-Version, v1.0.0
+        # CORS配置
+        - DedupeResponseHeader=Access-Control-Allow-Origin, RETAIN_FIRST
+        # 日志记录
+        - name: LoggingFilter
+          args:
+            baseMessage: Finance Gateway Request
+            includeHeaders: true
+            includeQueryParams: true
+            includeResponseBody: false
+            # 记录请求体（注意敏感信息过滤）
+            includeRequestBody: true
+            
+      # -discovery-locator:  # 动态服务发现配置（可选）
+      #   enabled: true
+      #   lower-case-service-id: true
+
+  # Redis配置（用于限流）
+  redis:
+    host: localhost
+    port: 6379
+    password: 
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+
+  # 安全配置
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/auth
+          # 公钥将通过动态配置获取
+
+# Spring Cloud服务发现
+eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
+    port: 8080
+    instance-id: ${eureka.instance.ip-address}:${server.port}/${spring.application.name}
+    health-check-url: http://${eureka.instance.ip-address}:${server.port}/actuator/health
+    status-page-url: http://${eureka.instance.ip-address}:${server.port}/actuator/health
+    metadata-map:
+      management:
+        context-path: /actuator
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+    registry-fetch-interval-seconds: 30
+
+# 限流配置
+resilience4j:
+  ratelimiter:
+    instances:
+      # 主服务限流配置
+      finance-main-service:
+        limit-for-period: 100
+        limit-refresh-period: 1s
+        timeout-duration: 0s
+        event-consumer-buffer-size: 100
+        subscribe-for-events: true
+        allow-health-indicator-to-fail: false
+        
+      # 统计服务限流配置（更严格的限流）
+      finance-statistics-service:
+        limit-for-period: 20
+        limit-refresh-period: 5s
+        timeout-duration: 1s
+        event-consumer-buffer-size: 50
+        
+      # 预警服务限流配置（较宽松的限流）
+      finance-alert-service:
+        limit-for-period: 200
+        limit-refresh-period: 1s
+        timeout-duration: 0s
+        event-consumer-buffer-size: 100
+
+  # 熔断器配置已在Resilience4jConfig中定义
+
+# 日志配置
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web.reactive: DEBUG
+    org.springframework.http.server.reactive: DEBUG
+    com.finance.gateway: INFO
+    # 记录路由匹配信息
+    org.springframework.cloud.gateway.route.RouteDefinitionRouteLocator: INFO
+    # 记录限流器信息
+    io.github.resilience4j: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/finance-gateway.log
+  logback:
+    rollingpolicy:
+      max-file-size: 100MB
+      max-history: 30
+      total-size-cap: 1GB
+
+# Actuator监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,circuitbreakerevents,gateway
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when_authorized
+      show-components: when_authorized
+    gateway:
+      # 启用网关路由端点
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http: true
+        redis: true
+  info:
+    env:
+      enabled: true
+
+# 管理端口配置
+management:
+  server:
+    port: 8081
+    servlet:
+      context-path: /
+
+# CORS配置
+cors:
+  allowed-origins:
+    - "http://localhost:3000"
+    - "http://localhost:8080"
+    - "http://127.0.0.1:3000"
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+    - PATCH
+  allowed-headers:
+    - "*"
+  allow-credentials: true
+  exposed-headers:
+    - "X-Request-ID"
+    - "X-Response-Time"
+  max-age: 3600
+
+# 熔断回退配置
+hystrix:
+  command:
+    # 主服务熔断配置
+    finance-main-service:
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          thread:
+            timeout-in-milliseconds: 30000
+    # 统计服务熔断配置
+    finance-statistics-service:
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          thread:
+            timeout-in-milliseconds: 60000  # 统计服务可能需要更长时间
+    # 预警服务熔断配置
+    finance-alert-service:
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          thread:
+            timeout-in-milliseconds: 20000
+  fallback:
+    path: /fallback/{service}/**

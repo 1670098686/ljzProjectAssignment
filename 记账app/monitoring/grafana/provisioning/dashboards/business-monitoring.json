@@ -1,0 +1,245 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "个人收支记账APP - 业务监控",
+    "description": "业务指标和应用性能监控仪表板",
+    "tags": ["finance-app", "business", "performance"],
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "交易处理统计",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(increase(transaction_count[1h]))",
+            "legendFormat": "每小时交易量"
+          },
+          {
+            "expr": "sum(rate(transaction_success_count[5m])) * 60",
+            "legendFormat": "当前交易率"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "用户活跃度",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "count(count by (user_id) (http_requests_total{uri=~\"/api/.*\"}))",
+            "legendFormat": "活跃用户数"
+          },
+          {
+            "expr": "sum(rate(http_requests_total{uri=~\"/api/users/.*\"}[5m])) * 60",
+            "legendFormat": "用户操作率"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "分类使用情况",
+        "type": "barchart",
+        "targets": [
+          {
+            "expr": "sum by (category) (category_usage_total)",
+            "legendFormat": "{{category}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "预算执行情况",
+        "type": "barchart",
+        "targets": [
+          {
+            "expr": "sum by (category) (budget_spent_amount) / sum by (category) (budget_target_amount) * 100",
+            "legendFormat": "{{category}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 80},
+                {"color": "red", "value": 100}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "交易金额趋势",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum by (type) (increase(transaction_amount_sum[1h]))",
+            "legendFormat": "{{type}} 总金额"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currency"
+          }
+        },
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16}
+      },
+      {
+        "id": 6,
+        "title": "API调用频率排行",
+        "type": "barchart",
+        "targets": [
+          {
+            "expr": "sum by (uri) (rate(http_requests_total[5m])) * 60",
+            "legendFormat": "{{uri}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24}
+      },
+      {
+        "id": 7,
+        "title": "错误率统计",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total{status=~\"4..|5..\"}[5m])) / sum(rate(http_requests_total[5m])) * 100",
+            "legendFormat": "4xx/5xx错误率"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 1},
+                {"color": "red", "value": 5}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24}
+      },
+      {
+        "id": 8,
+        "title": "数据库查询性能",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(database_query_duration_seconds_bucket[5m]))",
+            "legendFormat": "95%查询时间"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(database_query_duration_seconds_bucket[5m]))",
+            "legendFormat": "50%查询时间"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 0.5},
+                {"color": "red", "value": 2}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32}
+      },
+      {
+        "id": 9,
+        "title": "缓存命中率",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "(sum(rate(redis_keyspace_hits_total[1m])) / (sum(rate(redis_keyspace_hits_total[1m])) + sum(rate(redis_keyspace_misses_total[1m]))) * 100)",
+            "legendFormat": "缓存命中率"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 80},
+                {"color": "green", "value": 95}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32}
+      },
+      {
+        "id": 10,
+        "title": "储蓄目标进度",
+        "type": "barchart",
+        "targets": [
+          {
+            "expr": "sum by (goal_name) (saving_goal_current_amount) / sum by (goal_name) (saving_goal_target_amount) * 100",
+            "legendFormat": "{{goal_name}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "yellow", "value": 25},
+                {"color": "green", "value": 50}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 40}
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "instance",
+          "type": "query",
+          "query": "label_values(up, instance)",
+          "current": {
+            "value": "$__all",
+            "text": "All"
+          }
+        },
+        {
+          "name": "category",
+          "type": "query",
+          "query": "label_values(category_usage_total, category)",
+          "current": {
+            "value": "$__all",
+            "text": "All"
+          }
+        }
+      ]
+    }
+  }
+}

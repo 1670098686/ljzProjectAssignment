@@ -1,0 +1,62 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: mall-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        service: mall-gateway
+    gateway:
+      routes:
+        # 用户服务路由
+        - id: mall-user
+          uri: lb://mall-user
+          predicates:
+            - Path=/api/user/**
+          filters:
+            - StripPrefix=0
+        # 商品服务路由
+        - id: mall-product
+          uri: lb://mall-product
+          predicates:
+            - Path=/api/product/**
+          filters:
+            - StripPrefix=0
+        # 库存服务路由
+        - id: mall-stock
+          uri: lb://mall-stock
+          predicates:
+            - Path=/api/stock/**
+          filters:
+            - StripPrefix=0
+        # 购物车服务路由
+        - id: mall-cart
+          uri: lb://mall-cart
+          predicates:
+            - Path=/api/cart/**
+          filters:
+            - StripPrefix=0
+        # 订单服务路由
+        - id: mall-order
+          uri: lb://mall-order
+          predicates:
+            - Path=/api/order/**
+          filters:
+            - StripPrefix=0
+        # 收藏服务路由
+        - id: mall-favorite
+          uri: lb://mall-favorite
+          predicates:
+            - Path=/api/favorite/**
+          filters:
+            - StripPrefix=0
+        # 评价服务路由
+        - id: mall-review
+          uri: lb://mall-review
+          predicates:
+            - Path=/api/review/**
+          filters:
+            - StripPrefix=0

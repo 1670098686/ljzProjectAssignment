@@ -1,0 +1,241 @@
+# Docker Compose 配置文件
+version: '3.8'
+
+services:
+  # MySQL 主从集群
+  mysql-master:
+    image: mysql:8.0
+    container_name: finance-mysql-master
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password123
+      MYSQL_DATABASE: main_db
+      MYSQL_USER: main_user
+      MYSQL_PASSWORD: main_password123
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./docker/mysql/master:/var/lib/mysql
+      - ./docker/mysql/master/conf:/etc/mysql/conf.d
+    command: --server-id=1 --log-bin=mysql-bin --binlog-format=ROW
+    networks:
+      - finance-network
+
+  mysql-slave:
+    image: mysql:8.0
+    container_name: finance-mysql-slave
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password123
+      MYSQL_DATABASE: main_db
+      MYSQL_USER: main_user
+      MYSQL_PASSWORD: main_password123
+    ports:
+      - "3308:3306"
+    volumes:
+      - ./docker/mysql/slave:/var/lib/mysql
+      - ./docker/mysql/slave/conf:/etc/mysql/conf.d
+    command: --server-id=2 --log-bin=mysql-bin --binlog-format=ROW
+    depends_on:
+      - mysql-master
+    networks:
+      - finance-network
+
+  # 统计服务数据库
+  mysql-statistics:
+    image: mysql:8.0
+    container_name: finance-mysql-statistics
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password123
+      MYSQL_DATABASE: statistics_db
+      MYSQL_USER: statistics_user
+      MYSQL_PASSWORD: statistics_password123
+    ports:
+      - "3309:3306"
+    volumes:
+      - ./docker/mysql/statistics:/var/lib/mysql
+    networks:
+      - finance-network
+
+  # 预警服务数据库
+  mysql-alert:
+    image: mysql:8.0
+    container_name: finance-mysql-alert
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password123
+      MYSQL_DATABASE: alert_db
+      MYSQL_USER: alert_user
+      MYSQL_PASSWORD: alert_password123
+    ports:
+      - "3310:3306"
+    volumes:
+      - ./docker/mysql/alert:/var/lib/mysql
+    networks:
+      - finance-network
+
+  # Redis 集群
+  redis:
+    image: redis:7-alpine
+    container_name: finance-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./docker/redis/data:/data
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - finance-network
+
+  # RabbitMQ 消息队列
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: finance-rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: finance_user
+      RABBITMQ_DEFAULT_PASS: finance_password123
+      RABBITMQ_DEFAULT_VHOST: finance-vhost
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ./docker/rabbitmq/data:/var/lib/rabbitmq
+      - ./docker/rabbitmq/logs:/var/log/rabbitmq
+    networks:
+      - finance-network
+
+  # 服务注册中心
+  finance-registry:
+    build:
+      context: ./microservices/finance-registry
+      dockerfile: Dockerfile
+    container_name: finance-registry
+    restart: always
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - finance-network
+    depends_on:
+      - redis
+
+  # 主服务
+  finance-main-service:
+    build:
+      context: ./microservices/finance-main-service
+      dockerfile: Dockerfile
+    container_name: finance-main-service
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_MASTER_URL: jdbc:mysql://mysql-master:3306/main_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_SLAVE_URL: jdbc:mysql://mysql-slave:3306/main_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+      SPRING_REDIS_HOST: redis
+      SPRING_RABBITMQ_HOST: rabbitmq
+    networks:
+      - finance-network
+    depends_on:
+      - mysql-master
+      - mysql-slave
+      - redis
+      - rabbitmq
+      - finance-registry
+
+  # 统计服务
+  finance-statistics-service:
+    build:
+      context: ./microservices/finance-statistics-service
+      dockerfile: Dockerfile
+    container_name: finance-statistics-service
+    restart: always
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-statistics:3306/statistics_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+      SPRING_REDIS_HOST: redis
+    networks:
+      - finance-network
+    depends_on:
+      - mysql-statistics
+      - redis
+      - finance-registry
+
+  # 预警服务
+  finance-alert-service:
+    build:
+      context: ./microservices/finance-alert-service
+      dockerfile: Dockerfile
+    container_name: finance-alert-service
+    restart: always
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-alert:3306/alert_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+      SPRING_REDIS_HOST: redis
+      SPRING_RABBITMQ_HOST: rabbitmq
+    networks:
+      - finance-network
+    depends_on:
+      - mysql-alert
+      - redis
+      - rabbitmq
+      - finance-registry
+
+  # API 网关
+  finance-gateway:
+    build:
+      context: ./microservices/finance-gateway
+      dockerfile: Dockerfile
+    container_name: finance-gateway
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_REDIS_HOST: redis
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://finance-registry:8761/eureka/
+    networks:
+      - finance-network
+    depends_on:
+      - redis
+      - finance-registry
+
+  # Nginx 负载均衡器
+  nginx:
+    image: nginx:alpine
+    container_name: finance-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+      - ./docker/nginx/logs:/var/log/nginx
+    depends_on:
+      - finance-gateway
+    networks:
+      - finance-network
+
+networks:
+  finance-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  mysql-master-data:
+  mysql-slave-data:
+  mysql-statistics-data:
+  mysql-alert-data:
+  redis-data:
+  rabbitmq-data:

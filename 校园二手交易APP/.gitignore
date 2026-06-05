@@ -1,0 +1,32 @@
+# IDE files
+.idea/
+.gradle/
+build/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Build outputs
+target/
+
+# Local env files
+.env
+local.properties
+
+# Logs
+logs
+*.log
+
+# Dependencies
+node_modules/
+
+# Test reports
+test-results/
+coverage/
+
+# Flutter build files
+NULL/
+
+# Flutter app
+flutter_app/

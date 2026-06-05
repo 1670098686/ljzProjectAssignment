@@ -1,0 +1,209 @@
+# 预警服务配置文件
+server:
+  port: 8084
+  servlet:
+    context-path: /alert-service
+
+# 应用名称和服务发现
+spring:
+  application:
+    name: finance-alert-service
+  
+  # 数据源配置 - 独立的预警数据库
+  datasource:
+    url: jdbc:mysql://localhost:3306/finance_alert_db?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      auto-commit: true
+      idle-timeout: 30000
+      connection-timeout: 30000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
+
+  # JPA配置
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+    defer-datasource-initialization: false
+
+  # Redis缓存配置
+  redis:
+    host: localhost
+    port: 6379
+    password: 
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+
+  # RabbitMQ消息队列配置
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    connection-timeout: 3000ms
+    publisher-confirms: true
+    publisher-returns: true
+
+  # 缓存配置
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000ms
+    cache-names: budget_alert_cache, alert_history_cache, alert_config_cache
+
+# Jackson JSON配置
+jackson:
+  date-format: yyyy-MM-dd HH:mm:ss
+  time-zone: GMT+8
+  default-property-inclusion: non_null
+
+# Spring Cloud服务发现
+eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
+    port: 8084
+    instance-id: ${eureka.instance.ip-address}:${server.port}/${spring.application.name}
+    health-check-url: http://${eureka.instance.ip-address}:${server.port}/actuator/health
+    status-page-url: http://${eureka.instance.ip-address}:${server.port}/actuator/health
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+    registry-fetch-interval-seconds: 30
+
+# OpenFeign配置
+feign:
+  client:
+    config:
+      default:
+        connect-timeout: 5000
+        read-timeout: 10000
+        logger-level: basic
+  compression:
+    request:
+      enabled: true
+      min-request-size: 2048
+      mime-types: text/xml,application/xml,application/json
+    response:
+      enabled: true
+
+# Resilience4j熔断器配置
+resilience4j:
+  circuitbreaker:
+    instances:
+      budget-service:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+    events:
+      buffer-size: 10
+  retry:
+    instances:
+      budget-service:
+        max-attempts: 3
+        wait-duration: 200ms
+  timelimiter:
+    instances:
+      budget-service:
+        timeout-duration: 3s
+
+# 日志配置
+logging:
+  level:
+    com.finance.alert: DEBUG
+    org.springframework.amqp: DEBUG
+    org.springframework.jmx: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/finance-alert-service.log
+
+# Actuator监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,circuitbreakerevents
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when_authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  info:
+    env:
+      enabled: true
+
+# 预警服务特定配置
+alert:
+  # 预警阈值配置
+  threshold:
+    warning: 0.8    # 预警阈值：80%
+    critical: 0.9   # 严重预警阈值：90%
+  
+  # 通知配置
+  notification:
+    enabled: true
+    email:
+      enabled: true
+    push:
+      enabled: true
+    in-app:
+      enabled: true
+  
+  # 清理配置
+  cleanup:
+    history-days: 90  # 历史记录保留天数
+    batch-size: 100   # 批量清理大小
+
+# Swagger/OpenAPI配置
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+  info:
+    title: 财务预警服务API
+    description: 负责预算预警、目标提醒等预警功能
+    version: 1.0.0
+    contact:
+      name: 财务系统开发团队
+      email: dev@finance.com
+
+# MyBatis配置（如果需要使用）
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: true
+    lazy-loading-enabled: true
+    aggressive-lazy-loading: false
+    multiple-result-sets-enabled: true
+    use-column-label: true
+    auto-mapping-behavior: partial
+    default-statement-timeout: 30000
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: com.finance.alert.entity

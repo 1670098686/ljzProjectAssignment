@@ -1,0 +1,8 @@
+Hi {{recipientName}}，
+
+买家已完成「{{productTitle}}」订单（{{orderNo}}）的支付。
+请尽快与买家联系并安排交付，订单详情见 {{orderUrl}} 。
+
+金额：¥{{price}}
+若需支持可联系 {{supportEmail}}。
+{{signature}}

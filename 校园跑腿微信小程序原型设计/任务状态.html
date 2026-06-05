@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>任务状态 - 校园跑腿</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="navbar-left">
+                <div class="navbar-back" onclick="location.href='首页.html'">←</div>
+            </div>
+            <div class="navbar-title">任务状态</div>
+            <div class="navbar-right"></div>
+        </div>
+
+        <div class="page-content text-center">
+            <div class="mt-32 mb-32">
+                <div style="width: 80px; height: 80px; background: var(--success-color); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; color: white; font-size: 40px;">✓</div>
+                <h2 class="text-xl mb-8">支付成功</h2>
+                <p class="text-secondary">任务已发布，正在等待接单</p>
+            </div>
+
+            <div class="card mb-32">
+                <div class="list-group" style="border: none; text-align: left;">
+                    <div class="list-item" style="padding: 12px 0; border: none; display: flex; justify-content: space-between; align-items: center;">
+                        <span class="text-secondary">任务编号</span>
+                        <span id="taskIdText">--</span>
+                    </div>
+                    <div class="list-item" style="padding: 12px 0; border: none; display: flex; justify-content: space-between; align-items: center;">
+                        <span class="text-secondary">支付金额</span>
+                        <span class="font-bold" id="payAmountText">¥ 0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col" style="gap: 16px;" id="actionArea">
+                <button class="btn btn-primary btn-block btn-lg" id="detailBtn">查看任务详情</button>
+                <button class="btn btn-secondary btn-block btn-lg" onclick="location.href='首页.html'">返回首页</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', renderStatus);
+
+        function renderStatus() {
+            const params = new URLSearchParams(window.location.search);
+            const urlTaskId = params.get('taskId');
+            const cachedId = localStorage.getItem('lastPublishedTaskId');
+            const storedCurrentId = (window.dataStore && dataStore.get('currentTaskId')) || null;
+            const taskId = urlTaskId || cachedId || storedCurrentId || '--';
+
+            const task = findTask(taskId);
+            const price = getPrice(task, cachedId);
+
+            const idEl = document.getElementById('taskIdText');
+            const priceEl = document.getElementById('payAmountText');
+            if (idEl) idEl.textContent = taskId || '--';
+            if (priceEl) priceEl.textContent = formatPrice(price);
+
+            const detailBtn = document.getElementById('detailBtn');
+            if (detailBtn) {
+                const hrefId = encodeURIComponent(taskId || '');
+                detailBtn.onclick = taskId ? () => location.href = `任务详情.html?taskId=${hrefId}` : () => CommonUtils.showToast('缺少任务编号，无法查看详情', 'warning');
+            }
+
+            // 若任务与价格都缺失，提示并提供返回发布
+            if (!task && (!price || price === 0)) {
+                CommonUtils.showToast('未找到任务信息，请重新发布', 'warning');
+                const actionArea = document.getElementById('actionArea');
+                if (actionArea) {
+                    const retry = document.createElement('button');
+                    retry.className = 'btn btn-primary btn-block btn-lg';
+                    retry.textContent = '去重新发布';
+                    retry.onclick = () => location.href = '任务发布.html';
+                    actionArea.insertBefore(retry, actionArea.firstChild);
+                }
+            }
+        }
+
+        function findTask(taskId) {
+            if (!taskId) return null;
+            try {
+                if (window.TaskFlow) {
+                    const t = TaskFlow.findTask(taskId);
+                    if (t) return t;
+                }
+                if (window.dataStore) {
+                    const tasks = dataStore.get('tasks') || [];
+                    return tasks.find(t => String(t.id) === String(taskId));
+                }
+            } catch (e) {
+                console.warn('查找任务失败', e);
+            }
+            return null;
+        }
+
+        function getPrice(task, cachedId) {
+            if (task && task.price !== undefined) return Number(task.price) || 0;
+            const cachedPrice = localStorage.getItem('lastPublishedPrice');
+            const cachedTaskId = localStorage.getItem('lastPublishedTaskId');
+            if (cachedPrice && (!cachedTaskId || cachedTaskId === cachedId)) {
+                return Number(cachedPrice) || 0;
+            }
+            return 0;
+        }
+
+        function formatPrice(val) {
+            return '¥ ' + (Number(val) || 0).toFixed(2);
+        }
+    </script>
+</body>
+</html>

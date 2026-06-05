@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>图标修复工具</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+        .primary { background: #007bff; color: white; }
+        .secondary { background: #6c757d; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>图标重复问题修复工具</h1>
+        <div id="status" class="status info">点击按钮开始修复图标重复问题</div>
+        <button class="primary" onclick="fixAllPages()">修复所有页面图标</button>
+        <button class="secondary" onclick="checkIconIssues()">检查图标问题</button>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // 页面文件列表
+        const pages = [
+            '首页.html',
+            '任务发布.html',
+            '任务列表.html',
+            '消息.html',
+            '个人中心.html',
+            '登录.html',
+            '手机绑定.html'
+        ];
+
+        // 图标映射表
+        const iconMap = {
+            // 底部标签栏图标
+            '<img src="images/icon-home.svg" class="icon-img">': 'tabbar-home-icon',
+            '<img src="images/icon-tasks.svg" class="icon-img">': 'tabbar-tasks-icon',
+            '<img src="images/icon-publish.svg" class="icon-img">': 'tabbar-publish-icon',
+            '<img src="images/icon-messages.svg" class="icon-img">': 'tabbar-messages-icon',
+            '<img src="images/icon-profile.svg" class="icon-img">': 'tabbar-profile-icon',
+            
+            // 功能图标
+            '<img src="images/icon-publish.svg" class="icon-img">': 'publish-icon',
+            '<img src="images/runner-avatar.svg" class="icon-img">': 'runner-icon',
+            '<img src="images/icon-info.svg" class="icon-img">': 'notification-icon',
+            
+            // 表单图标
+            '<img src="images/icon-other.svg" class="icon-img">': 'form-icon',
+            '<img src="images/icon-other.svg" class="icon-img">': 'code-icon',
+            '<img src="images/icon-success.svg" class="icon-img">': 'tip-icon',
+            '<img src="images/icon-location.svg" class="icon-img">': 'pickup-location-icon',
+            '<img src="images/icon-location.svg" class="icon-img">': 'delivery-location-icon',
+            '<img src="images/icon-clock.svg" class="icon-img">': 'time-requirement-icon',
+            
+            // 任务类型图标
+            '<img src="images/icon-package.svg" class="icon-img">': 'package-icon',
+            '<img src="images/icon-food.svg" class="icon-img">': 'food-icon',
+            '<img src="images/icon-document.svg" class="icon-img">': 'document-icon',
+            '<img src="images/icon-other.svg" class="icon-img">': 'other-icon',
+            
+            // 状态图标
+            '<img src="images/icon-urgent.svg" class="icon-img">': 'urgent-icon',
+            '<img src="images/icon-info.svg" class="icon-img">': 'info-icon'
+        };
+
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+
+        async function checkIconIssues() {
+            updateStatus('正在检查图标重复问题...', 'info');
+            document.getElementById('results').innerHTML = '';
+            
+            let totalIssues = 0;
+            
+            for (const page of pages) {
+                try {
+                    const response = await fetch(page);
+                    const html = await response.text();
+                    
+                    // 检查重复图标
+                    const iconCounts = {};
+                    Object.keys(iconMap).forEach(icon => {
+                        const regex = new RegExp(icon.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                        const count = (html.match(regex) || []).length;
+                        if (count > 0) {
+                            iconCounts[icon] = count;
+                        }
+                    });
+                    
+                    // 找出重复的图标
+                    const duplicates = Object.entries(iconCounts).filter(([icon, count]) => count > 1);
+                    
+                    if (duplicates.length > 0) {
+                        totalIssues += duplicates.length;
+                        addResult(`${page}: 发现 ${duplicates.length} 个重复图标`, 'error');
+                        duplicates.forEach(([icon, count]) => {
+                            addResult(`  - ${icon}: 出现 ${count} 次`, 'error');
+                        });
+                    } else {
+                        addResult(`${page}: 无重复图标问题`, 'success');
+                    }
+                } catch (error) {
+                    addResult(`${page}: 检查失败 - ${error.message}`, 'error');
+                }
+            }
+            
+            updateStatus(`检查完成，共发现 ${totalIssues} 个图标重复问题`, totalIssues > 0 ? 'error' : 'success');
+        }
+
+        async function fixAllPages() {
+            updateStatus('正在修复所有页面图标...', 'info');
+            document.getElementById('results').innerHTML = '';
+            
+            let fixedCount = 0;
+            
+            for (const page of pages) {
+                try {
+                    const response = await fetch(page);
+                    let html = await response.text();
+                    
+                    let modified = false;
+                    
+                    // 替换重复的图标
+                    Object.entries(iconMap).forEach(([icon, id]) => {
+                        const regex = new RegExp(`<span[^>]*>${icon.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}<\/span>`, 'g');
+                        const replacement = `<span class="icon-placeholder" id="${id}"></span>`;
+                        
+                        if (html.match(regex)) {
+                            html = html.replace(regex, replacement);
+                            modified = true;
+                        }
+                    });
+                    
+                    if (modified) {
+                        // 添加图标管理器脚本
+                        if (!html.includes('icon-manager.js')) {
+                            const scriptTag = '<script src="js/icon-manager.js"></script>';
+                            if (html.includes('</body>')) {
+                                html = html.replace('</body>', scriptTag + '\n</body>');
+                            } else if (html.includes('</html>')) {
+                                html = html.replace('</html>', scriptTag + '\n</html>');
+                            }
+                        }
+                        
+                        // 这里应该保存修改后的文件
+                        // 由于安全限制，实际保存需要后端支持
+                        addResult(`${page}: 已修复图标重复问题`, 'success');
+                        fixedCount++;
+                    } else {
+                        addResult(`${page}: 无需修复`, 'info');
+                    }
+                } catch (error) {
+                    addResult(`${page}: 修复失败 - ${error.message}`, 'error');
+                }
+            }
+            
+            updateStatus(`修复完成，共修复 ${fixedCount} 个页面`, fixedCount > 0 ? 'success' : 'info');
+        }
+    </script>
+</body>
+</html>

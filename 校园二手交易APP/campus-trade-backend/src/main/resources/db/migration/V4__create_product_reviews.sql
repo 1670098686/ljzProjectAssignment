@@ -1,0 +1,20 @@
+CREATE TABLE product_reviews (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    order_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    reviewer_id BIGINT NOT NULL,
+    rating TINYINT NOT NULL,
+    content TEXT,
+    images JSON DEFAULT NULL,
+    is_anonymous BIT(1) NOT NULL DEFAULT b'0',
+    status VARCHAR(20) NOT NULL DEFAULT 'PUBLISHED',
+    moderation_note VARCHAR(255) DEFAULT NULL,
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY idx_product_reviews_product_status (product_id, status),
+    KEY idx_product_reviews_order (order_id),
+    CONSTRAINT fk_product_reviews_order FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
+    CONSTRAINT fk_product_reviews_product FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE,
+    CONSTRAINT fk_product_reviews_reviewer FOREIGN KEY (reviewer_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
