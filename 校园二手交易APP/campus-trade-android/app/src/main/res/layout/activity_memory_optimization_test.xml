@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- 标题 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="内存优化测试"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <!-- 内存信息显示 -->
+    <TextView
+        android:id="@+id/tv_memory_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="正在加载内存信息..."
+        android:textSize="14sp"
+        android:background="@android:color/darker_gray"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"
+        android:textColor="@android:color/white" />
+
+    <!-- 测试按钮区域 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/btn_stress_test"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="内存压力测试"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btn_image_test"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="图片加载测试"
+            android:layout_marginStart="8dp" />
+
+    </LinearLayout>
+
+    <!-- 功能按钮区域 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/btn_generate_report"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="生成报告"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btn_clean_memory"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="清理内存"
+            android:layout_marginStart="8dp" />
+
+    </LinearLayout>
+
+    <!-- 测试结果区域 -->
+    <TextView
+        android:id="@+id/tv_test_results"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:text="测试结果将显示在这里..."
+        android:textSize="12sp"
+        android:background="@android:color/white"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"
+        android:scrollbars="vertical"
+        android:scrollbarStyle="insideInset"
+        android:isScrollContainer="true" />
+
+    <!-- 测试日志标题 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="测试日志"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <!-- 测试日志列表 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_test_logs"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@android:color/white"
+        android:padding="8dp"
+        android:scrollbars="vertical" />
+
+</LinearLayout>
