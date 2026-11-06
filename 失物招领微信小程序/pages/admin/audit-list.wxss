@@ -1,0 +1,265 @@
+/* pages/admin/audit-list.wxss */
+.audit-container {
+  min-height: 100vh;
+  background-color: #f5f7fa;
+}
+
+.page-header {
+  background: linear-gradient(135deg, #1890FF 0%, #096DD9 100%);
+  padding: 40rpx 30rpx 30rpx;
+  border-radius: 0 0 30rpx 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(24, 144, 255, 0.3);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #fff;
+}
+
+.count-badge {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 24rpx;
+  padding: 8rpx 20rpx;
+  min-width: 48rpx;
+  text-align: center;
+}
+
+.count-text {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #fff;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 16rpx;
+  padding: 24rpx 24rpx 0;
+}
+
+.tab-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  padding: 22rpx 16rpx;
+  border-radius: 16rpx;
+  background: #fff;
+  color: #666;
+  font-size: 28rpx;
+  font-weight: 500;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.tab-item.active {
+  background: linear-gradient(135deg, #1890FF 0%, #096DD9 100%);
+  color: #fff;
+}
+
+.tab-count {
+  min-width: 38rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.25);
+  text-align: center;
+  font-size: 22rpx;
+}
+
+.tab-item.active .tab-count {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.audit-list {
+  padding: 24rpx 24rpx 40rpx;
+}
+
+.audit-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.audit-badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  padding: 6rpx 14rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  margin-bottom: 16rpx;
+}
+
+.audit-badge.APPROVED {
+  background: #f6ffed;
+  color: #52c41a;
+}
+
+.audit-badge.PENDING {
+  background: #fff7e6;
+  color: #fa8c16;
+}
+
+.audit-badge.REJECTED {
+  background: #fff1f0;
+  color: #ff4d4f;
+}
+
+.type-badge {
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  flex-shrink: 0;
+}
+
+.type-LOST {
+  background: #fff1f0;
+  color: #ff4d4f;
+}
+
+.type-FOUND {
+  background: #f6ffed;
+  color: #52c41a;
+}
+
+.card-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-images {
+  margin: 16rpx 0;
+  position: relative;
+}
+
+.preview-image {
+  width: 100%;
+  height: 240rpx;
+  border-radius: 12rpx;
+  background: #f5f5f5;
+  display: block;
+}
+
+.image-count {
+  position: absolute;
+  right: 12rpx;
+  bottom: 12rpx;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+}
+
+.card-info {
+  margin-bottom: 20rpx;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 12rpx;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.info-icon {
+  font-size: 24rpx;
+  flex-shrink: 0;
+}
+
+.info-text {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.card-divider {
+  height: 1rpx;
+  background: #f0f0f0;
+  margin-bottom: 20rpx;
+}
+
+.card-actions {
+  display: flex;
+  gap: 16rpx;
+}
+
+.action-btn {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  border: none;
+  padding: 0;
+  line-height: 1;
+}
+
+.action-btn::after {
+  border: none;
+}
+
+.btn-icon {
+  font-size: 24rpx;
+}
+
+.btn-approve {
+  background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
+  color: #fff;
+}
+
+.btn-reject {
+  background: linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%);
+  color: #fff;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  margin-bottom: 24rpx;
+}
+
+.empty-text {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 12rpx;
+}
+
+.empty-desc {
+  font-size: 26rpx;
+  color: #999;
+}

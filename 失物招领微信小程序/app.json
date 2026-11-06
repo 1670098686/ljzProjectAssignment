@@ -1,0 +1,66 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/login/login",
+    "pages/register/register",
+    "pages/publish/publish",
+    "pages/detail/detail",
+    "pages/message/message",
+    "pages/chat/chat",
+    "pages/notification-detail/notification-detail",
+    "pages/profile/profile",
+    "pages/profile/my-items",
+    "pages/report/report",
+    "pages/admin/audit-list",
+    "pages/admin/audit-detail",
+    "pages/admin/report-list",
+    "pages/admin/statistics",
+    "pages/admin/stat-detail",
+    "pages/admin/send-notification"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#1890FF",
+    "navigationBarTitleText": "校园失物招领",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F5F5F5",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#1890FF",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/publish/publish",
+        "text": "发布",
+        "iconPath": "static/tabbar/publish.png",
+        "selectedIconPath": "static/tabbar/publish-active.png"
+      },
+      {
+        "pagePath": "pages/message/message",
+        "text": "消息",
+        "iconPath": "static/tabbar/message.png",
+        "selectedIconPath": "static/tabbar/message-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "static/tabbar/profile.png",
+        "selectedIconPath": "static/tabbar/profile-active.png"
+      }
+    ]
+  },
+  "networkTimeout": {
+    "request": 10000,
+    "uploadFile": 60000
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2"
+}

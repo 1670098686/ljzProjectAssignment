@@ -1,0 +1,95 @@
+<!--pages/login/login.wxml-->
+<view class="login-container">
+  <!-- 背景装饰 -->
+  <view class="bg-circle bg-circle-1"></view>
+  <view class="bg-circle bg-circle-2"></view>
+
+  <!-- 头部区域 -->
+  <view class="header">
+    <view class="logo-area">
+      <view class="logo-circle">
+        <text class="logo-text">FD</text>
+      </view>
+      <text class="app-title">校园失物招领</text>
+      <text class="app-desc">让失物更快回家</text>
+    </view>
+  </view>
+
+  <!-- 登录卡片 -->
+  <view class="login-card">
+    <!-- 登录模式切换 -->
+    <view class="tab-bar">
+      <view class="tab-item {{loginMode === 'wx' ? 'active' : ''}}" bindtap="switchMode" data-mode="wx">
+        <text>微信登录</text>
+      </view>
+      <view class="tab-item {{loginMode === 'password' ? 'active' : ''}}" bindtap="switchMode" data-mode="password">
+        <text>密码登录</text>
+      </view>
+    </view>
+
+    <!-- 微信登录 -->
+    <view wx:if="{{loginMode === 'wx'}}" class="login-content">
+      <text class="welcome-text">欢迎使用校园失物招领平台</text>
+      
+      <button class="btn btn-wx btn-block" bindtap="onWxLogin" disabled="{{loading}}">
+        <text wx:if="{{!loading}}">微信一键登录</text>
+        <text wx:else>登录中...</text>
+      </button>
+      
+      <view class="agreement">
+        <text class="text-muted">登录即表示同意</text>
+        <text class="text-link">《用户协议》</text>
+        <text class="text-muted">和</text>
+        <text class="text-link">《隐私政策》</text>
+      </view>
+      
+      <view class="divider">
+        <view class="divider-line"></view>
+        <text class="divider-text">或</text>
+        <view class="divider-line"></view>
+      </view>
+      
+      <view class="go-register">
+        <text class="text-muted">还没有账号？</text>
+        <text class="text-primary" bindtap="goToRegister">立即注册</text>
+      </view>
+    </view>
+
+    <!-- 密码登录 -->
+    <view wx:if="{{loginMode === 'password'}}" class="login-content">
+      <view class="form-item">
+        <view class="input-label">
+          <text>学业邮箱</text>
+        </view>
+        <input class="input-field" type="text" placeholder="请输入学业邮箱地址" value="{{email}}" bindinput="onEmailInput" />
+      </view>
+      
+      <view class="form-item">
+        <view class="input-label">
+          <text>密码</text>
+        </view>
+        <input class="input-field" type="password" placeholder="请输入密码" value="{{password}}" bindinput="onPasswordInput" />
+      </view>
+
+      <button class="btn btn-primary btn-block" bindtap="onPasswordLogin" disabled="{{loading}}">
+        <text wx:if="{{!loading}}">登 录</text>
+        <text wx:else>登录中...</text>
+      </button>
+      
+      <view class="extra-links">
+        <text class="text-link">忘记密码？</text>
+      </view>
+      
+      <view class="divider">
+        <view class="divider-line"></view>
+        <text class="divider-text">或</text>
+        <view class="divider-line"></view>
+      </view>
+      
+      <view class="go-register">
+        <text class="text-muted">还没有账号？</text>
+        <text class="text-primary" bindtap="goToRegister">立即注册</text>
+      </view>
+    </view>
+  </view>
+</view>

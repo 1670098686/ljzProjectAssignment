@@ -1,0 +1,72 @@
+<!--pages/message/message.wxml-->
+<view class="message-container">
+  <view class="tab-bar">
+    <view class="tab-item {{activeTab === 'notifications' ? 'active' : ''}}" bindtap="onTabChange" data-tab="notifications">
+      <text>系统通知</text>
+      <view wx:if="{{unreadNotificationCount > 0}}" class="tab-badge">{{unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}}</view>
+    </view>
+    <view class="tab-item {{activeTab === 'conversations' ? 'active' : ''}}" bindtap="onTabChange" data-tab="conversations">
+      <text>聊天会话</text>
+      <view wx:if="{{unreadConversationCount > 0}}" class="tab-badge">{{unreadConversationCount > 99 ? '99+' : unreadConversationCount}}</view>
+    </view>
+  </view>
+
+  <scroll-view wx:if="{{activeTab === 'notifications'}}" class="scroll-view" scroll-y enable-back-to-top bindscrolltolower="onReachBottom" refresher-enabled="{{true}}" refresher-triggered="{{notificationsLoading}}" bindrefresherrefresh="onPullDownRefresh">
+    <view class="notification-list">
+      <block wx:for="{{notifications}}" wx:key="id">
+        <view class="notification-item {{item.isRead ? 'read' : 'unread'}}" bindtap="goToDetail" data-id="{{item.id}}">
+          <text class="notification-icon">{{item.icon}}</text>
+          <view class="notification-content">
+            <text class="notification-title">{{item.title}}</text>
+            <text class="notification-desc">{{item.shortContent || item.content}}</text>
+            <text class="notification-time">{{item.timeText}}</text>
+          </view>
+          <view wx:if="{{!item.isRead}}" class="unread-dot"></view>
+        </view>
+      </block>
+
+      <view wx:if="{{notificationsLoading && notifications.length > 0}}" class="loading-more">
+        <text>加载中...</text>
+      </view>
+
+      <view wx:if="{{notifications.length === 0 && !notificationsLoading}}" class="empty-state">
+        <text class="empty-icon">🔔</text>
+        <text class="empty-text">暂无系统通知</text>
+      </view>
+
+      <view wx:if="{{!hasMoreNotifications && notifications.length > 0}}" class="no-more-data">
+        <text>没有更多通知了</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <scroll-view wx:if="{{activeTab === 'conversations'}}" class="scroll-view" scroll-y enable-back-to-top bindscrolltolower="onReachBottom" refresher-enabled="{{true}}" refresher-triggered="{{loading}}" bindrefresherrefresh="onPullDownRefresh">
+    <view class="conversation-list">
+      <block wx:for="{{conversations}}" wx:key="id">
+        <view class="conversation-item" bindtap="goToChat" data-id="{{item.id}}">
+          <view class="conversation-avatar-text">{{item.otherUser.avatarChar || '用'}}</view>
+          <view class="conversation-info">
+            <text class="item-title">{{item.title || '会话'}}</text>
+            <text class="item-desc">{{item.subDesc || item.lastMessage || '暂无消息'}}</text>
+          </view>
+          <view class="conversation-right">
+            <text class="conversation-time">{{item.lastMessageTimeText}}</text>
+            <view wx:if="{{item.unreadCount > 0}}" class="unread-badge">
+              {{item.unreadCount}}
+            </view>
+          </view>
+        </view>
+      </block>
+
+      <view wx:if="{{loading}}" class="loading-more">
+        <text>加载中...</text>
+      </view>
+
+      <view wx:if="{{conversations.length === 0 && !loading}}" class="empty-state">
+        <text class="empty-icon">💬</text>
+        <text class="empty-text">暂无聊天会话</text>
+        <text class="empty-hint">去首页浏览信息并联系他人</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

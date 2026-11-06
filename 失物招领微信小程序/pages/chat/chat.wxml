@@ -1,0 +1,42 @@
+<!--pages/chat/chat.wxml-->
+<view class="chat-container">
+  <!-- 物品信息 -->
+  <view wx:if="{{item}}" class="item-info" bindtap="goToItemDetail">
+    <view class="item-avatar">
+      <image wx:if="{{item.imageUrls && item.imageUrls.length > 0}}" src="{{item.imageUrls[0]}}" class="item-img" mode="aspectFill" />
+      <text wx:else>📷</text>
+    </view>
+    <view class="item-content">
+      <text class="item-title">{{item.title}}</text>
+      <text class="item-desc">{{item.itemType === 'LOST' ? '寻物启事' : '失物招领'}}</text>
+    </view>
+    <text class="arrow">›</text>
+  </view>
+  
+  <!-- 消息列表 -->
+  <scroll-view class="message-list" scroll-y scroll-top="{{scrollTop}}">
+    <block wx:for="{{messages}}" wx:key="index">
+      <view class="message-item {{item.senderId === currentUserId ? 'self' : 'other'}}">
+        <view class="avatar avatar-text">{{item.senderId === currentUserId ? currentUserAvatarChar : otherUserAvatarChar}}</view>
+        <view class="message-content">
+          <text wx:if="{{item.senderId !== currentUserId && otherUserNickname}}" class="msg-nickname">{{otherUserNickname}}</text>
+          <view wx:if="{{item.type === 'TEXT'}}" class="text-bubble">
+            <text>{{item.content}}</text>
+          </view>
+          <view wx:elif="{{item.type === 'IMAGE'}}" class="image-bubble">
+            <image src="{{item.imageUrl}}" mode="aspectFill" bindtap="onPreviewImage" data-url="{{item.imageUrl}}"></image>
+          </view>
+        </view>
+      </view>
+    </block>
+  </scroll-view>
+
+  <!-- 输入区域 -->
+  <view class="input-bar">
+    <input class="input" value="{{inputMessage}}" bindinput="onMessageInput" placeholder="请输入消息" confirm-type="send" bindconfirm="onSendMessage" />
+    <view class="btn-image" bindtap="onChooseImage">
+      <text class="image-icon">🖼️</text>
+    </view>
+    <button class="btn-send" bindtap="onSendMessage" disabled="{{sending}}">发送</button>
+  </view>
+</view>

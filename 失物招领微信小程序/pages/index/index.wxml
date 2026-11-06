@@ -1,0 +1,153 @@
+<!--pages/index/index.wxml-->
+<view class="index-container">
+  <!-- 顶部标签页切换 -->
+  <view class="top-tabs">
+    <view class="tab-item {{activeTab === 'FOUND' ? 'active' : ''}}" bindtap="onTabChange" data-tab="FOUND">捡到物品</view>
+    <view class="tab-item {{activeTab === 'LOST' ? 'active' : ''}}" bindtap="onTabChange" data-tab="LOST">丢失物品</view>
+  </view>
+
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrapper">
+      <input class="search-input" placeholder="搜索物品名称、地点" value="{{searchValue}}" bindinput="onSearchInput" bindconfirm="onSearch" confirm-type="search" />
+      <text wx:if="{{searchValue}}" class="clear-btn" bindtap="onClearSearch">×</text>
+    </view>
+    <text class="search-btn" bindtap="onSearch">搜索</text>
+  </view>
+
+  <!-- 筛选区 -->
+  <view class="filter-bar">
+    <view class="filter-item" bindtap="onShowCategoryFilter">
+      <text>类型</text>
+      <text wx:if="{{filterCategoryText}}">: {{filterCategoryText}}</text>
+    </view>
+    <view class="filter-item" bindtap="onShowTimeFilter">
+      <text>时间</text>
+      <text wx:if="{{filterTimeText}}">: {{filterTimeText}}</text>
+    </view>
+    <view class="filter-item" bindtap="onShowLocationFilter">
+      <text>地点</text>
+      <text wx:if="{{filterLocationText}}">: {{filterLocationText}}</text>
+    </view>
+    <view class="filter-item" bindtap="onShowStatusFilter">
+      <text>状态</text>
+      <text wx:if="{{filterStatusText}}">: {{filterStatusText}}</text>
+    </view>
+  </view>
+
+  <!-- 类型筛选弹窗 -->
+  <view class="filter-modal" wx:if="{{showCategoryFilter}}" bindtap="onHideCategoryFilter">
+    <view class="filter-modal-content" catchtap="stopPropagation">
+      <view class="filter-modal-title">物品类型筛选</view>
+      <view class="filter-options">
+        <view class="filter-option {{tempCategory === '' ? 'active' : ''}}" bindtap="onSelectCategory" data-category="">全部类型</view>
+        <view class="filter-option {{tempCategory === '证件卡片' ? 'active' : ''}}" bindtap="onSelectCategory" data-category="证件卡片">证件卡片</view>
+        <view class="filter-option {{tempCategory === '数码产品' ? 'active' : ''}}" bindtap="onSelectCategory" data-category="数码产品">数码产品</view>
+        <view class="filter-option {{tempCategory === '生活用品' ? 'active' : ''}}" bindtap="onSelectCategory" data-category="生活用品">生活用品</view>
+        <view class="filter-option {{tempCategory === '学习用品' ? 'active' : ''}}" bindtap="onSelectCategory" data-category="学习用品">学习用品</view>
+        <view class="filter-option {{tempCategory === '其他' ? 'active' : ''}}" bindtap="onSelectCategory" data-category="其他">其他</view>
+      </view>
+      <view class="filter-actions">
+        <button class="btn-filter-confirm" bindtap="onConfirmCategoryFilter">确定</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 时间筛选弹窗 -->
+  <view class="filter-modal" wx:if="{{showTimeFilter}}" bindtap="onHideTimeFilter">
+    <view class="filter-modal-content" catchtap="stopPropagation">
+      <view class="filter-modal-title">时间范围筛选</view>
+      <view class="time-options">
+        <view class="time-option {{tempTimeRange === 'today' ? 'active' : ''}}" bindtap="onSelectTimeRange" data-range="today">今天</view>
+        <view class="time-option {{tempTimeRange === 'week' ? 'active' : ''}}" bindtap="onSelectTimeRange" data-range="week">本周</view>
+        <view class="time-option {{tempTimeRange === 'month' ? 'active' : ''}}" bindtap="onSelectTimeRange" data-range="month">本月</view>
+        <view class="time-option {{tempTimeRange === '' ? 'active' : ''}}" bindtap="onSelectTimeRange" data-range="">不限</view>
+      </view>
+      <view class="filter-actions">
+        <button class="btn-filter-confirm" bindtap="onConfirmTimeFilter">确定</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 地点筛选弹窗 -->
+  <view class="filter-modal" wx:if="{{showLocationFilter}}" bindtap="onHideLocationFilter">
+    <view class="filter-modal-content" catchtap="stopPropagation">
+      <view class="filter-modal-title">地点筛选</view>
+      <view class="filter-options location-options">
+        <view class="filter-option {{tempLocation === '' ? 'active' : ''}}" bindtap="onSelectLocation" data-location="">全部地点</view>
+        <view class="filter-option {{tempLocation === '教学楼' ? 'active' : ''}}" bindtap="onSelectLocation" data-location="教学楼">教学楼</view>
+        <view class="filter-option {{tempLocation === '图书馆' ? 'active' : ''}}" bindtap="onSelectLocation" data-location="图书馆">图书馆</view>
+        <view class="filter-option {{tempLocation === '食堂' ? 'active' : ''}}" bindtap="onSelectLocation" data-location="食堂">食堂</view>
+        <view class="filter-option {{tempLocation === '宿舍区' ? 'active' : ''}}" bindtap="onSelectLocation" data-location="宿舍区">宿舍区</view>
+        <view class="filter-option {{tempLocation === '操场' ? 'active' : ''}}" bindtap="onSelectLocation" data-location="操场">操场</view>
+        <view class="filter-option {{tempLocation === '校门口' ? 'active' : ''}}" bindtap="onSelectLocation" data-location="校门口">校门口</view>
+      </view>
+      <view class="filter-actions">
+        <button class="btn-filter-confirm" bindtap="onConfirmLocationFilter">确定</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 状态筛选弹窗 -->
+  <view class="filter-modal" wx:if="{{showStatusFilter}}" bindtap="onHideStatusFilter">
+    <view class="filter-modal-content" catchtap="stopPropagation">
+      <view class="filter-modal-title">状态筛选</view>
+      <view class="filter-options">
+        <view class="filter-option {{tempStatus === '' ? 'active' : ''}}" bindtap="onSelectStatus" data-status="">全部状态</view>
+        <view class="filter-option {{tempStatus === 'ONGOING' ? 'active' : ''}}" bindtap="onSelectStatus" data-status="ONGOING">进行中</view>
+        <view class="filter-option {{tempStatus === 'COMPLETED' ? 'active' : ''}}" bindtap="onSelectStatus" data-status="COMPLETED">已归还/已找回</view>
+      </view>
+      <view class="filter-actions">
+        <button class="btn-filter-confirm" bindtap="onConfirmStatusFilter">确定</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 信息列表 -->
+  <scroll-view class="scroll-view" scroll-y enable-back-to-top bindscrolltolower="onReachBottom" bindscrolltoupper="onPullDownRefresh">
+    <view class="list-container">
+      <block wx:for="{{list}}" wx:key="id">
+        <view class="item-card" bindtap="goToDetail" data-id="{{item.id}}">
+          <image wx:if="{{item.coverImage}}" class="item-image" src="{{item.coverImage}}" mode="aspectFill"></image>
+          <view wx:else class="item-image item-image-placeholder">
+            <text class="placeholder-text">暂无图片</text>
+          </view>
+          <view class="item-info">
+            <view class="item-header">
+              <text class="item-type-badge type-{{item.itemType}}">{{item.itemTypeText}}</text>
+              <text class="item-title">{{item.title}}</text>
+            </view>
+            <view class="item-details">
+              <view class="item-detail-row">
+                <text class="item-location">{{item.location}}</text>
+              </view>
+              <view class="item-detail-row">
+                <text class="item-time">{{item.happenTime}}</text>
+              </view>
+            </view>
+            <view class="item-footer">
+              <text class="item-status status-{{item.bizStatus}}">{{item.bizStatusText}}</text>
+              <text class="item-published">{{item.publishedAtText}}</text>
+            </view>
+          </view>
+        </view>
+      </block>
+
+      <!-- 加载更多 -->
+      <view wx:if="{{loading}}" class="loading-more">
+        <view class="loading-spinner"></view>
+        <text>加载中...</text>
+      </view>
+      
+      <view wx:if="{{!hasMore && list.length > 0}}" class="no-more">
+        <text>—— 没有更多了 ——</text>
+      </view>
+
+      <!-- 空状态 -->
+      <view wx:if="{{list.length === 0 && !loading}}" class="empty-state">
+        <text class="empty-text">暂无相关信息</text>
+        <text class="empty-hint">下拉刷新获取最新信息</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

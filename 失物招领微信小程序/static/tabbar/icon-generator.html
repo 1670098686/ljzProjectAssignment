@@ -1,0 +1,212 @@
+
+&lt;!DOCTYPE html&gt;
+&lt;html lang="zh-CN"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;title&gt;底部导航栏图标生成器&lt;/title&gt;
+  &lt;style&gt;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 30px; color: #333; }
+    .section { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h2 { margin-bottom: 15px; color: #555; }
+    .icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 20px; }
+    .icon-item { text-align: center; }
+    .icon-preview { width: 81px; height: 81px; margin: 0 auto 10px; border: 2px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    button { background: #1890FF; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 14px; transition: background 0.3s; }
+    button:hover { background: #40a9ff; }
+    .inactive { background: #999999; }
+    .inactive:hover { background: #b3b3b3; }
+    .active { background: #1890FF; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="container"&gt;
+    &lt;h1&gt;底部导航栏图标生成器&lt;/h1&gt;
+    
+    &lt;div class="section"&gt;
+      &lt;h2&gt;首页图标&lt;/h2&gt;
+      &lt;div class="icon-grid"&gt;
+        &lt;div class="icon-item"&gt;
+          &lt;canvas id="home" width="81" height="81"&gt;&lt;/canvas&gt;
+          &lt;div style="margin-bottom: 8px;"&gt;普通状态&lt;/div&gt;
+          &lt;button class="inactive" onclick="downloadIcon('home', 'home.png')"&gt;下载&lt;/button&gt;
+        &lt;/div&gt;
+        &lt;div class="icon-item"&gt;
+          &lt;canvas id="home-active" width="81" height="81"&gt;&lt;/canvas&gt;
+          &lt;div style="margin-bottom: 8px;"&gt;选中状态&lt;/div&gt;
+          &lt;button class="active" onclick="downloadIcon('home-active', 'home-active.png')"&gt;下载&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class="section"&gt;
+      &lt;h2&gt;发布图标&lt;/h2&gt;
+      &lt;div class="icon-grid"&gt;
+        &lt;div class="icon-item"&gt;
+          &lt;canvas id="publish" width="81" height="81"&gt;&lt;/canvas&gt;
+          &lt;div style="margin-bottom: 8px;"&gt;普通状态&lt;/div&gt;
+          &lt;button class="inactive" onclick="downloadIcon('publish', 'publish.png')"&gt;下载&lt;/button&gt;
+        &lt;/div&gt;
+        &lt;div class="icon-item"&gt;
+          &lt;canvas id="publish-active" width="81" height="81"&gt;&lt;/canvas&gt;
+          &lt;div style="margin-bottom: 8px;"&gt;选中状态&lt;/div&gt;
+          &lt;button class="active" onclick="downloadIcon('publish-active', 'publish-active.png')"&gt;下载&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class="section"&gt;
+      &lt;h2&gt;消息图标&lt;/h2&gt;
+      &lt;div class="icon-grid"&gt;
+        &lt;div class="icon-item"&gt;
+          &lt;canvas id="message" width="81" height="81"&gt;&lt;/canvas&gt;
+          &lt;div style="margin-bottom: 8px;"&gt;普通状态&lt;/div&gt;
+          &lt;button class="inactive" onclick="downloadIcon('message', 'message.png')"&gt;下载&lt;/button&gt;
+        &lt;/div&gt;
+        &lt;div class="icon-item"&gt;
+          &lt;canvas id="message-active" width="81" height="81"&gt;&lt;/canvas&gt;
+          &lt;div style="margin-bottom: 8px;"&gt;选中状态&lt;/div&gt;
+          &lt;button class="active" onclick="downloadIcon('message-active', 'message-active.png')"&gt;下载&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class="section"&gt;
+      &lt;h2&gt;我的图标&lt;/h2&gt;
+      &lt;div class="icon-grid"&gt;
+        &lt;div class="icon-item"&gt;
+          &lt;canvas id="profile" width="81" height="81"&gt;&lt;/canvas&gt;
+          &lt;div style="margin-bottom: 8px;"&gt;普通状态&lt;/div&gt;
+          &lt;button class="inactive" onclick="downloadIcon('profile', 'profile.png')"&gt;下载&lt;/button&gt;
+        &lt;/div&gt;
+        &lt;div class="icon-item"&gt;
+          &lt;canvas id="profile-active" width="81" height="81"&gt;&lt;/canvas&gt;
+          &lt;div style="margin-bottom: 8px;"&gt;选中状态&lt;/div&gt;
+          &lt;button class="active" onclick="downloadIcon('profile-active', 'profile-active.png')"&gt;下载&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    const inactiveColor = '#999999';
+    const activeColor = '#1890FF';
+
+    // 画房子图标
+    function drawHome(ctx, color) {
+      ctx.clearRect(0, 0, 81, 81);
+      ctx.fillStyle = color;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      
+      // 屋顶
+      ctx.beginPath();
+      ctx.moveTo(10, 35);
+      ctx.lineTo(40.5, 12);
+      ctx.lineTo(71, 35);
+      ctx.stroke();
+      
+      // 墙壁
+      ctx.strokeRect(18, 35, 45, 34);
+      
+      // 门
+      ctx.fillRect(33, 48, 15, 21);
+    }
+
+    // 画加号图标（发布）
+    function drawPublish(ctx, color) {
+      ctx.clearRect(0, 0, 81, 81);
+      ctx.fillStyle = color;
+      ctx.lineWidth = 3;
+      
+      // 加号
+      ctx.fillRect(36, 20, 9, 42); // 竖线
+      ctx.fillRect(20, 36, 42, 9); // 横线
+    }
+
+    // 画消息图标
+    function drawMessage(ctx, color) {
+      ctx.clearRect(0, 0, 81, 81);
+      ctx.fillStyle = color;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      
+      // 气泡
+      ctx.strokeRect(12, 15, 57, 42);
+      
+      // 尖角
+      ctx.beginPath();
+      ctx.moveTo(30, 57);
+      ctx.lineTo(20, 70);
+      ctx.lineTo(40, 57);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // 画用户图标
+    function drawProfile(ctx, color) {
+      ctx.clearRect(0, 0, 81, 81);
+      ctx.fillStyle = color;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      
+      // 头
+      ctx.beginPath();
+      ctx.arc(40.5, 28, 15, 0, Math.PI * 2);
+      ctx.stroke();
+      
+      // 身体
+      ctx.beginPath();
+      ctx.arc(40.5, 60, 20, Math.PI, 0);
+      ctx.stroke();
+    }
+
+    // 初始化所有图标
+    function initIcons() {
+      // 首页
+      const home = document.getElementById('home').getContext('2d');
+      const homeActive = document.getElementById('home-active').getContext('2d');
+      drawHome(home, inactiveColor);
+      drawHome(homeActive, activeColor);
+      
+      // 发布
+      const publish = document.getElementById('publish').getContext('2d');
+      const publishActive = document.getElementById('publish-active').getContext('2d');
+      drawPublish(publish, inactiveColor);
+      drawPublish(publishActive, activeColor);
+      
+      // 消息
+      const message = document.getElementById('message').getContext('2d');
+      const messageActive = document.getElementById('message-active').getContext('2d');
+      drawMessage(message, inactiveColor);
+      drawMessage(messageActive, activeColor);
+      
+      // 我的
+      const profile = document.getElementById('profile').getContext('2d');
+      const profileActive = document.getElementById('profile-active').getContext('2d');
+      drawProfile(profile, inactiveColor);
+      drawProfile(profileActive, activeColor);
+    }
+
+    // 下载图标
+    function downloadIcon(canvasId, filename) {
+      const canvas = document.getElementById(canvasId);
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    // 初始化
+    initIcons();
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+

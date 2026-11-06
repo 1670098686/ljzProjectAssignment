@@ -1,0 +1,54 @@
+<view class="report-container">
+  <view class="page-header">
+    <text class="title">举报内容</text>
+  </view>
+
+  <view class="item-info">
+    <text class="item-label">举报物品</text>
+    <text class="item-title">{{itemTitle}}</text>
+  </view>
+
+  <view class="reason-section">
+    <text class="section-title">请选择举报原因</text>
+    <radio-group class="reason-list" bindchange="onReasonTypeChange">
+      <label class="reason-item">
+        <radio value="SCAM" checked="{{selectedReasonType === 'SCAM'}}" />
+        <text class="reason-label">诈骗</text>
+      </label>
+      <label class="reason-item">
+        <radio value="AD" checked="{{selectedReasonType === 'AD'}}" />
+        <text class="reason-label">广告</text>
+      </label>
+      <label class="reason-item">
+        <radio value="SENSITIVE" checked="{{selectedReasonType === 'SENSITIVE'}}" />
+        <text class="reason-label">敏感内容</text>
+      </label>
+      <label class="reason-item">
+        <radio value="OTHER" checked="{{selectedReasonType === 'OTHER'}}" />
+        <text class="reason-label">其他</text>
+      </label>
+    </radio-group>
+  </view>
+
+  <view class="detail-section">
+    <text class="section-title">补充说明（选填）</text>
+    <textarea
+      class="detail-input"
+      placeholder="请描述具体问题..."
+      value="{{reasonDetail}}"
+      bindinput="onReasonDetailInput"
+      maxlength="500"
+    />
+    <text class="char-count">{{reasonDetail.length}}/500</text>
+  </view>
+
+  <view class="submit-section">
+    <button 
+      class="submit-btn {{submitting ? 'disabled' : ''}}"
+      bindtap="onSubmit"
+      disabled="{{submitting}}"
+    >
+      {{submitting ? '提交中...' : '提交举报'}}
+    </button>
+  </view>
+</view>

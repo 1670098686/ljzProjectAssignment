@@ -1,0 +1,98 @@
+<!--pages/admin/statistics.wxml-->
+<view class="statistics-container">
+  <view class="page-header">
+    <view class="header-content">
+      <text class="title">数据统计</text>
+      <text class="subtitle">实时数据概览</text>
+    </view>
+  </view>
+
+  <view class="stats-section" wx:if="{{stats}}">
+    <view class="section-title">
+      <text class="title-text">核心指标</text>
+    </view>
+    
+    <view class="stats-grid">
+      <view class="stat-card" hover-class="stat-card-hover" hover-stay-time="150" bindtap="goToStatDetail" data-type="total">
+        <view class="stat-icon stat-icon-total"></view>
+        <view class="stat-content">
+          <text class="stat-value">{{stats.totalItems}}</text>
+          <text class="stat-label">总信息数</text>
+        </view>
+      </view>
+      
+      <view class="stat-card" hover-class="stat-card-hover" hover-stay-time="150" bindtap="goToStatDetail" data-type="lost">
+        <view class="stat-icon stat-icon-lost"></view>
+        <view class="stat-content">
+          <text class="stat-value">{{stats.lostCount}}</text>
+          <text class="stat-label">寻物信息</text>
+        </view>
+      </view>
+      
+      <view class="stat-card" hover-class="stat-card-hover" hover-stay-time="150" bindtap="goToStatDetail" data-type="found">
+        <view class="stat-icon stat-icon-found"></view>
+        <view class="stat-content">
+          <text class="stat-value">{{stats.foundCount}}</text>
+          <text class="stat-label">拾物信息</text>
+        </view>
+      </view>
+      
+      <view class="stat-card" hover-class="stat-card-hover" hover-stay-time="150" bindtap="goToStatDetail" data-type="approved">
+        <view class="stat-icon stat-icon-approved"></view>
+        <view class="stat-content">
+          <text class="stat-value">{{stats.approvedRate}}%</text>
+          <text class="stat-label">审核通过率</text>
+        </view>
+      </view>
+      
+      <view class="stat-card" hover-class="stat-card-hover" hover-stay-time="150" bindtap="goToStatDetail" data-type="resolved">
+        <view class="stat-icon stat-icon-resolved"></view>
+        <view class="stat-content">
+          <text class="stat-value">{{stats.resolvedOrReturnedCount}}</text>
+          <text class="stat-label">成功解决</text>
+        </view>
+      </view>
+      
+      <view class="stat-card" hover-class="stat-card-hover" hover-stay-time="150" bindtap="goToStatDetail" data-type="report">
+        <view class="stat-icon stat-icon-report"></view>
+        <view class="stat-content">
+          <text class="stat-value">{{stats.reportHandledRate}}%</text>
+          <text class="stat-label">举报处理率</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section-title" style="margin-top: 40rpx;">
+      <text class="title-text">趋势概览</text>
+    </view>
+    
+    <view class="trend-card">
+      <view class="trend-item">
+        <view class="trend-label">今日新增</view>
+        <view class="trend-value trend-up">
+          <text class="trend-arrow">↑</text>
+          <text>{{stats.todayNew || 0}}</text>
+        </view>
+      </view>
+      <view class="trend-item">
+        <view class="trend-label">本周活跃</view>
+        <view class="trend-value trend-up">
+          <text class="trend-arrow">↑</text>
+          <text>{{stats.weekActive || 0}}</text>
+        </view>
+      </view>
+      <view class="trend-item">
+        <view class="trend-label">待审核</view>
+        <view class="trend-value">
+          <text>{{stats.pendingCount || 0}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:else>
+    <view class="empty-icon"></view>
+    <text class="empty-text" wx:if="{{loading}}">加载中...</text>
+    <text class="empty-text" wx:else>暂无统计数据</text>
+  </view>
+</view>

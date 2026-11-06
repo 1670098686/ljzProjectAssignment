@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head><meta content="default-src 'none'; style-src * 'unsafe-inline'; script-src * 'unsafe-inline'; img-src * data: blob:; font-src * data:; media-src * data: blob:; connect-src 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'" http-equiv="Content-Security-Policy"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>校园失物招领图片汇总</title>
+<script src="https://image.uc.cn/s/uae/g/3n/mos-production/fontawesome-free-7.1.0-web/js/all.min.js"></script>
+<script src="https://image.uc.cn/s/uae/g/3n/mos-production/0915/3.4.17.js"></script>
+<style>
+        /* 自定义CSS使用BEM命名法避免冲突 */
+        .summary-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-container {
+            position: relative;
+            overflow: hidden;
+            background-color: #f8fafc;
+        }
+        
+        .image-container img {
+            transition: transform 0.5s ease;
+        }
+        
+        .image-container:hover img {
+            transform: scale(1.05);
+        }
+        
+        .category-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            background-color: rgba(59, 130, 246, 0.9);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .image-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            color: white;
+            padding: 15px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .image-container:hover .image-info {
+            transform: translateY(0);
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        .footer-section {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+    </style>
+<script>
+!(function(j,a,g){j.__itrace_conf = {bid: 'kt40h0wl-koyh4af8',rel: '', uid: 'e46ba5f8-37b7-4ede-9e87-502bbaa53339' ,  spa: true, plugins:['jserror','interface','perf','resource','flow','blank']};var b = a.createElement("script");var d = a.getElementsByTagName("script")[0];b.type = "text/javascript";b.crossorigin = true;b.async = true;b.onload = function(){j.__itrace && j.__itrace.setReady()};d.parentNode.insertBefore(b,d);b.src = g})(window, document, "https://g.alicdn.com/woodpeckerx/itrace-next/itrace.iife.js")
+</script>
+</head>
+<body class="bg-gray-50">
+
+<header class="page-header py-12 px-4 md:px-8">
+<div class="container mx-auto">
+<div class="flex flex-col md:flex-row justify-between items-center">
+<div class="mb-8 md:mb-0">
+<h1 class="text-3xl md:text-4xl font-bold mb-2">
+<i class="fas fa-images mr-3"></i>校园失物招领图片汇总
+                    </h1>
+<p class="text-lg opacity-90">基于AI生成的42张高清晰度物品识别图</p>
+</div>
+<div class="stats-card rounded-xl p-6 shadow-lg">
+<div class="text-center">
+<div class="text-3xl font-bold mb-1">42</div>
+<div class="text-sm opacity-90">张高清图片</div>
+</div>
+<div class="text-center mt-4">
+<div class="text-3xl font-bold mb-1">14</div>
+<div class="text-sm opacity-90">类物品分类</div>
+</div>
+</div>
+</div>
+</div>
+</header>
+
+<main class="container mx-auto px-4 py-8">
+
+<section class="mb-12 bg-white rounded-xl p-6 shadow-md">
+<h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+<i class="fas fa-info-circle text-blue-500 mr-3"></i>项目简介
+            </h2>
+<p class="text-gray-600 mb-4">
+                本页面汇总展示了根据《校园失物招领 - 物品图片描述文档》生成的14类物品图片。每类物品包含3张不同角度、高清晰度、无水印的创意识别图，旨在最大化提升物品辨识度与真实感。
+            </p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+<div class="bg-blue-50 p-4 rounded-lg">
+<div class="flex items-center mb-2">
+<i class="fas fa-camera text-blue-500 mr-2"></i>
+<h3 class="font-bold text-blue-700">多角度拍摄</h3>
+</div>
+<p class="text-sm text-gray-600">每类物品包含正面、侧面和特写三种视角</p>
+</div>
+<div class="bg-green-50 p-4 rounded-lg">
+<div class="flex items-center mb-2">
+<i class="fas fa-search text-green-500 mr-2"></i>
+<h3 class="font-bold text-green-700">高辨识度</h3>
+</div>
+<p class="text-sm text-gray-600">聚焦关键特征如刻字、Logo、磨损、签名等</p>
+</div>
+<div class="bg-purple-50 p-4 rounded-lg">
+<div class="flex items-center mb-2">
+<i class="fas fa-shield-alt text-purple-500 mr-2"></i>
+<h3 class="font-bold text-purple-700">隐私保护</h3>
+</div>
+<p class="text-sm text-gray-600">敏感信息模糊处理或仅保留尾号</p>
+</div>
+</div>
+</section>
+
+
+<section class="mb-12 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 shadow-md">
+<h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+<i class="fas fa-id-card text-blue-600 mr-3"></i>一、证件卡片类
+            </h2>
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 1</span>
+<img alt="校园卡正面平视图：蓝色塑料卡身嵌入同色卡套，清晰显示学生照片区域、学号尾号3847、姓名'张三'和学校标识，哑光浅灰色背景" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/017fec14d5ad582e6227a26d9e75d5a3"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">校园卡正面平视图</h4>
+<p class="text-xs mt-1">蓝色校园卡正面展示</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">校园卡</h3>
+<p class="text-sm text-gray-600">蓝色塑料卡身，学号尾号3847，姓名"张三"</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 1</span>
+<img alt="校园卡背面斜侧展示：可见完整卡套包裹，边缘整齐，背面印有条形码与'尾号3847'字样，纯白墙面背景" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/2b2e249ee362f8ccb04434ebaf33ca84"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">校园卡背面斜侧展示</h4>
+<p class="text-xs mt-1">校园卡背面及编号信息</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">校园卡背面</h3>
+<p class="text-sm text-gray-600">斜侧45度角，条形码与尾号信息</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 1</span>
+<img alt="校园卡特写：近距离拍摄'张三'姓名与'学号尾号3847'区域，黑白文字搭配蓝色底板，高对比度，模拟实际查验场景" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/b2fb25fcf4010d3a008585ab777cb2d7"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">姓名与学号特写</h4>
+<p class="text-xs mt-1">姓名'张三'与学号尾号特写</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">校园卡特写</h3>
+<p class="text-sm text-gray-600">姓名"张三"与学号尾号3847特写</p>
+</div>
+</div>
+
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 5</span>
+<img alt="学生证正面全貌：红底白字黑框的经典证件风格，完整呈现校徽、学校名称、学生照片、'王五'姓名与学号2023010001，教室课桌纹理背景" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/1dfc8af8afa07b9d04fe3e7b6983c03f"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">学生证正面全貌</h4>
+<p class="text-xs mt-1">红色学生证正面信息展示</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">学生证正面</h3>
+<p class="text-sm text-gray-600">红底白字，姓名"王五"，学号2023010001</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 5</span>
+<img alt="学生证背面结构展示：展示使用须知、条形码与防伪标记，表面略带反光，对焦于条形码区域，强调官方文件的安全性与规范性" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/7a28ea3dfa0d4fb03135ff34c6ee50e2"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">学生证背面结构展示</h4>
+<p class="text-xs mt-1">学生证背面条形码与防伪标记</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">学生证背面</h3>
+<p class="text-sm text-gray-600">条形码、防伪标记与使用须知</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 5</span>
+<img alt="学生证特写：局部放大，'王五'与'2023010001'字体大而清晰，红底白字高对比配色利于远距离辨识，无遮挡或阴影" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/2ef17a01a59523fb1417e0044e200b5a"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">姓名与学号识别特写</h4>
+<p class="text-xs mt-1">'王五'与学号2023010001特写</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">学生证特写</h3>
+<p class="text-sm text-gray-600">姓名"王五"与学号2023010001特写</p>
+</div>
+</div>
+
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 13</span>
+<img alt="身份证关键信息特写：聚焦姓名与身份证号，避免全号暴露，仅保留尾号部分，隐私保护处理" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/21df7c3057daddd28158b29dc3120d31"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">关键信息特写</h4>
+<p class="text-xs mt-1">姓名与身份证尾号特写</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">身份证特写</h3>
+<p class="text-sm text-gray-600">姓名"张三"与身份证尾号1234特写</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="mb-12 bg-gradient-to-r from-green-50 to-teal-50 rounded-xl p-6 shadow-md">
+<h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+<i class="fas fa-laptop text-green-600 mr-3"></i>二、数码产品类
+            </h2>
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 2</span>
+<img alt="黑色无线鼠标正面整体展示：罗技MX Anywhere 2S，黑色人体工学设计，左右按键分明，滚轮居中，极细磨砂质感表面，浅灰渐变背景" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/66f0e0e23c732df6813fa5cdf33a3893"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">鼠标正面整体展示</h4>
+<p class="text-xs mt-1">罗技MX Anywhere 2S正面</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">黑色无线鼠标</h3>
+<p class="text-sm text-gray-600">罗技MX Anywhere 2S，黑色人体工学设计</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 2</span>
+<img alt="黑色无线鼠标底部磨损细节：仰视低角度拍摄，清晰可见电源开关、设备切换键、microUSB口，底部存在轻微白色刮痕，深灰色亚麻布纹背景" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/9dbdcfd21f3186ee4c36b4c42d636925"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">鼠标底部磨损细节</h4>
+<p class="text-xs mt-1">底部电源开关与划痕展示</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">鼠标底部</h3>
+<p class="text-sm text-gray-600">电源开关、设备切换键、microUSB口，轻微刮痕</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 2</span>
+<img alt="黑色无线鼠标右侧45度侧面握持感展示：斜角构图，橡胶侧裙与防滑纹理清晰可见，两颗侧键位置合理，木质桌面背景适度虚化" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/b6d72f242243a0196c08ac6e8c8c826d"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">右侧45度侧面展示</h4>
+<p class="text-xs mt-1">右侧视图展现防滑纹理</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">鼠标侧面</h3>
+<p class="text-sm text-gray-600">橡胶侧裙，防滑纹理，两颗侧键</p>
+</div>
+</div>
+
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 6</span>
+<img alt="蓝牙耳机充电盒闭合状态正面：白色充电盒闭合，正面苹果logo清晰，盒盖上激光镌刻'ZY-1994'六字符，居中排列，浅灰绒布背景" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/291ce7ef64321cee9fdb0510c2f51b2a"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">充电盒闭合状态正面</h4>
+<p class="text-xs mt-1">白色充电盒正面苹果logo与刻字</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">AirPods Pro</h3>
+<p class="text-sm text-gray-600">白色充电盒，刻字"ZY-1994"</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 6</span>
+<img alt="蓝牙耳机充电盒打开内部结构：斜角45度拍摄，两只入耳式耳机稳固定位，透明硅胶耳塞可见，指示灯绿色亮起，内部清洁无尘" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/81427f156c4bb38679e3ba713ebd9855"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">充电盒打开内部结构</h4>
+<p class="text-xs mt-1">耳机嵌入磁吸槽，指示灯亮起</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">AirPods Pro开盖</h3>
+<p class="text-sm text-gray-600">两只入耳式耳机，指示灯绿色亮起</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 6</span>
+<img alt="蓝牙耳机刻字区域微距特写：极近距离，'ZY-1994'大写字体，激光雕刻深度均匀，边缘整齐无毛刺，偏振镜消除塑料反光" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/b3cc918e38075904d63d3149676c3ea7"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">刻字区域微距特写</h4>
+<p class="text-xs mt-1">'ZY-1994'激光雕刻细节</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">AirPods Pro刻字</h3>
+<p class="text-sm text-gray-600">激光雕刻"ZY-1994"，大写字体</p>
+</div>
+</div>
+
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 9</span>
+<img alt="笔记本电脑充电器整体外观图：联想原装65W Type-C，黑色长方体适配器+线缆，Type-C接口朝前，可折叠插脚展开，科技办公风格" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/b1e01e6e76684177542c2802cde24aab"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">整体外观图</h4>
+<p class="text-xs mt-1">黑色长方体适配器+线缆</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">联想充电器</h3>
+<p class="text-sm text-gray-600">65W Type-C，黑色长方体，可折叠插脚</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 9</span>
+<img alt="笔记本电脑充电器品牌标识特写：清晰展示'Lenovo'与'65W'铭牌信息，黑色塑料表面，白色印刷字体，微距拍摄" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/d3a1f29252cc2cd1faeb1d469fdba82f"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">品牌标识特写</h4>
+<p class="text-xs mt-1">'Lenovo'与'65W'铭牌信息</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">充电器标识</h3>
+<p class="text-sm text-gray-600">"Lenovo"与"65W"铭牌特写</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 9</span>
+<img alt="笔记本电脑充电器使用场景图：连接笔记本电脑，插头插入插座，体现工作状态，桌面办公环境，自然光拍摄" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/afb0b1b2c667b093bb0520c2706361ff"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">使用场景图</h4>
+<p class="text-xs mt-1">连接笔记本电脑，插头插入插座</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">充电器使用场景</h3>
+<p class="text-sm text-gray-600">连接笔记本电脑，插头插入插座</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="mb-12 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 shadow-md">
+<h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+<i class="fas fa-book text-amber-600 mr-3"></i>三、书籍文具类
+            </h2>
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 3</span>
+<img alt="高等数学教材封面整体展示：蓝绿色调封面，'高等数学'字样醒目，表面留有黑色手写笔记，笔迹清晰可辨，书角略有磨损，图书馆木质书架虚影背景" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/6810a6ace82b67039cc42c240057d5ef"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">封面整体展示</h4>
+<p class="text-xs mt-1">蓝绿色封面带手写笔记</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">高等数学教材</h3>
+<p class="text-sm text-gray-600">同济大学出版社，蓝绿色封面，手写笔记</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 3</span>
+<img alt="高等数学教材侧面厚度与磨损：侧面平视，书籍侧立，厚度约3厘米，书脊印有书名与作者信息，页边泛白，纯白背景极简处理" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/15e9663ce5d2604f63f827e2963cbcb1"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">侧面厚度与磨损</h4>
+<p class="text-xs mt-1">约3cm厚，书脊印有书名</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">教材侧面</h3>
+<p class="text-sm text-gray-600">厚度约3厘米，书脊印有书名</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 3</span>
+<img alt="高等数学教材内页笔记特写：局部特写，页面布满黑色墨水手写公式，重点用黄色荧光笔标出，微距对焦于一段积分推导过程，字迹清晰" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/ae19ae85c319f113a680d50df88ed442"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">内页笔记特写</h4>
+<p class="text-xs mt-1">手写公式与荧光笔标记</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">教材内页</h3>
+<p class="text-sm text-gray-600">手写公式，黄色荧光笔标记</p>
+</div>
+</div>
+
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 10</span>
+<img alt="英语四级词汇书封面全景：鲜艳红色封面，'新东方'标志显著，封面有签名'Li Hua'，书本平铺展示，学习用品风格" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/ca09526aee289dc0f88787ad767bde30"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">封面全景</h4>
+<p class="text-xs mt-1">鲜艳红色封面，新东方标志</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">英语四级词汇书</h3>
+<p class="text-sm text-gray-600">新东方，红色封面，签名"Li Hua"</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 10</span>
+<img alt="英语四级词汇书书脊与翻阅痕迹：展示一定厚度与边缘卷曲，书脊印有书名，体现频繁使用痕迹，侧面视角拍摄" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/fc3858198a9d904463ac512b79262dbc"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">书脊与翻阅痕迹</h4>
+<p class="text-xs mt-1">展示厚度与边缘卷曲</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">词汇书书脊</h3>
+<p class="text-sm text-gray-600">一定厚度，边缘卷曲，使用痕迹</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="mb-12 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-6 shadow-md">
+<h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+<i class="fas fa-home text-cyan-600 mr-3"></i>四、生活用品类
+            </h2>
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 4</span>
+<img alt="保温杯正面整体：象印深蓝色500ml，深蓝色塑料外壳，不锈钢杯口，旋盖闭合，瓶身印有'Zojirushi'品牌标识，厨房台面纹理背景" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/93ee42f7e2c49e475a1b545a3fa6307c"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">保温杯正面整体</h4>
+<p class="text-xs mt-1">深蓝色圆柱形带品牌标识</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">象印保温杯</h3>
+<p class="text-sm text-gray-600">深蓝色500ml，塑料外壳，不锈钢杯口</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 4</span>
+<img alt="保温杯开盖状态蒸汽效果：斜上方45度角拍摄，内层不锈钢内胆与黑色密封圈清晰可见，逆光捕捉微微上升的热气，晨光窗帘虚影背景" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/12c42ad7f8ad46f3d56cc55e8daccaf7"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">开盖状态蒸汽效果</h4>
+<p class="text-xs mt-1">内胆显露，蒸汽上升</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">保温杯开盖</h3>
+<p class="text-sm text-gray-600">不锈钢内胆，黑色密封圈，蒸汽效果</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 4</span>
+<img alt="保温杯容量标识特写：局部放大，聚焦瓶身侧面，'500ml'小字印刷清晰，周围有轻微指纹，白字深蓝底高对比，偏振镜消除反光" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/f296720c0f3d2b65bf5d8f2a41eaee85"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">容量标识特写</h4>
+<p class="text-xs mt-1">'500ml'刻度与指纹痕迹</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">保温杯容量标识</h3>
+<p class="text-sm text-gray-600">"500ml"刻度，轻微指纹痕迹</p>
+</div>
+</div>
+
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 8</span>
+<img alt="雨伞撑开状态整体展示：透明伞面，粉色手柄，圆形伞面映出环境色，银色金属伞骨支撑，雨天地面反光背景模拟实际使用" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/a660c6d6297a1b8bc1473f44091c2593"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">撑开状态整体展示</h4>
+<p class="text-xs mt-1">圆形伞面映出环境色</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">透明雨伞</h3>
+<p class="text-sm text-gray-600">透明伞面，粉色手柄，银色金属伞骨</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 8</span>
+<img alt="雨伞手柄材质特写：近距离拍摄，粉色手柄光滑略带磨砂感，与银色金属连接件衔接紧密，侧光突出材质质感，色彩饱和真实" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/6ae649279be61635e41b90796c62d2df"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">手柄材质特写</h4>
+<p class="text-xs mt-1">粉色手柄光滑略带磨砂</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">雨伞手柄</h3>
+<p class="text-sm text-gray-600">粉色手柄，光滑略带磨砂感</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 8</span>
+<img alt="雨伞折叠收纳状态：斜侧角拍摄，收起后长约30厘米，配有挂绳，紧凑结构适合放入包中，通勤包旁摆放，强调出行实用性" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/0a97ee3c3fa032d15114ffd061be0c54"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">折叠收纳状态</h4>
+<p class="text-xs mt-1">收束后长度约30cm</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">雨伞折叠状态</h3>
+<p class="text-sm text-gray-600">收起后长约30厘米，配有挂绳</p>
+</div>
+</div>
+
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 11</span>
+<img alt="运动水杯开盖饮用状态：吸管伸出，体现使用便捷，橙色杯体与黑色吸管盖对比鲜明，运动场景拍摄" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/86990ae45a9a81494650b41445622f08"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">开盖饮用状态</h4>
+<p class="text-xs mt-1">吸管伸出，体现使用便捷</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">运动水杯开盖</h3>
+<p class="text-sm text-gray-600">吸管伸出，使用便捷设计</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 11</span>
+<img alt="运动水杯容量标识特写：'750ml'清晰标注于侧面，橙色杯体白色字体，高对比度，微距拍摄，容量信息突出" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/40b22b62198cd0aa71d5d6a6051ac2d9"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">容量标识特写</h4>
+<p class="text-xs mt-1">'750ml'清晰标注于侧面</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">运动水杯容量标识</h3>
+<p class="text-sm text-gray-600">"750ml"清晰标注于侧面</p>
+</div>
+</div>
+
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 12</span>
+<img alt="运动眼镜正面全景：黑色镜框，蓝色镜腿展开，运动风格设计，镜片透明，桌面平铺展示，简约背景" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/8ebf0ec71739a6ff4cd849d8c193c433"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">正面全景</h4>
+<p class="text-xs mt-1">黑色镜框，蓝色镜腿展开</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">运动眼镜正面</h3>
+<p class="text-sm text-gray-600">黑色镜框，蓝色镜腿，运动风格</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 12</span>
+<img alt="运动眼镜侧面轮廓：展现鼻托与镜腿弧度，黑色镜框与蓝色镜腿连接处细节，侧面视角，体现人体工学设计" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/c4d3c34d2a8f8d450133e1eb6a6dad77"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">侧面轮廓</h4>
+<p class="text-xs mt-1">展现鼻托与镜腿弧度</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">运动眼镜侧面</h3>
+<p class="text-sm text-gray-600">鼻托与镜腿弧度，人体工学设计</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 12</span>
+<img alt="运动眼镜佩戴效果图：模特佩戴，突出运动风格，黑色镜框与蓝色镜腿搭配，户外运动场景，自然光拍摄" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/125abb275dd1d7803259968d20ba562e"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">佩戴效果图</h4>
+<p class="text-xs mt-1">模特佩戴，突出运动风格</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">运动眼镜佩戴效果</h3>
+<p class="text-sm text-gray-600">模特佩戴，户外运动场景</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="mb-12 bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl p-6 shadow-md">
+<h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+<i class="fas fa-tshirt text-pink-600 mr-3"></i>五、服饰鞋帽类
+            </h2>
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 7</span>
+<img alt="蓝色外套正面悬挂展示：优衣库L码，深蓝色纯棉夹克，拉链闭合，左胸位置有小型白色'UNIQLO'logo，简约衣柜空间背景" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/661a89610667e01406ef92e89c285d28"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">外套正面悬挂展示</h4>
+<p class="text-xs mt-1">左胸UNIQLO白色小logo</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">优衣库蓝色外套</h3>
+<p class="text-sm text-gray-600">L码，深蓝色纯棉夹克，UNIQLO logo</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 7</span>
+<img alt="蓝色外套侧面剪裁轮廓：左侧45度角拍摄，展现肩线、袖长与腰部剪裁，L码合身比例协调，面料垂感优异，浅景深突出主体" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/21d5b30d7644aff80b653ab01db246a8"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">侧面剪裁轮廓</h4>
+<p class="text-xs mt-1">L码合身设计，垂感良好</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">外套侧面</h3>
+<p class="text-sm text-gray-600">L码合身设计，面料垂感优异</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 7</span>
+<img alt="蓝色外套品牌Logo微距特写：局部放大，Logo居中，白色'UNIQLO'刺绣针脚细腻，布料纹理清晰，环形灯消除阴影，绣线质感真实" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/597220563e18c59390759a4700d33793"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">品牌Logo微距特写</h4>
+<p class="text-xs mt-1">白色刺绣UNIQLO字样</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">外套Logo特写</h3>
+<p class="text-sm text-gray-600">白色"UNIQLO"刺绣，针脚细腻</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="mb-12 bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl p-6 shadow-md">
+<h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+<i class="fas fa-key text-purple-600 mr-3"></i>六、其他类
+            </h2>
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 14</span>
+<img alt="钥匙串整体平铺图：三把不同齿形钥匙通过环连接，小熊挂件悬挂，钥匙金属质感，挂件可爱造型，桌面平铺展示" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/26c610877b53e2cf493bc7e68d64078e"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">整体平铺图</h4>
+<p class="text-xs mt-1">三把钥匙+小熊挂件</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">钥匙串整体</h3>
+<p class="text-sm text-gray-600">三把不同齿形钥匙，小熊挂件</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 14</span>
+<img alt="钥匙串挂件特写：小熊造型可爱，材质为软胶或布艺，细节清晰，色彩鲜艳，微距拍摄，突出挂件特征" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/7b2902ab13f3692cc2acaa7ffd1d7867"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">挂件特写</h4>
+<p class="text-xs mt-1">小熊造型可爱，软胶或布艺材质</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">钥匙串挂件</h3>
+<p class="text-sm text-gray-600">小熊造型，软胶或布艺材质</p>
+</div>
+</div>
+<div class="summary-card bg-white rounded-lg overflow-hidden shadow-md">
+<div class="image-container aspect-ratio: 1 / 1; relative">
+<span class="category-badge">ID: 14</span>
+<img alt="钥匙串使用场景图：挂在包上或手中握持，体现日常携带状态，自然生活场景，体现实用性与便携性" class="w-full h-full object-contain" src="https://agent.qianwen.com/mos/34b95b459d464edf8914a585ef05035d/bb1d7425b45ae755d6840303a0fca2be"/>
+<div class="image-info">
+<h4 class="font-bold text-sm">使用场景图</h4>
+<p class="text-xs mt-1">挂在包上或手中握持</p>
+</div>
+</div>
+<div class="p-4 flex-grow">
+<h3 class="font-bold text-gray-800 mb-2">钥匙串使用场景</h3>
+<p class="text-sm text-gray-600">挂在包上或手中握持，日常携带</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+
+<footer class="footer-section py-8 px-4">
+<div class="container mx-auto">
+<div class="flex flex-col md:flex-row justify-between items-center">
+<div class="mb-6 md:mb-0">
+<h3 class="text-xl font-bold mb-2">校园失物招领图片汇总</h3>
+<p class="opacity-90">基于AI生成的高清晰度物品识别图库</p>
+</div>
+<div class="text-center md:text-right">
+<p class="text-sm opacity-90 mb-2">生成日期：2026年5月27日</p>
+<p class="text-sm opacity-90">总计：14类物品 × 3张图片 = 42张图片</p>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-white border-opacity-20 text-center">
+<p class="text-sm opacity-80">
+<i class="fas fa-exclamation-triangle mr-2"></i>
+                    本内容由AI生成，可能存在错误或不准确之处。请在使用前自行核实信息的准确性。
+                </p>
+</div>
+</div>
+</footer>
+<script>
+        // 图片点击放大查看功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('.image-container img');
+            
+            images.forEach(img => {
+                img.addEventListener('click', function() {
+                    const src = this.getAttribute('src');
+                    const alt = this.getAttribute('alt');
+                    
+                    // 创建模态框
+                    const modal = document.createElement('div');
+                    modal.style.position = 'fixed';
+                    modal.style.top = '0';
+                    modal.style.left = '0';
+                    modal.style.width = '100%';
+                    modal.style.height = '100%';
+                    modal.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+                    modal.style.display = 'flex';
+                    modal.style.justifyContent = 'center';
+                    modal.style.alignItems = 'center';
+                    modal.style.zIndex = '1000';
+                    modal.style.cursor = 'pointer';
+                    
+                    // 创建图片元素
+                    const modalImg = document.createElement('img');
+                    modalImg.src = src;
+                    modalImg.alt = alt;
+                    modalImg.style.maxWidth = '90%';
+                    modalImg.style.maxHeight = '90%';
+                    modalImg.style.objectFit = 'contain';
+                    modalImg.style.borderRadius = '8px';
+                    modalImg.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.5)';
+                    
+                    // 创建关闭按钮
+                    const closeBtn = document.createElement('button');
+                    closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    closeBtn.style.position = 'absolute';
+                    closeBtn.style.top = '20px';
+                    closeBtn.style.right = '20px';
+                    closeBtn.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                    closeBtn.style.color = 'white';
+                    closeBtn.style.border = 'none';
+                    closeBtn.style.borderRadius = '50%';
+                    closeBtn.style.width = '50px';
+                    closeBtn.style.height = '50px';
+                    closeBtn.style.fontSize = '24px';
+                    closeBtn.style.cursor = 'pointer';
+                    closeBtn.style.display = 'flex';
+                    closeBtn.style.justifyContent = 'center';
+                    closeBtn.style.alignItems = 'center';
+                    closeBtn.style.transition = 'background-color 0.3s';
+                    
+                    closeBtn.addEventListener('mouseenter', function() {
+                        this.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                    });
+                    
+                    closeBtn.addEventListener('mouseleave', function() {
+                        this.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                    });
+                    
+                    // 创建图片描述
+                    const description = document.createElement('div');
+                    description.textContent = alt;
+                    description.style.position = 'absolute';
+                    description.style.bottom = '20px';
+                    description.style.left = '0';
+                    description.style.width = '100%';
+                    description.style.textAlign = 'center';
+                    description.style.color = 'white';
+                    description.style.padding = '10px 20px';
+                    description.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+                    description.style.fontSize = '14px';
+                    
+                    // 添加点击关闭功能
+                    modal.addEventListener('click', function(e) {
+                        if (e.target === modal || e.target === closeBtn) {
+                            document.body.removeChild(modal);
+                        }
+                    });
+                    
+                    // 添加ESC键关闭功能
+                    document.addEventListener('keydown', function closeModal(e) {
+                        if (e.key === 'Escape') {
+                            document.body.removeChild(modal);
+                            document.removeEventListener('keydown', closeModal);
+                        }
+                    });
+                    
+                    // 组装模态框
+                    modal.appendChild(modalImg);
+                    modal.appendChild(closeBtn);
+                    modal.appendChild(description);
+                    
+                    // 添加到页面
+                    document.body.appendChild(modal);
+                });
+            });
+            
+            // 添加卡片悬停效果增强
+            const cards = document.querySelectorAll('.summary-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                    this.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.15)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

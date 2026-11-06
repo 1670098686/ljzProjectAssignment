@@ -1,0 +1,49 @@
+<!--pages/admin/send-notification.wxml-->
+<view class="send-notification-container">
+  <view class="form-section">
+    <view class="section-title">通知标题</view>
+    <input 
+      class="input-field" 
+      placeholder="请输入通知标题（最多128个字符）" 
+      value="{{title}}" 
+      bindinput="onTitleInput" 
+      maxlength="128"
+    />
+    <text class="char-count">{{title.length}}/128</text>
+  </view>
+
+  <view class="form-section">
+    <view class="section-title">通知内容</view>
+    <textarea 
+      class="textarea-field" 
+      placeholder="请输入通知内容" 
+      value="{{content}}" 
+      bindinput="onContentInput" 
+      maxlength="1000"
+      auto-height
+    />
+  </view>
+
+  <view class="form-section">
+    <view class="section-title">接收对象</view>
+    <view class="radio-group">
+      <view class="radio-item">
+        <radio-group bindchange="onSendToAllChange">
+          <label class="radio-label">
+            <radio value="{{true}}" checked="{{sendToAll}}"/>
+            <text class="radio-text">发送给所有用户</text>
+          </label>
+        </radio-group>
+      </view>
+    </view>
+  </view>
+
+  <button 
+    class="submit-btn" 
+    bindtap="onSubmit" 
+    loading="{{submitting}}"
+    disabled="{{submitting}}"
+  >
+    发送通知
+  </button>
+</view>

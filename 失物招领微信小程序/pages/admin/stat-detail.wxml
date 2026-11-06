@@ -1,0 +1,58 @@
+<!--pages/admin/stat-detail.wxml-->
+<view class="stat-detail-container">
+  <view class="page-header">
+    <view class="header-content">
+      <text class="title">{{pageTitle}}</text>
+      <text class="subtitle">{{pageSubtitle}}</text>
+    </view>
+  </view>
+
+  <view class="content" wx:if="{{!loading}}">
+    <!-- 统计概览 -->
+    <view class="overview-card">
+      <view class="overview-icon">{{pageIcon}}</view>
+      <view class="overview-value">{{overviewValue}}</view>
+      <view class="overview-label">{{overviewLabel}}</view>
+    </view>
+
+    <!-- 时间趋势 -->
+    <view class="section">
+      <view class="section-title">
+        <text class="title-text">时间趋势</text>
+      </view>
+      <view class="trend-chart">
+        <view class="chart-container">
+          <view class="chart-item" wx:for="{{trendData}}" wx:key="date">
+            <view class="chart-bar" style="height: {{item.percentage}}%;"></view>
+            <text class="chart-label">{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 详细列表 -->
+    <view class="section">
+      <view class="section-title">
+        <text class="title-text">详细列表</text>
+      </view>
+      <view class="detail-list">
+        <view class="detail-item" wx:for="{{listData}}" wx:key="id" bindtap="goToItem" data-id="{{item.id}}">
+          <view class="item-left">
+            <text class="item-type {{item.typeClass}}">{{item.type}}</text>
+            <text class="item-title">{{item.title}}</text>
+            <text class="item-time">{{item.time}}</text>
+          </view>
+          <view class="item-right">
+            <text class="item-status {{item.statusClass}}">{{item.status}}</text>
+            <text class="item-arrow">›</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="loading-state" wx:else>
+    <view class="loading-icon">⏳</view>
+    <text class="loading-text">加载中...</text>
+  </view>
+</view>

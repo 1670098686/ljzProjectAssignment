@@ -1,0 +1,1 @@
+Set-Location "d:\BaiduNetdiskDownload\class\微信小程序应用开发\work\backend"; npm start

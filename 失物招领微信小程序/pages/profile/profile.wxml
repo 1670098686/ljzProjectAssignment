@@ -1,0 +1,114 @@
+<!--pages/profile/profile.wxml-->
+<view class="profile-container">
+  <!-- 用户信息头部 -->
+  <view class="user-header" wx:if="{{isLoggedIn}}">
+    <view class="user-card">
+      <view class="user-avatar">
+        <text class="avatar-text">{{avatarChar}}</text>
+      </view>
+      <view class="user-detail">
+        <view class="user-name-row">
+          <text class="nickname">{{userInfo.nickName || '未设置昵称'}}</text>
+          <view class="role-badge" wx:if="{{isAdmin}}">管理员</view>
+        </view>
+        <text class="email">{{userInfo.email || '未绑定邮箱'}}</text>
+      </view>
+      <view class="logout-btn" bindtap="logout">
+        <text>退出</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="user-header user-header-unlogged" wx:else bindtap="goToLogin">
+    <view class="user-card">
+      <view class="user-avatar unlogged-avatar">
+        <text class="avatar-text">?</text>
+      </view>
+      <view class="user-detail">
+        <text class="nickname">点击登录</text>
+        <text class="email">登录后使用更多功能</text>
+      </view>
+      <text class="login-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 统计卡片 -->
+  <view class="stats-cards" wx:if="{{isLoggedIn}}">
+    <view class="stat-card" hover-class="stat-card-hover" bindtap="goToMyItems" data-status="all">
+      <text class="stat-value">{{totalCount}}</text>
+      <text class="stat-label">发布数</text>
+    </view>
+    <view class="stat-card" hover-class="stat-card-hover" bindtap="goToMyItems" data-status="APPROVED">
+      <text class="stat-value">{{approvedCount}}</text>
+      <text class="stat-label">已通过</text>
+    </view>
+    <view class="stat-card" hover-class="stat-card-hover" bindtap="goToMyItems" data-status="PENDING">
+      <text class="stat-value">{{pendingCount}}</text>
+      <text class="stat-label">待审核</text>
+    </view>
+  </view>
+
+  <!-- 我的发布 -->
+  <view class="content-section" wx:if="{{isLoggedIn && myItems.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">最近发布</text>
+    </view>
+    <view class="my-items">
+      <block wx:for="{{myItems}}" wx:key="id" wx:if="{{index < 3}}">
+        <view class="my-item" bindtap="goToMyItemDetail" data-id="{{item.id}}">
+          <view class="item-info">
+            <text class="my-item-title">{{item.title}}</text>
+            <text class="my-item-time">{{item.publishedAtText || '刚刚'}}</text>
+          </view>
+          <view class="item-status {{item.bizStatus}}">
+            {{item.statusText}}
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 管理员后台入口 -->
+  <view class="admin-section" wx:if="{{isAdmin}}">
+    <view class="admin-title">
+      <text>管理员后台</text>
+    </view>
+    <view class="admin-menu">
+      <view class="admin-item" bindtap="goToAdminAudit">
+        <text>审核管理</text>
+        <view class="item-badge" wx:if="{{adminPendingItemCount > 0}}">{{adminPendingItemCount}}</view>
+        <text class="arrow">›</text>
+      </view>
+      <view class="admin-item" bindtap="goToAdminReports">
+        <text>举报处理</text>
+        <view class="item-badge" wx:if="{{adminPendingReportCount > 0}}">{{adminPendingReportCount}}</view>
+        <text class="arrow">›</text>
+      </view>
+      <view class="admin-item" bindtap="goToAdminStatistics">
+        <text>数据统计</text>
+        <text class="arrow">›</text>
+      </view>
+      <view class="admin-item" bindtap="goToSendNotification">
+        <text>发送系统通知</text>
+        <text class="arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 其他功能 -->
+  <view class="menu-section" wx:if="{{isLoggedIn}}">
+    <view class="menu-card">
+      <view class="menu-item" bindtap="goToAbout">
+        <text class="menu-text">关于我们</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="goToHelp">
+        <text class="menu-text">帮助中心</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部留白 -->
+  <view class="bottom-space"></view>
+</view>

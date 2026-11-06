@@ -1,0 +1,76 @@
+<!--pages/register/register.wxml-->
+<view class="register-container">
+  <view class="register-form">
+    <!-- 用户信息 -->
+    <view class="section-label">用户信息</view>
+    <view class="form-card">
+      <view class="form-group">
+        <view class="field-label-row">
+          <text class="field-label">昵称</text>
+          <text class="required-mark">*</text>
+        </view>
+        <input class="input-field" type="text" placeholder="请输入您的昵称" value="{{nickname}}" bindinput="onNicknameInput" maxlength="20" />
+      </view>
+    </view>
+
+    <!-- 学业邮箱验证 -->
+    <view class="section-label">学业邮箱验证</view>
+    <view class="form-card">
+      <view class="form-group">
+        <view class="field-label-row">
+          <text class="field-label">学业邮箱</text>
+        </view>
+        <input class="input-field" type="text" placeholder="请输入学业邮箱地址" value="{{email}}" bindinput="onEmailInput" />
+      </view>
+
+      <view class="form-divider"></view>
+
+      <view class="form-group">
+        <view class="field-label-row">
+          <text class="field-label">邮箱验证码</text>
+        </view>
+        <view class="code-input-wrapper">
+          <input class="input-field code-input" type="number" placeholder="请输入验证码" value="{{code}}" bindinput="onCodeInput" maxlength="6" />
+          <button class="btn-send-code {{canSendCode ? '' : 'disabled'}}" bindtap="onSendCode" disabled="{{!canSendCode}}">
+            <text wx:if="{{!canSendCode}}">{{countdown}}s</text>
+            <text wx:else>获取验证码</text>
+          </button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 设置密码 -->
+    <view class="section-label">设置密码</view>
+    <view class="form-card">
+      <view class="form-group">
+        <view class="field-label-row">
+          <text class="field-label">密码</text>
+        </view>
+        <input class="input-field" type="password" placeholder="请设置密码（6-20位）" value="{{password}}" bindinput="onPasswordInput" />
+      </view>
+
+      <view class="form-divider"></view>
+
+      <view class="form-group">
+        <view class="field-label-row">
+          <text class="field-label">确认密码</text>
+        </view>
+        <input class="input-field" type="password" placeholder="请再次输入密码" value="{{confirmPassword}}" bindinput="onConfirmPasswordInput" />
+      </view>
+    </view>
+
+    <text class="form-hint">密码需包含字母和数字，长度 6-20 位</text>
+
+    <!-- 注册按钮 -->
+    <button class="btn-register" bindtap="onRegister" disabled="{{loading}}">
+      <text wx:if="{{!loading}}">注 册</text>
+      <text wx:else>注册中...</text>
+    </button>
+
+    <!-- 底部登录入口 -->
+    <view class="go-login">
+      <text class="text-muted">已有账号？</text>
+      <text class="text-primary" bindtap="goToLogin">立即登录</text>
+    </view>
+  </view>
+</view>

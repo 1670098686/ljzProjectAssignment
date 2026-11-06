@@ -1,0 +1,147 @@
+/* pages/detail/detail.wxss */
+.detail-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding-bottom: 116rpx;
+}
+
+/* 物品图片轮播 */
+.image-section {
+  background-color: #fff;
+  margin-bottom: 20rpx;
+}
+
+.swiper {
+  height: 560rpx;
+  background-color: #f5f7fa;
+}
+
+.swiper-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 头部信息 */
+.header-card {
+  background-color: #fff;
+  padding: 30rpx;
+  margin: 20rpx;
+  border-radius: 16rpx;
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.item-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #333;
+}
+
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.view-count {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 详细信息 */
+.detail-card {
+  background-color: #fff;
+  padding: 30rpx;
+  margin: 20rpx;
+  border-radius: 16rpx;
+}
+
+.detail-item {
+  display: flex;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.detail-label {
+  width: 160rpx;
+  font-size: 28rpx;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.detail-value {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.5;
+}
+
+.detail-desc {
+  line-height: 1.8;
+}
+
+/* 操作按钮（发布者可见） */
+.action-bar {
+  display: flex;
+  gap: 20rpx;
+  padding: 0 20rpx;
+  margin-bottom: 20rpx;
+}
+
+/* 底部操作栏 */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  display: flex;
+  padding: 0;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.bottom-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 96rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  position: relative;
+}
+
+.bottom-btn-primary {
+  color: #333;
+  background-color: #fff;
+}
+
+.bottom-btn-danger {
+  color: #ff4d4f;
+  background-color: #fff;
+}
+
+.bottom-btn-primary::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 30%;
+  height: 40%;
+  width: 1rpx;
+  background-color: #e8e8e8;
+}
+
+.bottom-btn:active {
+  background-color: #f5f7fa;
+}

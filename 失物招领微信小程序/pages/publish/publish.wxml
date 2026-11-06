@@ -1,0 +1,117 @@
+<!--pages/publish/publish.wxml-->
+<view class="publish-container">
+  <!-- 顶部类型切换 -->
+  <view class="type-tabs">
+    <view class="tab-item {{itemType === 'LOST' ? 'active' : ''}}" bindtap="onTypeChange" data-type="LOST">寻物启事</view>
+    <view class="tab-item {{itemType === 'FOUND' ? 'active' : ''}}" bindtap="onTypeChange" data-type="FOUND">拾物启事</view>
+  </view>
+
+  <scroll-view class="scroll-content" scroll-y>
+    <!-- 基本信息 -->
+    <view class="form-section">
+      <view class="section-header">
+        <text class="section-title">基本信息</text>
+      </view>
+      
+      <view class="form-item">
+        <view class="input-label">
+          <text class="required">*</text>
+          <text>标题</text>
+        </view>
+        <input class="input-field" type="text" placeholder="请输入标题，如：黑色双肩包" value="{{title}}" bindinput="onTitleInput" maxlength="50" />
+        <text class="counter">{{title.length}}/50</text>
+      </view>
+
+      <view class="form-item">
+        <view class="input-label">
+          <text class="required">*</text>
+          <text>分类</text>
+        </view>
+        <picker class="picker" bindchange="onCategoryChange" value="{{categories.indexOf(category)}}" range="{{categories}}">
+          <view class="picker-value">{{category || '请选择分类'}}</view>
+        </picker>
+      </view>
+
+      <view class="form-item">
+        <view class="input-label">
+          <text class="required">*</text>
+          <text>{{itemType === 'LOST' ? '丢失' : '捡到'}}时间</text>
+        </view>
+        <picker mode="date" end="{{maxDate}}" bindchange="onDateChange" value="{{dateValue}}">
+          <view class="picker-value">{{dateValue || '请选择日期'}}</view>
+        </picker>
+        <picker mode="time" end="{{maxTime}}" bindchange="onTimePickerChange" value="{{timeValue}}">
+          <view class="picker-value">{{timeValue || '请选择时间'}}</view>
+        </picker>
+      </view>
+
+      <view class="form-item">
+        <view class="input-label">
+          <text class="required">*</text>
+          <text>地点</text>
+        </view>
+        <picker class="picker" bindchange="onLocationChange" value="{{locations.indexOf(location)}}" range="{{locations}}">
+          <view class="picker-value">{{location || '请选择地点'}}</view>
+        </picker>
+      </view>
+
+      <view class="form-item">
+        <view class="input-label">
+          <text>详细位置（选填）</text>
+        </view>
+        <input class="input-field" type="text" placeholder="如：三楼、二楼、A座等" value="{{locationDetail}}" bindinput="onLocationDetailInput" maxlength="50" />
+        <text class="counter">{{locationDetail.length}}/50</text>
+      </view>
+
+      <view class="form-item textarea-item">
+        <view class="input-label">
+          <text class="required">*</text>
+          <text>特征描述</text>
+        </view>
+        <textarea class="textarea-field" placeholder="请详细描述物品特征，如颜色、尺寸、品牌等，以便他人辨认" value="{{featureDesc}}" bindinput="onFeatureDescInput" maxlength="500" />
+        <text class="counter">{{featureDesc.length}}/500</text>
+      </view>
+    </view>
+
+    <!-- 物品图片 -->
+    <view class="form-section">
+      <view class="section-header">
+        <text class="section-title">物品图片</text>
+      </view>
+      <view class="form-hint">
+        <text>上传清晰的物品照片有助于快速识别</text>
+      </view>
+      <view class="image-list">
+        <block wx:for="{{images}}" wx:key="index">
+          <view class="image-item">
+            <image src="{{item.url || item.path}}" mode="aspectFill" bindtap="onPreviewImage" data-index="{{index}}"></image>
+            <view wx:if="{{item.status === 'uploading'}}" class="upload-mask">
+              <text class="upload-text">上传中</text>
+            </view>
+            <view wx:if="{{item.status === 'error'}}" class="upload-mask upload-error">
+              <text class="upload-text">上传失败</text>
+            </view>
+            <view class="delete-btn" bindtap="onDeleteImage" data-index="{{index}}">×</view>
+          </view>
+        </block>
+        
+        <view wx:if="{{images.length < 9}}" class="image-add" bindtap="onChooseImage">
+          <text class="add-text">添加图片</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 发布提示 -->
+    <view class="publish-tip">
+      <text class="tip-text">发布后将进入审核状态，审核通过后即可公开展示</text>
+    </view>
+  </scroll-view>
+
+  <!-- 底部发布按钮 -->
+  <view class="bottom-bar">
+    <button class="btn btn-primary btn-block" bindtap="onSubmit" disabled="{{loading}}">
+      <text wx:if="{{!loading}}">{{isEdit ? '保存修改' : '立即发布'}}</text>
+      <text wx:else>{{isEdit ? '保存中...' : '发布中...'}}</text>
+    </button>
+  </view>
+</view>

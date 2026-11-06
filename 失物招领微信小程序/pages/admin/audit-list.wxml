@@ -1,0 +1,79 @@
+<!--pages/admin/audit-list.wxml-->
+<view class="audit-container">
+  <view class="page-header">
+    <view class="header-content">
+      <text class="title">审核管理</text>
+    </view>
+  </view>
+
+  <view class="filter-tabs">
+    <view class="tab-item {{activeTab === 'PENDING' ? 'active' : ''}}" bindtap="onTabChange" data-tab="PENDING">
+      <text>待审核</text>
+      <text class="tab-count">{{pendingItems.length}}</text>
+    </view>
+    <view class="tab-item {{activeTab === 'AUDITED' ? 'active' : ''}}" bindtap="onTabChange" data-tab="AUDITED">
+      <text>已审核</text>
+      <text class="tab-count">{{auditedItems.length}}</text>
+    </view>
+  </view>
+
+  <view class="audit-list">
+    <block wx:for="{{displayedItems}}" wx:key="id">
+      <view class="audit-card" bindtap="goToDetail" data-id="{{item.id}}">
+        <view class="card-header">
+          <view class="type-badge type-{{item.itemType}}">
+            <text>{{item.itemType === 'LOST' ? '🔍 寻物' : '📦 拾物'}}</text>
+          </view>
+          <text class="card-title">{{item.title}}</text>
+        </view>
+
+        <view class="audit-badge {{item.auditStatus}}">
+          <text>{{item.auditStatus === 'PENDING' ? '待审核' : item.auditStatus === 'APPROVED' ? '已通过' : '已驳回'}}</text>
+        </view>
+
+        <view class="card-images" wx:if="{{item.imageUrls && item.imageUrls.length > 0}}">
+          <image 
+            class="preview-image" 
+            src="{{item.imageUrls[0]}}" 
+            mode="aspectFill"
+            catchtap="previewImage"
+            data-urls="{{item.imageUrls}}"
+          ></image>
+          <view class="image-count" wx:if="{{item.imageUrls.length > 1}}">
+            <text>+{{item.imageUrls.length - 1}}</text>
+          </view>
+        </view>
+        
+        <view class="card-info">
+          <view class="info-row">
+            <text class="info-icon">📍</text>
+            <text class="info-text">{{item.location}}</text>
+          </view>
+          <view class="info-row">
+            <text class="info-icon">🕒</text>
+            <text class="info-text">{{item.happenTime || item.createdAt}}</text>
+          </view>
+        </view>
+
+        <view class="card-divider"></view>
+
+        <view class="card-actions" catchtap="stopPropagation" wx:if="{{activeTab === 'PENDING'}}">
+          <button class="action-btn btn-approve" bindtap="onApprove" data-id="{{item.id}}">
+            <text class="btn-icon">✓</text>
+            <text>通过</text>
+          </button>
+          <button class="action-btn btn-reject" bindtap="onReject" data-id="{{item.id}}">
+            <text class="btn-icon">✕</text>
+            <text>驳回</text>
+          </button>
+        </view>
+      </view>
+    </block>
+
+    <view wx:if="{{displayedItems.length === 0 && !loading}}" class="empty-state">
+      <view class="empty-icon">🎉</view>
+      <text class="empty-text">暂无{{activeTab === 'PENDING' ? '待审核' : '已审核'}}信息</text>
+      <text class="empty-desc">{{activeTab === 'PENDING' ? '当前没有需要处理的信息' : '已审核列表为空'}}</text>
+    </view>
+  </view>
+</view>

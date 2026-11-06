@@ -1,0 +1,76 @@
+<view class="detail-container">
+  <view class="page-header">
+    <view class="header-content">
+      <text class="title">审核详情</text>
+    </view>
+  </view>
+
+  <view class="detail-content" wx:if="{{item}}">
+    <view class="item-card">
+      <view class="card-header">
+        <view class="type-badge type-{{item.itemType}}">
+          <text>{{item.itemType === 'LOST' ? '🔍 寻物' : '📦 拾物'}}</text>
+        </view>
+        <view class="audit-status {{item.auditStatus}}">
+          <text>{{item.auditStatus === 'PENDING' ? '待审核' : item.auditStatus === 'APPROVED' ? '已通过' : '已驳回'}}</text>
+        </view>
+      </view>
+      
+      <view class="item-title">{{item.title}}</view>
+      
+      <view class="item-info-section">
+        <view class="info-row">
+          <text class="info-label">分类</text>
+          <text class="info-value">{{item.category}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">丢失/拾取位置</text>
+          <text class="info-value">{{item.location}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">时间</text>
+          <text class="info-value">{{item.happenTime}}</text>
+        </view>
+      </view>
+
+      <view class="item-divider"></view>
+
+      <view class="description-section">
+        <view class="section-title">特征描述</view>
+        <text class="description-text">{{item.featureDesc || '暂无描述'}}</text>
+      </view>
+
+      <view class="images-section" wx:if="{{item.imageUrls && item.imageUrls.length > 0}}">
+        <view class="section-title">物品图片</view>
+        <view class="images-grid">
+          <image 
+            wx:for="{{item.imageUrls}}" 
+            wx:key="*this"
+            class="item-image"
+            src="{{item}}"
+            mode="aspectFill"
+            bindtap="previewImage"
+            data-url="{{item}}"
+          ></image>
+        </view>
+      </view>
+    </view>
+
+    <view class="action-section" wx:if="{{item.auditStatus === 'PENDING'}}">
+      <button class="action-btn btn-approve" bindtap="onApprove">
+        <text class="btn-icon">✓</text>
+        <text>审核通过</text>
+      </button>
+      <button class="action-btn btn-reject" bindtap="onReject">
+        <text class="btn-icon">✕</text>
+        <text>驳回</text>
+      </button>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:else>
+    <view class="empty-icon" wx:if="{{!loading}}">📄</view>
+    <text class="empty-text" wx:if="{{loading}}">加载中...</text>
+    <text class="empty-text" wx:else>暂无数据</text>
+  </view>
+</view>

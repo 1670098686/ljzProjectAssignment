@@ -1,0 +1,71 @@
+<!--pages/detail/detail.wxml-->
+<view class="detail-container" wx:if="{{item}}">
+  <!-- 头部信息 -->
+  <view class="header-card">
+    <view class="item-header">
+      <text class="type-badge type-{{item.itemType}}">{{item.itemTypeText}}</text>
+      <text class="item-title">{{item.title}}</text>
+    </view>
+    <view class="status-row">
+      <text class="status-badge" style="color: {{item.bizStatusColor}}">{{item.bizStatusText}}</text>
+      <text class="view-count">{{item.viewCount}} 浏览</text>
+    </view>
+  </view>
+
+  <!-- 图片轮播 -->
+  <view class="image-section" wx:if="{{item.imageUrls && item.imageUrls.length > 0}}">
+    <swiper class="swiper" indicator-dots="{{item.imageUrls.length > 1}}" autoplay circular interval="3000" indicator-color="rgba(255,255,255,0.5)" indicator-active-color="#fff">
+      <swiper-item wx:for="{{item.imageUrls}}" wx:key="idx" wx:for-item="imageUrl" wx:for-index="idx">
+        <image class="swiper-image" src="{{imageUrl}}" mode="aspectFill" bindtap="onPreviewImage" data-url="{{imageUrl}}"></image>
+      </swiper-item>
+    </swiper>
+  </view>
+
+  <!-- 详细信息 -->
+  <view class="detail-card">
+    <view class="detail-item">
+      <text class="detail-label">分类</text>
+      <text class="detail-value">{{item.category}}</text>
+    </view>
+    <view class="detail-item">
+      <text class="detail-label">时间</text>
+      <text class="detail-value">{{item.happenTimeText}}</text>
+    </view>
+    <view class="detail-item">
+      <text class="detail-label">地点</text>
+      <text class="detail-value">{{item.location}}</text>
+    </view>
+    <view class="detail-item">
+      <text class="detail-label">特征描述</text>
+      <text class="detail-value detail-desc">{{item.featureDesc}}</text>
+    </view>
+    <view class="detail-item">
+      <text class="detail-label">发布时间</text>
+      <text class="detail-value">{{item.publishedAtText}}</text>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-bar" wx:if="{{isOwner || isAdmin}}">
+    <button class="btn-status btn-resolved" wx:if="{{item.itemType === 'LOST' && item.bizStatus === 'ONGOING'}}" bindtap="onUpdateStatus" data-status="RESOLVED">已找回</button>
+    <button class="btn-status btn-returned" wx:if="{{item.itemType === 'FOUND' && item.bizStatus === 'ONGOING'}}" bindtap="onUpdateStatus" data-status="RETURNED">已归还</button>
+    <button class="btn-status btn-cancel" wx:if="{{item.bizStatus === 'ONGOING'}}" bindtap="onUpdateStatus" data-status="CANCELLED">取消</button>
+    <!-- 编辑按钮：必须是未完成状态（bizStatus=ONGOING）+ 允许审核状态 -->
+    <button class="btn-status btn-edit" wx:if="{{(isOwner || isAdmin) && item.bizStatus === 'ONGOING' && (item.auditStatus === 'REJECTED' || item.auditStatus === 'PENDING' || item.auditStatus === 'APPROVED')}}" bindtap="onEdit">{{item.auditStatus === 'REJECTED' ? '重新修改' : '编辑'}}</button>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar">
+    <view class="bottom-btn bottom-btn-primary" bindtap="onStartChat">
+      <text>发消息</text>
+    </view>
+    <view class="bottom-btn bottom-btn-danger" bindtap="onReport">
+      <text>举报</text>
+    </view>
+  </view>
+</view>
+
+<!-- 加载中 -->
+<view class="loading-container" wx:else>
+  <text>加载中...</text>
+</view>

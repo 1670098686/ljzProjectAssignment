@@ -1,0 +1,61 @@
+<!--pages/profile/my-items.wxml-->
+<view class="my-items-container">
+  <view class="page-header">
+    <view class="header-content">
+      <text class="title">{{pageTitle}}</text>
+    </view>
+  </view>
+
+  <view class="filter-tabs" wx:if="{{!loading}}">
+    <view class="tab-item {{currentStatus === 'all' ? 'active' : ''}}" bindtap="onSwitchTab" data-status="all">全部</view>
+    <view class="tab-item {{currentStatus === 'PENDING' ? 'active' : ''}}" bindtap="onSwitchTab" data-status="PENDING">待发布</view>
+    <view class="tab-item {{currentStatus === 'APPROVED' ? 'active' : ''}}" bindtap="onSwitchTab" data-status="APPROVED">进行中</view>
+    <view class="tab-item {{currentStatus === 'REJECTED' ? 'active' : ''}}" bindtap="onSwitchTab" data-status="REJECTED">已驳回</view>
+    <view class="tab-item {{currentStatus === 'RESOLVED' ? 'active' : ''}}" bindtap="onSwitchTab" data-status="RESOLVED">已找回</view>
+    <view class="tab-item {{currentStatus === 'RETURNED' ? 'active' : ''}}" bindtap="onSwitchTab" data-status="RETURNED">已归还</view>
+    <view class="tab-item {{currentStatus === 'CANCELLED' ? 'active' : ''}}" bindtap="onSwitchTab" data-status="CANCELLED">已取消</view>
+  </view>
+
+  <view class="items-list" wx:if="{{!loading}}">
+    <block wx:for="{{filteredItems}}" wx:key="id">
+      <view class="item-card" bindtap="goToDetail" data-id="{{item.id}}">
+        <view class="item-header">
+          <view class="type-badge type-{{item.itemType}}">
+            <text>{{item.itemType === 'LOST' ? '🔍 寻物' : '📦 拾物'}}</text>
+          </view>
+          <view class="status-badge status-{{item.bizStatus}}" wx:if="{{item.bizStatus === 'CANCELLED' || item.bizStatus === 'RESOLVED' || item.bizStatus === 'RETURNED'}}">
+            <text>{{item.bizStatus === 'CANCELLED' ? '已取消' : item.bizStatus === 'RESOLVED' ? '已找回' : '已归还'}}</text>
+          </view>
+          <view class="audit-badge {{item.auditStatus}}" wx:else>
+            <text>{{item.auditStatus === 'APPROVED' ? '已通过' : item.auditStatus === 'PENDING' ? '待审核' : '已驳回'}}</text>
+          </view>
+        </view>
+        <text class="item-title">{{item.title}}</text>
+        <view class="item-info">
+          <text class="info-text">📍 {{item.location}}</text>
+          <text class="info-text">🕒 {{item.happenTime || item.publishedAtText}}</text>
+        </view>
+        <view class="biz-status" wx:if="{{item.bizStatusText}}">
+          <text>状态：{{item.bizStatusText}}</text>
+        </view>
+      </view>
+    </block>
+    <view class="empty-state" wx:if="{{filteredItems.length === 0}}">
+      <text class="empty-text">暂无相关内容</text>
+    </view>
+  </view>
+
+  <!-- 加载更多 -->
+  <view class="loading-more" wx:if="{{loadingMore}}">
+    <text class="loading-more-text">加载中...</text>
+  </view>
+
+  <!-- 无更多数据 -->
+  <view class="no-more" wx:if="{{noMoreData && !loading && !loadingMore}}">
+    <text class="no-more-text">已无更多数据</text>
+  </view>
+
+  <view class="loading-state" wx:if="{{loading}}">
+    <text class="loading-text">加载中...</text>
+  </view>
+</view>
